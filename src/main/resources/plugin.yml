@@ -1,0 +1,9 @@
+name: "MultiCurrency"
+version: '${project.version}'
+main: com.deathgod7.multicurrency.MultiCurrency
+api-version: 1.13
+prefix: "MultiCurrency"
+authors: [ DeathGOD7 ]
+description: A plugin to create multiple custom currency in server.
+website: https://github.com/DeathGOD7
+softdepend: [ RedLib, Vault, DatabaseDrivers, PlaceholderAPI ]
