@@ -1,8 +1,10 @@
 package com.deathgod7.multicurrency.depends.economy;
 
 import com.deathgod7.multicurrency.data.DataFormatter;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import redempt.redlib.config.ConfigManager;
 import redempt.redlib.config.annotations.ConfigMappable;
+import redempt.redlib.config.annotations.ConfigPostInit;
 import redempt.redlib.config.annotations.ConfigSubclassable;
 
 @ConfigMappable
@@ -17,7 +19,7 @@ public class CurrencyTypes {
     final String thousandSeperator;
 
     final String singularName;
-    final String pluralrName;
+    final String pluralName;
     final String displayFormat;
     //this._displayFormat = "%balance% %currencyname%";
     //Long.parseLong(s
@@ -28,11 +30,11 @@ public class CurrencyTypes {
         this.name = "Soul Currency";
         this.currencysymbol = "Soul";
         this.singularName = "Soul";
-        this.pluralrName = "Souls";
+        this.pluralName = "Souls";
         this.displayFormat = "%balance% %currencysymbol%";
         this.isCurrencyInt = true;
         this.thousandSeperator = ",";
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralrName, null, isCurrencyInt, thousandSeperator);
+        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
         this.minBal = "0";
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = "0";
@@ -42,25 +44,25 @@ public class CurrencyTypes {
         this.name = cfg.getConfig().getString("name");
         this.currencysymbol = cfg.getConfig().getString("currencysymbol");
         this.singularName = cfg.getConfig().getString("singularName");
-        this.pluralrName = cfg.getConfig().getString("pluralrName");
+        this.pluralName = cfg.getConfig().getString("pluralrName");
         this.displayFormat = cfg.getConfig().getString("displayFormat");
         this.minBal = cfg.getConfig().getString("minBal");
         this.maxBal = cfg.getConfig().getString("maxBal");
         this.startBal = cfg.getConfig().getString("startBal");
         this.isCurrencyInt =  cfg.getConfig().getBoolean("startBal");
         this.thousandSeperator = cfg.getConfig().getString("thousandSeperator");
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralrName, null, isCurrencyInt, thousandSeperator);
+        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
     }
 
     public CurrencyTypes(String name, String currencysymbol, String minbal, String maxbal, String startbal, boolean currencyAsInt, String singular, String plural, String baldisplayformat) {
         this.name = name;
         this.currencysymbol = currencysymbol;
         this.singularName = singular;
-        this.pluralrName = plural;
+        this.pluralName = plural;
         this.displayFormat = baldisplayformat;
         this.isCurrencyInt = currencyAsInt;
         this.thousandSeperator = ",";
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralrName, null, isCurrencyInt, thousandSeperator);
+        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
         this.minBal = minbal;
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = startbal;
@@ -95,6 +97,15 @@ public class CurrencyTypes {
         return  thousandSeperator;
     }
 
+    public String getCurrencySingularName() { return singularName; }
 
+    public String getCurrencyPluralName() { return pluralName; }
+
+    public String getDisplayFormat() { return displayFormat; }
+
+    @ConfigPostInit
+    public void postInit() {
+        ConsoleLogger.info(String.format("Loaded %s currency config from file!", this.getName()), ConsoleLogger.logTypes.log);
+    }
 
 }

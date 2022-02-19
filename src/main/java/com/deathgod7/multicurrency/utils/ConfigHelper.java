@@ -1,5 +1,7 @@
-package com.deathgod7.multicurrency;
+package com.deathgod7.multicurrency.utils;
 
+import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.configs.ConfigFile;
 import redempt.redlib.config.ConfigManager;
 
 import java.io.File;

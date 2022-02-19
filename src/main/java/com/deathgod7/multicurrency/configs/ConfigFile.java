@@ -1,10 +1,9 @@
-package com.deathgod7.multicurrency;
+package com.deathgod7.multicurrency.configs;
 
+import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import redempt.redlib.config.annotations.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public final class ConfigFile {
     static String version = MultiCurrency.getPDFile().getVersion();
@@ -42,7 +41,7 @@ public final class ConfigFile {
 
         @ConfigPostInit
         public void postInit() {
-            ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
+
         }
 
 
@@ -64,13 +63,6 @@ public final class ConfigFile {
         @Comment("Currency File Configs")
         @Comment("")
         public static CurrencyTypes currency = new CurrencyTypes();
-
-
-
-        @ConfigPostInit
-        public void postInit() {
-            ConsoleLogger.info(String.format("Loaded %s currency config from file!", currency.getName()), ConsoleLogger.logTypes.log);
-        }
 
     }
 

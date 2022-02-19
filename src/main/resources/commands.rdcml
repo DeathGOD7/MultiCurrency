@@ -1,0 +1,57 @@
+multicurrency,mcurrency,currency,mc {
+    permission multicurrency.use
+
+    reload,r {
+        hook reload
+        help Reloads the config file
+        permission multicurrency.reload
+    }
+
+    add player:target CurrencyType:type int:moneyAmount --silent {
+        hook add
+        help Adds specific amount of money from specified currency in players account
+        permission multicurrency.add
+    }
+
+    set player:target CurrencyType:type int:moneyAmount --silent {
+        hook set
+        help Sets specific amount of money from specified currency of player
+        permission multicurrency.set
+    }
+
+    take player:target CurrencyType:type int:moneyAmount --silent {
+        hook take
+        help Takes specific amount of money from specified currency
+        permission multicurrency.take
+    }
+
+    give,pay player:target CurrencyType:type int:moneyAmount --silent {
+        hook give
+        help Gives specific amount of money from specified currency to player
+        permission multicurrency.give
+    }
+
+    reset player:target CurrencyType:type --silent {
+        hook reset
+        help Resets money from specified currency of player
+        permission multicurrency.reset
+    }
+
+    bal,balance,money,cash CurrencyType:type {
+        hook bal
+        help Checks money from specified currency of the player
+        permission multicurrency.balance
+    }
+
+    bal,balance,money,cash CurrencyType:type player:target {
+        hook balother
+        help Checks money from specified currency of other player
+        permission multicurrency.balance.others
+    }
+
+    baltop CurrencyType:type {
+        hook baltop
+        help Opens a list of top balances of specified currency
+        permission multicurrency.baltop
+    }
+}

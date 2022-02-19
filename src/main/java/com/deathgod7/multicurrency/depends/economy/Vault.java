@@ -10,21 +10,27 @@ public class Vault extends AbstractEconomy {
     public CurrencyTypes ctyp;
 
     String _name;
-    String _currency;
+    String _currencySymbol;
     String _max;
     String _min;
     String _start;
     boolean _isCurrencyINT;
+    String _currencySingular;
+    String _currencyPlural;
+    String _displayFormat;
 
     public Vault(ConfigManager cfg) {
         ctyp = new CurrencyTypes(cfg);
 
         this._name = ctyp.getName();
-        this._currency = ctyp.getCurrencySymbol();
+        this._currencySymbol = ctyp.getCurrencySymbol();
         this._min = ctyp.getMinBal();
         this._max = ctyp.getMaxBal();
         this._start = ctyp.getStartBal();
         this._isCurrencyINT = ctyp.getCurrencyFractional();
+        this._currencySingular = ctyp.getCurrencySingularName();
+        this._currencyPlural = ctyp.getCurrencyPluralName();
+        this._displayFormat = ctyp.getDisplayFormat();
     }
 
     @Override
@@ -52,17 +58,19 @@ public class Vault extends AbstractEconomy {
 
     @Override
     public String format(double amount) {
-        return null;
+        // "%balance% %currencysymbol%"
+        return _displayFormat.replace("%balance%", String.format("%f", amount))
+                .replace("%currencysymbol%", String.format("%s", _currencySymbol));
     }
 
     @Override
     public String currencyNamePlural() {
-        return null;
+        return _currencyPlural;
     }
 
     @Override
     public String currencyNameSingular() {
-        return null;
+        return _currencySingular;
     }
 
     @Override

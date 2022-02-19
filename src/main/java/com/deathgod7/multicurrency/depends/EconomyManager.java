@@ -3,7 +3,7 @@ package com.deathgod7.multicurrency.depends;
 import com.deathgod7.multicurrency.depends.economy.VaultHook;
 import org.bukkit.Bukkit;
 
-public class LoadEconomy{
+public class EconomyManager {
     public static boolean haseco = false;
     public static boolean vault = false;
 
@@ -21,4 +21,11 @@ public class LoadEconomy{
             VaultHook.unload();
         }
     }
+
+    public static void reload() {
+        if (vault) {
+            VaultHook.reload();
+        }
+    }
+
 }

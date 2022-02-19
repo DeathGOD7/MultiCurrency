@@ -1,11 +1,12 @@
-package com.deathgod7.multicurrency;
+package com.deathgod7.multicurrency.utils;
 
+import com.deathgod7.multicurrency.MultiCurrency;
 import org.bukkit.Bukkit;
 
 public final class ConsoleLogger {
 
     static String logPrefix = "[MultiCurrency] ";
-    enum logTypes {
+    public enum logTypes {
         log,
         debug
     }
