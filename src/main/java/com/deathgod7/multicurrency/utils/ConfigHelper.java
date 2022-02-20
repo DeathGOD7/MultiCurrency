@@ -1,7 +1,10 @@
 package com.deathgod7.multicurrency.utils;
 
 import com.deathgod7.multicurrency.MultiCurrency;
-import com.deathgod7.multicurrency.configs.ConfigFile;
+import com.deathgod7.multicurrency.configs.CurrencyConfig;
+import com.deathgod7.multicurrency.data.helper.Column;
+import com.deathgod7.multicurrency.data.helper.Table;
+import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import redempt.redlib.config.ConfigManager;
 
 import java.io.File;
@@ -9,37 +12,48 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class ConfigHelper {
-    private Map<String, ConfigManager> _configs;
+    public static Map<String, CurrencyConfig> _configs;
+    public static Map<String, ConfigManager> _configsManager;
 
-    public Map<String, ConfigManager> getConfigs() {
+    public void loadConfigs(String path) {
         if (_configs == null) {
-             _configs = new HashMap<>();
-            List<String> configloc = listConfigs(MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString());
+            _configs = new HashMap<>();
+            _configsManager = new HashMap<>();
+            List<String> configloc = listConfigs(path);
 
             for (String x:configloc) {
-                ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), x).target(ConfigFile.CurrencyConfig.class).saveDefaults().load();
-                _configs.put(cfg.getConfig().getString("name"), cfg);
+                CurrencyConfig ccfg = new CurrencyConfig();
+                ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();
+                String currencyName = ccfg.currency.getName();
+                _configs.put(currencyName, ccfg);
+                _configsManager.put(currencyName, cfg);
+
+                ConsoleLogger.info(String.format("Loaded %s currency config from file!", currencyName), ConsoleLogger.logTypes.log);
+
+                List<Column> temp = new ArrayList<>();
+                Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
+                Column playername = new Column("Player", SQLite.DataType.STRING, 100);
+                Column money = new Column("Money", SQLite.DataType.STRING, 100);
+
+                temp.add(uuid);
+                temp.add(playername);
+                temp.add(money);
+
+               Table table = new Table(currencyName, temp);
+
+               MultiCurrency.getInstance().getDbm().createTable(table);
+
+
             }
 
         }
-
-        return _configs;
     }
 
-    public void ReloadConfigs() {
-         // eco config (auto reloads when doing get)
-        List<String> configloc = listConfigs(MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString());
-        _configs.clear();
-        for (String x:configloc) {
-            ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), x).target(ConfigFile.CurrencyConfig.class).saveDefaults().reload();
-            _configs.put(cfg.getConfig().getString("name"), cfg);
-        }
-    }
 
     public static List<String> listConfigs(String path) {
         List<String> configs = new ArrayList<>();
         for (String file : Arrays.stream(Objects.requireNonNull((new File(path)).listFiles())).map(File::getName).collect(Collectors.toList())) {
-            if (file.contains(".yml")) configs.add(file.substring(0, file.lastIndexOf('.')));
+            if (file.contains(".yml")) configs.add(file);
         }
         return configs;
     }

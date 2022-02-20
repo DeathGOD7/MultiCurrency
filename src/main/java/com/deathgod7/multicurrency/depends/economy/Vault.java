@@ -1,8 +1,8 @@
 package com.deathgod7.multicurrency.depends.economy;
 
+import com.deathgod7.multicurrency.configs.CurrencyConfig;
 import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
-import redempt.redlib.config.ConfigManager;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ public class Vault extends AbstractEconomy {
     String _currencyPlural;
     String _displayFormat;
 
-    public Vault(ConfigManager cfg) {
-        ctyp = new CurrencyTypes(cfg);
+    public Vault(CurrencyConfig cfg) {
+        ctyp = cfg.currency;
 
         this._name = ctyp.getName();
         this._currencySymbol = ctyp.getCurrencySymbol();

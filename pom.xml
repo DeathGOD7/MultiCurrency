@@ -19,6 +19,7 @@
     <url>https://github.com/DeathGOD7</url>
 
     <build>
+        <finalName>${project.name}_v${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -46,6 +47,7 @@
                 </executions>
             </plugin>
         </plugins>
+        <defaultGoal>clean package</defaultGoal>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -78,33 +80,41 @@
     </repositories>
 
     <dependencies>
-        <!--Paper MC-->
+        <!-- Paper MC -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.18.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!--RedLib-->
+        <!-- RedLib -->
         <dependency>
             <groupId>com.github.Redempt</groupId>
             <artifactId>RedLib</artifactId>
             <version>6.5.1.8</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
-        <!--Vault-->
+        <!-- Vault -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
         </dependency>
-        <!--Placeholder API-->
+        <!-- Placeholder API -->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.1</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Hikari CP -->
+        <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

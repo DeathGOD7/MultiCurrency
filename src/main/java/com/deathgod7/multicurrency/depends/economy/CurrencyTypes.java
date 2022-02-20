@@ -103,9 +103,4 @@ public class CurrencyTypes {
 
     public String getDisplayFormat() { return displayFormat; }
 
-    @ConfigPostInit
-    public void postInit() {
-        ConsoleLogger.info(String.format("Loaded %s currency config from file!", this.getName()), ConsoleLogger.logTypes.log);
-    }
-
 }
