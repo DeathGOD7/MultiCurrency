@@ -21,6 +21,11 @@ public class CommandHandler {
         this.multiCurrency = multiCurrency;
     }
 
+//    @CommandHook("info")
+//    public void info(CommandSender commandSender){
+//
+//    }
+
     @CommandHook("info")
     public void info(CommandSender commandSender){
         String databaseType;
@@ -47,33 +52,102 @@ public class CommandHandler {
             isConnected = ConvertTextColor('&', "&4OFFLINE");
         }
 
-        ConsoleLogger.info("Multi Currency", ConsoleLogger.logTypes.log);
-        ConsoleLogger.info("Version : " + version, ConsoleLogger.logTypes.log);
-        ConsoleLogger.info("Developer(s) : " + developer, ConsoleLogger.logTypes.log);
-        ConsoleLogger.info("API Version : " + apiversion, ConsoleLogger.logTypes.log);
-        ConsoleLogger.info("Database : " + databaseType, ConsoleLogger.logTypes.log);
-        ConsoleLogger.info("Status : " + isConnected, ConsoleLogger.logTypes.log);
+        commandSender.sendMessage("Multi Currency");
+        commandSender.sendMessage("Version : " + version);
+        commandSender.sendMessage("Developer(s) : " + developer);
+        commandSender.sendMessage("API Version : " + apiversion);
+        commandSender.sendMessage("Database : " + databaseType);
+        commandSender.sendMessage("Status : " + isConnected);
         MultiCurrency.getInstance().getDbm().loadSqliteTable();
     }
 
-//    @CommandHook("add")
-//    public void add(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
-//        int currentBal = currencyTypes.
-//
-//        if (currencyTypes.getMaxBal()) {
-//            commandSender.sendMessage(ChatColor.RED + "User already has a mine!");
-//            return;
-//        }
-//        commandSender.sendMessage(ChatColor.GREEN + "Giving " + target.getName() + " a private mine!");
-//        Location location = mineWorldManager.getNextFreeLocation();
-//        final MineType defaultMineType = privateMines.getMineTypeManager().getDefaultMineType();
-//        privateMines.getLogger().info(defaultMineType.getName());
-//
-//        if (mineType == null) {
-//            mineFactory.createMine(target, location, defaultMineType, false);
-//        } else {
-//            mineFactory.createMine(target, location, mineType, false);
-//        }
-//    }
+    @CommandHook("reload")
+    public void reload(CommandSender commandSender){
+        commandSender.sendMessage("Reloading all configs!");
+        MultiCurrency.getInstance().ReloadConfigs();
+        commandSender.sendMessage("All configs are reloaded!");
+    }
+
+    @CommandHook("listcurrency")
+    public void listcurrency(CommandSender commandSender) {
+        commandSender.sendMessage("listcurrency will be implemented soon!");
+        StringBuilder temp = new StringBuilder();
+        for (String x : MultiCurrency.getInstance().getCurrencyTypeManager().listAvailableCurrency()) {
+            temp.append(x).append(", ");
+        }
+        String ftemp = temp.substring(0, temp.length() - 2);
+        commandSender.sendMessage("Available Currency : " + ftemp);
+    }
+
+    @CommandHook("add")
+    public void add(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+        commandSender.sendMessage("add will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Amount : " + amount);
+        commandSender.sendMessage("Is Silent : " + isSilent);
+    }
+
+    @CommandHook("set")
+    public void set(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+        commandSender.sendMessage("set will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Amount : " + amount);
+        commandSender.sendMessage("Is Silent : " + isSilent);
+    }
+
+    @CommandHook("take")
+    public void take(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+        commandSender.sendMessage("take will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Amount : " + amount);
+        commandSender.sendMessage("Is Silent : " + isSilent);
+    }
+
+    @CommandHook("give")
+    public void give(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+        commandSender.sendMessage("give will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Amount : " + amount);
+        commandSender.sendMessage("Is Silent : " + isSilent);
+    }
+
+    @CommandHook("reset")
+    public void reset(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, boolean isSilent) {
+        commandSender.sendMessage("reset will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Is Silent : " + isSilent);
+    }
+
+    @CommandHook("bal")
+    public void balself(CommandSender commandSender, CurrencyTypes currencyTypes) {
+        commandSender.sendMessage("bal will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+    }
+
+    @CommandHook("balother")
+    public void balother(CommandSender commandSender, CurrencyTypes currencyTypes, Player target) {
+        commandSender.sendMessage("balother will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Target : " + target.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+    }
+
+    @CommandHook("baltop")
+    public void baltop(CommandSender commandSender, CurrencyTypes currencyTypes) {
+        commandSender.sendMessage("balother will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+    }
 
 }

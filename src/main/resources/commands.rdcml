@@ -13,6 +13,12 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.reload
     }
 
+    list {
+        hook listcurrency
+        help Lists all the available currency
+        permission multicurrency.list
+    }
+
     add player:target CurrencyType:type int:moneyAmount --silent {
         hook add
         help Adds specific amount of money from specified currency in players account

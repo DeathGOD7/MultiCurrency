@@ -26,9 +26,12 @@ public final class MultiCurrency extends JavaPlugin {
 
     public ConfigHelper configHelper = new ConfigHelper();
 
-    CurrencyTypeManager currencyTypeManager;
+    private CurrencyTypeManager currencyTypeManager;
+    public CurrencyTypeManager getCurrencyTypeManager(){
+        return currencyTypeManager;
+    }
 
-    Messages _messages;
+    private Messages _messages;
     public Messages getMessages() { return _messages; }
 
     //getDataFolder().toPath().resolve("somefolder/name.yml")
@@ -78,6 +81,7 @@ public final class MultiCurrency extends JavaPlugin {
         ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
 
         // currency configs
+        currencyTypeManager.clearCurrencyTypes();
         configHelper.loadConfigs(currencypath);
         _currencyConfigs = ConfigHelper._configs;
         _currencyConfigsManager = ConfigHelper._configsManager;
@@ -92,6 +96,14 @@ public final class MultiCurrency extends JavaPlugin {
         _instance = this;
 
         currencypath = MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString();
+
+        // main config
+        if (_mainConfig == null){
+            _mainConfig = new MainConfig();
+        }
+        _mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().load();
+
+        _messages = Messages.load(MultiCurrency.getInstance());
 
         currencyTypeManager = new CurrencyTypeManager(MultiCurrency.getInstance());
 
@@ -109,13 +121,7 @@ public final class MultiCurrency extends JavaPlugin {
 //            return;
 //        }
 
-        // main config
-        if (_mainConfig == null){
-            _mainConfig = new MainConfig();
-        }
-        _mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().load();
 
-//        String configVer = _mainConfig.getConfig().getString("Settings.version");
         String configVer = _mainConfig.version;
         String pluginVer = MultiCurrency.getPDFile().getVersion();
         if (!Objects.equals(configVer, pluginVer)){
@@ -126,14 +132,15 @@ public final class MultiCurrency extends JavaPlugin {
 
         ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
 
+        ConsoleLogger.info("Loaded messages from file!", ConsoleLogger.logTypes.log);
+
         if (dbm == null){
             dbm = new DatabaseManager(MultiCurrency.getInstance());
         }
 
         ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
 
-        _messages = Messages.load(MultiCurrency.getInstance());
-        ConsoleLogger.info("Loaded messages from file!", ConsoleLogger.logTypes.log);
+
 
 
         Path defaultexample = MultiCurrency.getInstance().getPluginFolder().resolve("Economy");
@@ -149,10 +156,10 @@ public final class MultiCurrency extends JavaPlugin {
 
         ArgType<CurrencyTypes> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
 
-        new CommandParser(this.getResource("commands.rdcml"), this.getMessages())
+        new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
                 .setArgTypes
                 (
-                   ArgType.of("CurrencyType", currencyTypeManager.getCurrencyTypes())
+                   ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes())
                 )
                 .parse()
                 .register("multicurrency",

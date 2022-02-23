@@ -3,6 +3,7 @@ package com.deathgod7.multicurrency.depends.economy;
 import com.deathgod7.multicurrency.data.DataFormatter;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import redempt.redlib.config.ConfigManager;
+import redempt.redlib.config.annotations.Comment;
 import redempt.redlib.config.annotations.ConfigMappable;
 import redempt.redlib.config.annotations.ConfigPostInit;
 import redempt.redlib.config.annotations.ConfigSubclassable;
@@ -10,6 +11,7 @@ import redempt.redlib.config.annotations.ConfigSubclassable;
 @ConfigMappable
 @ConfigSubclassable
 public class CurrencyTypes {
+    @Comment("Note : Currency name shouldn't contain any spaces")
     final String name;
     final String currencysymbol;
     final String minBal;
@@ -27,7 +29,7 @@ public class CurrencyTypes {
     final transient DataFormatter dataFormatter;
 
     public CurrencyTypes(){
-        this.name = "Soul Currency";
+        this.name = "Soul";
         this.currencysymbol = "Soul";
         this.singularName = "Soul";
         this.pluralName = "Souls";

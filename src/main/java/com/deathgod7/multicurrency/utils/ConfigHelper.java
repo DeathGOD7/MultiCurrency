@@ -16,37 +16,39 @@ public final class ConfigHelper {
     public static Map<String, ConfigManager> _configsManager;
 
     public void loadConfigs(String path) {
-        if (_configs == null) {
-            _configs = new HashMap<>();
-            _configsManager = new HashMap<>();
-            List<String> configloc = listConfigs(path);
+        _configs = new HashMap<>();
+        _configsManager = new HashMap<>();
+        List<String> configloc = listConfigs(path);
 
-            for (String x:configloc) {
-                CurrencyConfig ccfg = new CurrencyConfig();
-                ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();
-                String currencyName = ccfg.currency.getName();
-                _configs.put(currencyName, ccfg);
-                _configsManager.put(currencyName, cfg);
+        for (String x:configloc) {
+            CurrencyConfig ccfg = new CurrencyConfig();
+            ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();
 
-                ConsoleLogger.info(String.format("Loaded %s currency config from file!", currencyName), ConsoleLogger.logTypes.log);
+            String currencyName = ccfg.currency.getName();
+            _configs.put(currencyName, ccfg);
+            _configsManager.put(currencyName, cfg);
 
-                List<Column> temp = new ArrayList<>();
-                Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
-                Column playername = new Column("Player", SQLite.DataType.STRING, 100);
-                Column money = new Column("Money", SQLite.DataType.STRING, 100);
+            MultiCurrency.getInstance().getCurrencyTypeManager().registerCurrencyType(ccfg.currency);
 
-                temp.add(uuid);
-                temp.add(playername);
-                temp.add(money);
+            ConsoleLogger.info(String.format("Loaded %s currency config from file!", currencyName), ConsoleLogger.logTypes.log);
 
-               Table table = new Table(currencyName, temp);
+            List<Column> temp = new ArrayList<>();
+            Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
+            Column playername = new Column("Player", SQLite.DataType.STRING, 100);
+            Column money = new Column("Money", SQLite.DataType.STRING, 100);
 
-               MultiCurrency.getInstance().getDbm().createTable(table);
+            temp.add(uuid);
+            temp.add(playername);
+            temp.add(money);
 
+           Table table = new Table(currencyName, temp);
 
-            }
+           MultiCurrency.getInstance().getDbm().createTable(table);
+
 
         }
+
+
     }
 
 

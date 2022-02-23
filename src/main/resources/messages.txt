@@ -1,0 +1,2 @@
+prefix: &8&l[&4&lMultiCurrency&8&l]&r
+noPermission: &cSorry you don't have permission for that.

@@ -2,17 +2,18 @@ package com.deathgod7.multicurrency.utils;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import org.bukkit.Bukkit;
+import redempt.redlib.commandmanager.Messages;
 
 public final class ConsoleLogger {
 
-    static String logPrefix = "[MultiCurrency] ";
+    static String logPrefix = Messages.msg("prefix") + " ";
+
     public enum logTypes {
         log,
         debug
     }
 
-    public static Boolean debugMode = MultiCurrency.getInstance().getConfig().getBoolean("Settings.debug");
-
+    public static Boolean debugMode = MultiCurrency.getInstance().getMainConfig().debug;
 
     public static void severe(String msg, logTypes logType) {
         if (logType == logTypes.debug) {
