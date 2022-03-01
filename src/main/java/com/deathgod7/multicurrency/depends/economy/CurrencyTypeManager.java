@@ -25,10 +25,12 @@ public class CurrencyTypeManager {
         }
         else {
             ConsoleLogger.info("Loading currency : " + currencyType.getName(), ConsoleLogger.logTypes.log);
+
             currencyTypes.put(currencyType.getName(), currencyType);
             availableCurrency.add(currencyType.getName());
         }
     }
+
 
     public void clearCurrencyTypes(){
         currencyTypes.clear();

@@ -6,6 +6,7 @@ import com.deathgod7.multicurrency.configs.MainConfig;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypeManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
+import com.deathgod7.multicurrency.depends.economy.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConfigHelper;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.Bukkit;
@@ -71,6 +72,12 @@ public final class MultiCurrency extends JavaPlugin {
 
     String currencypath;
 
+    TreasuryManager treasuryManager = new TreasuryManager();
+
+    public TreasuryManager getTreasuryManager() {
+        return treasuryManager;
+    }
+
 
     public void ReloadConfigs() {
         // main config
@@ -107,8 +114,8 @@ public final class MultiCurrency extends JavaPlugin {
 
         currencyTypeManager = new CurrencyTypeManager(MultiCurrency.getInstance());
 
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
-            ConsoleLogger.severe("Required dependent plugin was not found : Vault", ConsoleLogger.logTypes.log);
+        if (Bukkit.getPluginManager().getPlugin("Treasury") == null) {
+            ConsoleLogger.severe("Required dependent plugin was not found : Treasury", ConsoleLogger.logTypes.log);
             ConsoleLogger.severe("Disabling Multi Currency", ConsoleLogger.logTypes.log);
             Bukkit.getPluginManager().disablePlugin(this);
             return;

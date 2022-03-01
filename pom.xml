@@ -74,6 +74,10 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+        <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
@@ -81,6 +85,7 @@
 
     <dependencies>
         <!-- Paper MC -->
+        <!-- !!! Good ol' mate. !!! -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -88,13 +93,23 @@
             <scope>provided</scope>
         </dependency>
         <!-- RedLib -->
+        <!-- !!! The lib developed by good guy to help other good guy like me! >.< !!! -->
         <dependency>
             <groupId>com.github.Redempt</groupId>
             <artifactId>RedLib</artifactId>
             <version>6.5.1.8</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Treasury -->
+        <!-- !!! Where ya' gold stored at mate? Arrrrgh!! !!! -->
+        <dependency>
+            <groupId>me.lokka30</groupId>
+            <artifactId>treasury-api</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
         </dependency>
         <!-- Vault -->
+        <!-- !!! Just to disable essentials incase you hate its economy. Might add vault support later. :> !!! -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
@@ -102,6 +117,7 @@
             <scope>provided</scope>
         </dependency>
         <!-- Placeholder API -->
+        <!-- !!! Placeholders will be implemented later on. Trust me, I don't know about implementing it yet. :> !!! -->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
@@ -110,6 +126,7 @@
         </dependency>
         <!-- Hikari CP -->
         <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+        <!-- !!! Hikari CP for efficient MySQL support. Fast as F bois. :> !!! -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>

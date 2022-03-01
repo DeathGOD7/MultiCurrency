@@ -7,15 +7,15 @@ import redempt.redlib.config.annotations.*;
 public class MainConfig {
     public transient String pluginversion = MultiCurrency.getPDFile().getVersion();
 
-    @Comment("---------------------------------------------------------------------------")
-    @Comment("                                                                           ")
-    @Comment("                     Multi Currency - by Death GOD 7                       ")
-    @Comment("                                - A solution to your custom needs          ")
-    @Comment("                                                                           ")
-    @Comment("                 [ Github : https://github.com/DeathGOD7 ]                 ")
-    @Comment("                  [ Wiki : https://github.com/DeathGOD7 ]                  ")
-    @Comment("                                                                           ")
-    @Comment("---------------------------------------------------------------------------")
+    @Comment("#############################################################################")
+    @Comment("#                                                                           #")
+    @Comment("#                     Multi Currency - by Death GOD 7                       #")
+    @Comment("#                                - A solution to your custom needs          #")
+    @Comment("#                                                                           #")
+    @Comment("#                 [ Github : https://github.com/DeathGOD7 ]                 #")
+    @Comment("#                  [ Wiki : https://github.com/DeathGOD7 ]                  #")
+    @Comment("#                                                                           #")
+    @Comment("#############################################################################")
     @Comment("")
     @Comment("Some settings of the plugin which might come handy for your server and for debugging plugin.")
     @Comment("version = The plugin version you are using")
@@ -30,6 +30,8 @@ public class MainConfig {
     public String previousversion = "";
     @ConfigName("Settings.debug")
     public boolean debug = false;
+    @ConfigName("Settings.primary_currency")
+    public String primary_currency = "Soul";
     @ConfigName("Settings.disable_essentials")
     public boolean disable_essentials = true;
 

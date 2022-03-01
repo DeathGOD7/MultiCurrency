@@ -16,7 +16,7 @@ public class DataFormatter {
     static String singularname;// = XConomy.config.getString("Currency.singular-name");
     static boolean isInt;
 
-    public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, String thousandseperator){
+    public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, char thousandseperator){
         DataFormatter.displayformat = displayformat;
         DataFormatter.singularname = singularname;
         DataFormatter.pluralname = pluralname;
@@ -30,11 +30,10 @@ public class DataFormatter {
             decimalFormat.setMaximumFractionDigits(2);
         }
 
-        if (thousandseperator != null && thousandseperator.length() == 1) {
-            DecimalFormatSymbols spoint = new DecimalFormatSymbols();
-            spoint.setGroupingSeparator(thousandseperator.charAt(0));
-            decimalFormat.setDecimalFormatSymbols(spoint);
-        }
+        DecimalFormatSymbols spoint = new DecimalFormatSymbols();
+        spoint.setGroupingSeparator(thousandseperator);
+        decimalFormat.setDecimalFormatSymbols(spoint);
+
 
         //ServerINFO.PaymentTax = setpaymenttax();
     }

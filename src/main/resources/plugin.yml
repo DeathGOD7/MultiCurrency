@@ -6,4 +6,4 @@ prefix: "MultiCurrency"
 authors: [ DeathGOD7 ]
 description: A plugin to create multiple custom currency in server.
 website: https://github.com/DeathGOD7
-softdepend: [ RedLib, Vault, DatabaseDrivers, PlaceholderAPI ]
+softdepend: [ RedLib, Treasury, Vault, DatabaseDrivers, PlaceholderAPI ]
