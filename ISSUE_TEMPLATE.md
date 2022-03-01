@@ -8,5 +8,5 @@ _Describe what results you were expecting but got different result._
 _It is recommended to enable debug mode to get more data as much as possible. Then uplod the whole logs to sites like pastebin.com or paste.gg (it is upto you to choose where). Just don't just copy and paste the logs in issues.
 Otherwise it will be ignored or closed._
 
-#### Use Template (Recommended)
+### Use Template (Recommended)
 _Use provided template of isses or create blank one by following the required guides here._

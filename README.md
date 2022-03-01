@@ -3,8 +3,10 @@
 
 ### Info
 Multi Currency is a plugin which can be used in Bukkit, Spigot or Paper server. I don't know if
-it works in "optimized paper-forks" so use at your own descrition. It is recommended to use Paper server as it
+it works in "optimized paper-forks" so use at your own discretion. It is recommended to use Paper server as it
 features Tuinity and its optimizations.
+
+**Note : The plugin is being developed so there might be mistakes in codes**
 
 ### Installation
 Well it's easy installing it to your server. Just drag and drop it into your plugins folder. Be sure to install its required
@@ -14,7 +16,7 @@ dependencies.
  
 ### Contribution
 If you want to contribute to this project, feel free to make changes and open
-pull requests. I will check the PR and try to merge it in thsi repo.
+pull requests. I will check the PR and try to merge it in this repo.
 
 
 In order for everyone to have the best experience possible, we have a few guidelines that everyone must follow.
