@@ -25,7 +25,7 @@ public class CurrencyTypes {
     @ConfigName("is-currency-int")
     final boolean isCurrencyInt;
     @ConfigName("thousand-seperator")
-    final char thousandSeperator;
+    final String thousandSeperator;
     @ConfigName("singular-name")
     final String singularName;
     @ConfigName("plural-name")
@@ -52,7 +52,7 @@ public class CurrencyTypes {
         this.displayFormat = "%balance% %currencysymbol%";
         this.decimalPrecision = 2;
         this.isCurrencyInt = true;
-        this.thousandSeperator = ',';
+        this.thousandSeperator = ",";
         dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
         this.minBal = "0";
         this.maxBal = dataFormatter.maxNumber.toString();
@@ -80,7 +80,7 @@ public class CurrencyTypes {
         dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
     }
 
-    public CurrencyTypes(String name, String currencysymbol,char thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
+    public CurrencyTypes(String name, String currencysymbol,String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
         this.name = name;
         this.currencysymbol = currencysymbol;
         this.singularName = singular;
@@ -139,7 +139,7 @@ public class CurrencyTypes {
     }
 
     public char getThousandSeperator(){
-        return  thousandSeperator;
+        return  thousandSeperator.toCharArray()[0];
     }
 
     public String getCurrencySingularName() { return singularName; }

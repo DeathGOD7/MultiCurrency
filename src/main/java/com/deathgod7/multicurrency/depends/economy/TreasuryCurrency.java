@@ -13,10 +13,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-public class Treasury implements Currency {
+public class TreasuryCurrency implements Currency {
     CurrencyTypes currencyTypes;
 
-    public Treasury(CurrencyTypes currencyTypes){
+    public TreasuryCurrency(CurrencyTypes currencyTypes){
         this.currencyTypes = currencyTypes;
     }
 
@@ -58,32 +58,33 @@ public class Treasury implements Currency {
     @Override
     public void to(@NotNull Currency currency, @NotNull BigDecimal amount, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = currency.getIdentifier().replace( "Multi Currency - ", "");
-        Set<Currency> currencyCollection = MultiCurrency.getInstance().getTreasuryManager().getTreasuryHook().getCurrencies();
 
-        if (currencyCollection == null) {
-            return;
-        }
-
-        if (!currencyCollection.contains(currency)) {
-            return;
-        }
-
-        Map<String, Double> conversionRates = currencyTypes.conversionRate;
-
-        if (!conversionRates.containsKey(currencyName)){
-            return;
-        }
-
-        Double rate = currencyTypes.conversionRate.get(currencyName);
-
-        BigDecimal convertedValue = amount.multiply(BigDecimal.valueOf(rate));
-
-        if (convertedValue.intValueExact() <= 0){
-            subscription.fail(new EconomyException(FailureReasons.INVALID_VALUE));
-        }
-        else {
-            subscription.succeed(convertedValue);
-        }
+//        Set<Currency> currencyCollection = MultiCurrency.getInstance().getTreasuryManager().getTreasuryHook().getCurrencies();
+//
+//        if (currencyCollection == null) {
+//            return;
+//        }
+//
+//        if (!currencyCollection.contains(currency)) {
+//            return;
+//        }
+//
+//        Map<String, Double> conversionRates = currencyTypes.conversionRate;
+//
+//        if (!conversionRates.containsKey(currencyName)){
+//            return;
+//        }
+//
+//        Double rate = currencyTypes.conversionRate.get(currencyName);
+//
+//        BigDecimal convertedValue = amount.multiply(BigDecimal.valueOf(rate));
+//
+//        if (convertedValue.intValueExact() <= 0){
+//            subscription.fail(new EconomyException(FailureReasons.INVALID_VALUE));
+//        }
+//        else {
+//            subscription.succeed(convertedValue);
+//        }
 
     }
 

@@ -1,6 +1,5 @@
 package com.deathgod7.multicurrency.depends;
 
-import com.deathgod7.multicurrency.depends.economy.VaultHook;
 import org.bukkit.Bukkit;
 
 public class EconomyManager {
@@ -10,7 +9,7 @@ public class EconomyManager {
     public static boolean load() {
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
             vault = true;
-            VaultHook.load();
+            //VaultHook.load();
             haseco = true;
         }
         return haseco;
@@ -18,13 +17,13 @@ public class EconomyManager {
 
     public static void unload() {
         if (vault) {
-            VaultHook.unload();
+            //VaultHook.unload();
         }
     }
 
     public static void reload() {
         if (vault) {
-            VaultHook.reload();
+            //VaultHook.reload();
         }
     }
 

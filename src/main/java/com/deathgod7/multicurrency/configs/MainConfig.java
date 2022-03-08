@@ -8,13 +8,13 @@ public class MainConfig {
     public transient String pluginversion = MultiCurrency.getPDFile().getVersion();
 
     @Comment("#############################################################################")
-    @Comment("#                                                                           #")
-    @Comment("#                     Multi Currency - by Death GOD 7                       #")
-    @Comment("#                                - A solution to your custom needs          #")
-    @Comment("#                                                                           #")
-    @Comment("#                 [ Github : https://github.com/DeathGOD7 ]                 #")
-    @Comment("#                  [ Wiki : https://github.com/DeathGOD7 ]                  #")
-    @Comment("#                                                                           #")
+    @Comment("||                                                                         ||")
+    @Comment("||                   Multi Currency - by Death GOD 7                       ||")
+    @Comment("||                            - A solution to your custom needs            ||")
+    @Comment("||                                                                         ||")
+    @Comment("||               [ Github : https://github.com/DeathGOD7 ]                 ||")
+    @Comment("||       [ Wiki : https://github.com/DeathGOD7/MultiCurrency/wiki ]        ||")
+    @Comment("||                                                                         ||")
     @Comment("#############################################################################")
     @Comment("")
     @Comment("Some settings of the plugin which might come handy for your server and for debugging plugin.")
@@ -23,7 +23,9 @@ public class MainConfig {
     @Comment("debug = This allows you to get additional plugin information. Really really helpful for debugging")
     @Comment("disable_essentials = This will disable essentials economy vault hook")
 
+    private String Settings;
     // Main Settings
+
     @ConfigName("Settings.version")
     public String version = pluginversion;
     @ConfigName("Settings.previousversion")
@@ -35,10 +37,12 @@ public class MainConfig {
     @ConfigName("Settings.disable_essentials")
     public boolean disable_essentials = true;
 
-    // Database Settings
     @Comment("Database support for this plugin either for cross server (bungeecord / veloctity or any proxy)")
     @Comment("or for save-storage / safe-keeping campaign. We go you covered fam!!")
-    @Comment("")
+
+    private String Database;
+    // Database Settings
+
     @Comment("You can choose database type for either of these two type")
     @Comment("type = mysql, sqlite (Default : sqlite)")
     @ConfigName("Database.type")

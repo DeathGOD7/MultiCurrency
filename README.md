@@ -11,7 +11,7 @@ features Tuinity and its optimizations.
 ### Installation
 Well it's easy installing it to your server. Just drag and drop it into your plugins folder. Be sure to install its required
 dependencies.
-- [Treasury](https://www.spigotmc.org/resources/treasury.99531/) by Iokka30
+- [Treasury](https://www.spigotmc.org/resources/treasury.99531/) by lokka30
 - [RedLib](https://www.spigotmc.org/resources/redlib.78713/) by Redempt
  
 ### Contribution

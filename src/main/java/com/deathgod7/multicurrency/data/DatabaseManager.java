@@ -7,8 +7,11 @@ import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import sun.tools.jconsole.Tab;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -157,12 +160,12 @@ public class DatabaseManager {
             ps.close();
             tables.put(table.getName(), table);
         } catch (SQLException ex) {
-            ConsoleLogger.severe("Couldn't make the required table. Please check permisions and report back in github issue if it presist.", ConsoleLogger.logTypes.log);
+            ConsoleLogger.severe("Couldn't make the required table. Please check permissions and report back in github issue if it presist.", ConsoleLogger.logTypes.log);
             ex.printStackTrace();
         }
    }
 
-   public void createUser(Player player, CurrencyTypes ctyp){
+   public boolean createUser(Player player, CurrencyTypes ctyp){
         Table table = tables.get(ctyp.getName());
         List<Column> temp = new ArrayList<>();
 
@@ -176,13 +179,144 @@ public class DatabaseManager {
             temp.add(money);
 
             table.insert(temp);
+
+            return true;
         }
+       return false;
    }
+
+    public boolean createUser(UUID playerID, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+        List<Column> temp = new ArrayList<>();
+        Player player = Bukkit.getPlayer(playerID);
+
+        if (player == null) {
+            return  false;
+        }
+
+        if (!doesUserExists(playerID, ctyp)) {
+            Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+            Column playername = new Column("Player", player.getName(), SQLite.DataType.STRING, 100);
+            Column money = new Column("Money", ctyp.getStartBal(), SQLite.DataType.STRING, 100);
+
+            temp.add(uuid);
+            temp.add(playername);
+            temp.add(money);
+
+            table.insert(temp);
+
+            return true;
+        }
+        return false;
+    }
 
    public boolean doesUserExists(Player player, CurrencyTypes ctyp){
        Table table = tables.get(ctyp.getName());
        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
        return table.getExact(uuid) != null;
    }
+
+    public boolean doesUserExists(UUID playerID, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Player player = Bukkit.getPlayer(playerID);
+
+        if (player == null) {
+            return  false;
+        }
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        return table.getExact(uuid) != null;
+    }
+
+    public boolean updateBalance(Player player, CurrencyTypes ctyp, BigDecimal newmoney){
+        Table table = tables.get(ctyp.getName());
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", newmoney.toString(), SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean updateBalance(UUID playerID, CurrencyTypes ctyp, BigDecimal newmoney){
+        Table table = tables.get(ctyp.getName());
+
+        Player player = Bukkit.getPlayer(playerID);
+
+        if (player == null) {
+            return  false;
+        }
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", newmoney.toString(), SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean gettBalance(Player player, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean getBalance(UUID playerID, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Player player = Bukkit.getPlayer(playerID);
+
+        if (player == null) {
+            return  false;
+        }
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean resetBalance(Player player, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean resetBalance(UUID playerID, CurrencyTypes ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Player player = Bukkit.getPlayer(playerID);
+
+        if (player == null) {
+            return  false;
+        }
+
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
 
 }

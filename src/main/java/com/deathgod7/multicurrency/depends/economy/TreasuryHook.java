@@ -1,5 +1,6 @@
 package com.deathgod7.multicurrency.depends.economy;
 
+import com.deathgod7.multicurrency.MultiCurrency;
 import me.lokka30.treasury.api.economy.EconomyProvider;
 import me.lokka30.treasury.api.economy.account.Account;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
@@ -9,20 +10,34 @@ import me.lokka30.treasury.api.economy.response.EconomySubscriber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class TreasuryHook implements EconomyProvider {
 
+    Currency currency;
+    public Currency getCurrency(){
+        return currency;
+    }
+
+    public TreasuryHook(Currency currency){
+        this.currency = currency;
+    }
+
     @Override
     public @NotNull Set<OptionalEconomyApiFeature> getSupportedOptionalEconomyApiFeatures() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public void hasPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<Boolean> subscription) {
+        boolean status = false;
+        CurrencyTypes ctyp = TreasuryManager.currencyTypes.get(currency.getIdentifier().replace("Multi Currency - ", ""));
+
+        if (ctyp != null) {
+            status = MultiCurrency.getInstance().getDbm().doesUserExists(accountId, ctyp);
+        }
+
+        subscription.succeed(status);
 
     }
 

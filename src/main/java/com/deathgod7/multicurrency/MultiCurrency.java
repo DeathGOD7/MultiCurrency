@@ -72,8 +72,7 @@ public final class MultiCurrency extends JavaPlugin {
 
     String currencypath;
 
-    TreasuryManager treasuryManager = new TreasuryManager();
-
+    TreasuryManager treasuryManager;
     public TreasuryManager getTreasuryManager() {
         return treasuryManager;
     }
@@ -120,6 +119,8 @@ public final class MultiCurrency extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
+        treasuryManager  = new TreasuryManager();
 
 //        if (Bukkit.getPluginManager().getPlugin("RedLib") == null) {
 //            ConsoleLogger.severe("Required dependent plugin was not found : RedLib", ConsoleLogger.logTypes.log);

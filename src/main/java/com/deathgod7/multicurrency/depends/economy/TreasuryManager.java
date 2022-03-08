@@ -9,24 +9,23 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import java.util.*;
 
 public class TreasuryManager {
-    TreasuryHook treasuryHook = new TreasuryHook();
+    //TreasuryHook treasuryHook = new TreasuryHook();
 
-    public TreasuryHook getTreasuryHook() {
-        return treasuryHook;
-    }
+//    public TreasuryHook getTreasuryHook() {
+//        return treasuryHook;
+//    }
 
-    public static Set<Currency> econ = null;
-    // public static Permission vaultPerm = null;
-    public static Map<String, CurrencyTypes> ecoconfigs = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
+    public static HashMap<String, Currency> treasuryCurrency = new HashMap<>();
+    public static HashMap<String, CurrencyTypes> currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
 
     private static Currency convertToTreasury(CurrencyTypes currencyTypes){
-        return new Treasury(currencyTypes);
+        return new TreasuryCurrency(currencyTypes);
     }
 
     public static void load() {
 
-        for (String x : ecoconfigs.keySet()) {
-            econ.add(convertToTreasury(ecoconfigs.get(x)));
+        for (String x : currencyTypes.keySet()) {
+            treasuryCurrency.put(x, convertToTreasury(currencyTypes.get(x)));
         }
 
         if (MultiCurrency.getInstance().getMainConfig().disable_essentials) {
@@ -42,12 +41,12 @@ public class TreasuryManager {
     }
 
     public static void unload() {
-        MultiCurrency.getInstance().getServer().getServicesManager().unregister(econ);
+        MultiCurrency.getInstance().getServer().getServicesManager().unregister(treasuryCurrency);
     }
 
     public static void reload() {
         unload();
-        ecoconfigs =  MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
+        currencyTypes =  MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
         load();
     }
 

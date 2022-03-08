@@ -86,7 +86,7 @@ public class Table {
         return query.toString();
     }
 
-    public void insert(List<Column> columns) {
+    public boolean insert(List<Column> columns) {
         if (getExact(columns.get(0)) == null) {
             StringBuilder query = new StringBuilder("INSERT INTO " + getName() + " (");
             for (Column column : columns) {
@@ -106,7 +106,6 @@ public class Table {
             }
             query.append(";");
             try {
-                
                 PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query.toString());
                 for (int i = 0; i < columns.size(); i++) {
                     if (columns.get(i).dataType == SQLite.DataType.STRING) {
@@ -119,11 +118,14 @@ public class Table {
                 }
                 s.executeUpdate();
                 s.close();
+                return true;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
-        } else {
-            System.out.println("A row with that name already exists!");
+        }
+        else {
+            return false;
         }
     }
 
@@ -239,7 +241,7 @@ public class Table {
         return results;
     }
 
-    public void delete(Column column) {
+    public boolean delete(Column column) {
         if (column.getName().equalsIgnoreCase(primaryKey.getName())) {
             String query = "DELETE FROM " + getName() + " WHERE `" + column.getName() + "`=?";
             try {
@@ -253,43 +255,47 @@ public class Table {
                 }
                 s.executeUpdate();
                 s.close();
+                return true;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
-        } else {
-            System.out.println("Primary key must be used!");
         }
+        return true;
     }
 
-    public void update(Column primaryKey, List<Column> columns) {
-        if (!containsKey(columns)) {
-            String query = "UPDATE " + getName() + " SET ";
+    public boolean update(Column primaryKey, List<Column> columns) {
+        if (!containsPrimaryKey(columns)) {
+            StringBuilder query = new StringBuilder("UPDATE " + getName() + " SET ");
             for (Column column : columns) {
                 if (column.dataType == SQLite.DataType.STRING) {
-                    query += "`" + column.getName() + "`='" + column.getValue().toString() + "'";
+                    query.append("`").append(column.getName()).append("`='").append(column.getValue().toString()).append("'");
                 } else {
-                    query += "`" + column.getName() + "`=" + column.getValue().toString();
+                    query.append("`").append(column.getName()).append("`=").append(column.getValue().toString());
                 }
                 if (columns.indexOf(column) == columns.size() - 1) {
-                    query += " ";
+                    query.append(" ");
                 } else {
-                    query += ", ";
+                    query.append(", ");
                 }
             }
-            query += "WHERE `" + primaryKey.getName() + "`=";
+            query.append("WHERE `").append(primaryKey.getName()).append("`=");
             if (primaryKey.dataType == SQLite.DataType.STRING) {
-                query += "'" + primaryKey.getValue().toString() + "'";
+                query.append("'").append(primaryKey.getValue().toString()).append("'");
             } else {
-                query += primaryKey.getValue().toString();
+                query.append(primaryKey.getValue().toString());
             }
             try {
-                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query);
+                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query.toString());
                 s.executeUpdate();
                 s.close();
+                return true;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
-        } else {
+        }
+        else {
             List<Column> newColumns = getExact(primaryKey);
             for (Column column : columns) {
                 if (column.getName().equalsIgnoreCase(primaryKey.getName())) {
@@ -298,12 +304,18 @@ public class Table {
                     newColumns.set(columns.indexOf(column), column);
                 }
             }
-            delete(primaryKey);
-            insert(newColumns);
+            boolean deleted = delete(primaryKey);
+            if (deleted){
+                insert(newColumns);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
 
-    private boolean containsKey(List<Column> columns) {
+    private boolean containsPrimaryKey(List<Column> columns) {
         for (Column column : columns) {
             if (column.getName().equalsIgnoreCase(primaryKey.getName())) {
                 return true;
