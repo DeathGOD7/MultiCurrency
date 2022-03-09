@@ -5,8 +5,8 @@ import com.deathgod7.multicurrency.configs.CurrencyConfig;
 import com.deathgod7.multicurrency.configs.MainConfig;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypeManager;
-import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
-import com.deathgod7.multicurrency.depends.economy.TreasuryManager;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConfigHelper;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.Bukkit;
@@ -162,7 +162,7 @@ public final class MultiCurrency extends JavaPlugin {
         _currencyConfigsManager = ConfigHelper._configsManager;
 
 
-        ArgType<CurrencyTypes> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
+        ArgType<CurrencyType> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
 
         new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
                 .setArgTypes

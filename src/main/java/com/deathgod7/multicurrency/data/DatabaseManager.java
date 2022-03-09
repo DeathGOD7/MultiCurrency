@@ -5,11 +5,10 @@ import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.data.mysql.MySQL;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.data.helper.Table;
-import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import sun.tools.jconsole.Tab;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -165,7 +164,7 @@ public class DatabaseManager {
         }
    }
 
-   public boolean createUser(Player player, CurrencyTypes ctyp){
+   public boolean createUser(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
         List<Column> temp = new ArrayList<>();
 
@@ -185,7 +184,7 @@ public class DatabaseManager {
        return false;
    }
 
-    public boolean createUser(UUID playerID, CurrencyTypes ctyp){
+    public boolean createUser(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
         List<Column> temp = new ArrayList<>();
         Player player = Bukkit.getPlayer(playerID);
@@ -210,13 +209,13 @@ public class DatabaseManager {
         return false;
     }
 
-   public boolean doesUserExists(Player player, CurrencyTypes ctyp){
+   public boolean doesUserExists(Player player, CurrencyType ctyp){
        Table table = tables.get(ctyp.getName());
        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
        return table.getExact(uuid) != null;
    }
 
-    public boolean doesUserExists(UUID playerID, CurrencyTypes ctyp){
+    public boolean doesUserExists(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         Player player = Bukkit.getPlayer(playerID);
@@ -229,7 +228,7 @@ public class DatabaseManager {
         return table.getExact(uuid) != null;
     }
 
-    public boolean updateBalance(Player player, CurrencyTypes ctyp, BigDecimal newmoney){
+    public boolean updateBalance(Player player, CurrencyType ctyp, BigDecimal newmoney){
         Table table = tables.get(ctyp.getName());
 
         Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
@@ -241,7 +240,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public boolean updateBalance(UUID playerID, CurrencyTypes ctyp, BigDecimal newmoney){
+    public boolean updateBalance(UUID playerID, CurrencyType ctyp, BigDecimal newmoney){
         Table table = tables.get(ctyp.getName());
 
         Player player = Bukkit.getPlayer(playerID);
@@ -259,7 +258,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public boolean gettBalance(Player player, CurrencyTypes ctyp){
+    public boolean gettBalance(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
@@ -271,7 +270,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public boolean getBalance(UUID playerID, CurrencyTypes ctyp){
+    public boolean getBalance(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         Player player = Bukkit.getPlayer(playerID);
@@ -289,7 +288,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public boolean resetBalance(Player player, CurrencyTypes ctyp){
+    public boolean resetBalance(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
@@ -301,7 +300,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public boolean resetBalance(UUID playerID, CurrencyTypes ctyp){
+    public boolean resetBalance(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         Player player = Bukkit.getPlayer(playerID);

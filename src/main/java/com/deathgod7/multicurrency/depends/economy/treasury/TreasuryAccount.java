@@ -1,4 +1,4 @@
-package com.deathgod7.multicurrency.depends.economy;
+package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;

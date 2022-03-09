@@ -1,4 +1,4 @@
-package com.deathgod7.multicurrency.depends.economy;
+package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import me.lokka30.treasury.api.common.response.FailureReason;
 import org.jetbrains.annotations.NotNull;

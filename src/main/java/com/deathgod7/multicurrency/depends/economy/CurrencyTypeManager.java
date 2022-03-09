@@ -7,7 +7,7 @@ import java.util.*;
 
 public class CurrencyTypeManager {
 
-    private final HashMap<String, CurrencyTypes> currencyTypes = new HashMap<>();
+    private final HashMap<String, CurrencyType> currencyTypes = new HashMap<>();
     private final MultiCurrency multiCurrency;
     private final List<String> availableCurrency;
 
@@ -16,7 +16,7 @@ public class CurrencyTypeManager {
         availableCurrency = new ArrayList<>();
     }
 
-    public void registerCurrencyType(CurrencyTypes currencyType) {
+    public void registerCurrencyType(CurrencyType currencyType) {
         if (currencyType == null) {
             ConsoleLogger.warn("Couldn't load currency!! Please check the yaml files.", ConsoleLogger.logTypes.log);
         }
@@ -34,11 +34,11 @@ public class CurrencyTypeManager {
         availableCurrency.clear();
     }
 
-    public CurrencyTypes getCurrencyType(String name) {
+    public CurrencyType getCurrencyType(String name) {
         return currencyTypes.get(name);
     }
 
-    public HashMap<String, CurrencyTypes> getAllCurrencyTypes() {
+    public HashMap<String, CurrencyType> getAllCurrencyTypes() {
         return currencyTypes;
     }
 

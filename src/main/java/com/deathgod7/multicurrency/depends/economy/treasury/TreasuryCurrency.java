@@ -1,6 +1,7 @@
-package com.deathgod7.multicurrency.depends.economy;
+package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.response.EconomyException;
 import me.lokka30.treasury.api.economy.response.EconomySubscriber;
@@ -14,20 +15,20 @@ import java.math.RoundingMode;
 import java.util.*;
 
 public class TreasuryCurrency implements Currency {
-    CurrencyTypes currencyTypes;
+    CurrencyType currencyType;
 
-    public TreasuryCurrency(CurrencyTypes currencyTypes){
-        this.currencyTypes = currencyTypes;
+    public TreasuryCurrency(CurrencyType currencyType){
+        this.currencyType = currencyType;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return "Multi Currency - " + currencyTypes.getName();
+        return "Multi Currency - " + currencyType.getName();
     }
 
     @Override
     public @NotNull String getSymbol() {
-        return currencyTypes.getCurrencySymbol();
+        return currencyType.getCurrencySymbol();
     }
 
     @Override
@@ -37,22 +38,22 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public @NotNull String getDisplayNameSingular() {
-        return currencyTypes.getCurrencySingularName();
+        return currencyType.getCurrencySingularName();
     }
 
     @Override
     public @NotNull String getDisplayNamePlural() {
-        return currencyTypes.getCurrencyPluralName();
+        return currencyType.getCurrencyPluralName();
     }
 
     @Override
     public int getPrecision() {
-        return currencyTypes.getDecimalPrecision();
+        return currencyType.getDecimalPrecision();
     }
 
     @Override
     public boolean isPrimary() {
-        return Objects.equals(currencyTypes.getName(), MultiCurrency.getInstance().getMainConfig().primary_currency);
+        return Objects.equals(currencyType.getName(), MultiCurrency.getInstance().getMainConfig().primary_currency);
     }
 
     @Override
@@ -91,10 +92,10 @@ public class TreasuryCurrency implements Currency {
     @Override
     public void parse(@NotNull String formatted, @NotNull EconomySubscriber<BigDecimal> subscription) {
         StringBuilder valueBuilder = new StringBuilder();
-        String displayFormat = currencyTypes.getDisplayFormat();
-        String symbol = currencyTypes.getCurrencySymbol();
-        String currency = currencyTypes.getName();
-        char thousandSep = currencyTypes.getThousandSeperator();
+        String displayFormat = currencyType.getDisplayFormat();
+        String symbol = currencyType.getCurrencySymbol();
+        String currency = currencyType.getName();
+        char thousandSep = currencyType.getThousandSeperator();
 
 
         String[] split = displayFormat.replace("%currencysymbol%", symbol).split("%balance%");
@@ -145,7 +146,7 @@ public class TreasuryCurrency implements Currency {
     }
 
     private boolean isSeparator(char c) {
-        return c == currencyTypes.getThousandSeperator();
+        return c == currencyType.getThousandSeperator();
     }
 
     @Override
@@ -153,12 +154,12 @@ public class TreasuryCurrency implements Currency {
     {
         BigDecimal temp;
         if (playerID == null){
-            temp = new BigDecimal(currencyTypes.startBal);
+            temp = new BigDecimal(currencyType.getStartBal());
         }
         else{
             Player p = Bukkit.getPlayer(playerID.toString());
             assert p != null;
-            temp = new BigDecimal(currencyTypes.getStartBal(p));
+            temp = new BigDecimal(currencyType.getStartBal(p));
         }
         return  temp;
     }
@@ -167,8 +168,8 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public @NotNull String format(@NotNull BigDecimal amount, @Nullable Locale locale) {
-        String format = currencyTypes.getDisplayFormat();
-        boolean isformatted = Boolean.parseBoolean(format.replace("%balance%", amount.toString()).replace("%currencysymbol%", currencyTypes.getCurrencySymbol()));
+        String format = currencyType.getDisplayFormat();
+        boolean isformatted = Boolean.parseBoolean(format.replace("%balance%", amount.toString()).replace("%currencysymbol%", currencyType.getCurrencySymbol()));
 
         if (isformatted) {
             return format;
@@ -178,9 +179,9 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public @NotNull String format(@NotNull BigDecimal amount, @Nullable Locale locale, int precision) {
-        String format = currencyTypes.getDisplayFormat();
+        String format = currencyType.getDisplayFormat();
         String amountformatted = amount.setScale(precision, RoundingMode.FLOOR).toString();
-        boolean isformatted = Boolean.parseBoolean(format.replace("%balance%", amountformatted).replace("%currencysymbol%", currencyTypes.getCurrencySymbol()));
+        boolean isformatted = Boolean.parseBoolean(format.replace("%balance%", amountformatted).replace("%currencysymbol%", currencyType.getCurrencySymbol()));
 
         if (isformatted) {
             return format;

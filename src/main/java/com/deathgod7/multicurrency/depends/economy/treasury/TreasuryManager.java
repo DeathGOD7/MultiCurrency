@@ -1,6 +1,7 @@
-package com.deathgod7.multicurrency.depends.economy;
+package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -16,10 +17,10 @@ public class TreasuryManager {
 //    }
 
     public static HashMap<String, Currency> treasuryCurrency = new HashMap<>();
-    public static HashMap<String, CurrencyTypes> currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
+    public static HashMap<String, CurrencyType> currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
 
-    private static Currency convertToTreasury(CurrencyTypes currencyTypes){
-        return new TreasuryCurrency(currencyTypes);
+    private static Currency convertToTreasury(CurrencyType currencyType){
+        return new TreasuryCurrency(currencyType);
     }
 
     public static void load() {

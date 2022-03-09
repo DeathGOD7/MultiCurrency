@@ -1,6 +1,6 @@
 package com.deathgod7.multicurrency.configs;
 
-import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import redempt.redlib.config.annotations.Comment;
 import redempt.redlib.config.annotations.ConfigMappable;
 
@@ -18,6 +18,6 @@ public class CurrencyConfig{
     @Comment("")
     @Comment("Currency File Configs")
     @Comment("")
-    public CurrencyTypes currency = new CurrencyTypes();
+    public CurrencyType currency = new CurrencyType();
 
 }

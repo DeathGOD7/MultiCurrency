@@ -1,6 +1,7 @@
-package com.deathgod7.multicurrency.depends.economy;
+package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import me.lokka30.treasury.api.economy.EconomyProvider;
 import me.lokka30.treasury.api.economy.account.Account;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
@@ -31,7 +32,7 @@ public class TreasuryHook implements EconomyProvider {
     @Override
     public void hasPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<Boolean> subscription) {
         boolean status = false;
-        CurrencyTypes ctyp = TreasuryManager.currencyTypes.get(currency.getIdentifier().replace("Multi Currency - ", ""));
+        CurrencyType ctyp = TreasuryManager.currencyTypes.get(currency.getIdentifier().replace("Multi Currency - ", ""));
 
         if (ctyp != null) {
             status = MultiCurrency.getInstance().getDbm().doesUserExists(accountId, ctyp);

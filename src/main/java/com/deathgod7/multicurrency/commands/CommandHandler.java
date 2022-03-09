@@ -1,13 +1,10 @@
 package com.deathgod7.multicurrency.commands;
 
 import com.deathgod7.multicurrency.MultiCurrency;
-import com.deathgod7.multicurrency.depends.economy.CurrencyTypes;
-import com.deathgod7.multicurrency.utils.ConsoleLogger;
-import org.bukkit.ChatColor;
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import redempt.redlib.commandmanager.CommandHook;
-import redempt.redlib.commandmanager.Messages;
 
 import java.util.Objects;
 
@@ -80,74 +77,74 @@ public class CommandHandler {
     }
 
     @CommandHook("add")
-    public void add(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+    public void add(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
         commandSender.sendMessage("add will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
         commandSender.sendMessage("Currency Amount : " + amount);
         commandSender.sendMessage("Is Silent : " + isSilent);
     }
 
     @CommandHook("set")
-    public void set(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+    public void set(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
         commandSender.sendMessage("set will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
         commandSender.sendMessage("Currency Amount : " + amount);
         commandSender.sendMessage("Is Silent : " + isSilent);
     }
 
     @CommandHook("take")
-    public void take(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+    public void take(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
         commandSender.sendMessage("take will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
         commandSender.sendMessage("Currency Amount : " + amount);
         commandSender.sendMessage("Is Silent : " + isSilent);
     }
 
     @CommandHook("give")
-    public void give(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, int amount, boolean isSilent) {
+    public void give(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
         commandSender.sendMessage("give will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
         commandSender.sendMessage("Currency Amount : " + amount);
         commandSender.sendMessage("Is Silent : " + isSilent);
     }
 
     @CommandHook("reset")
-    public void reset(CommandSender commandSender, Player target, CurrencyTypes currencyTypes, boolean isSilent) {
+    public void reset(CommandSender commandSender, Player target, CurrencyType currencyType, boolean isSilent) {
         commandSender.sendMessage("reset will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
         commandSender.sendMessage("Is Silent : " + isSilent);
     }
 
     @CommandHook("bal")
-    public void balself(CommandSender commandSender, CurrencyTypes currencyTypes) {
+    public void balself(CommandSender commandSender, CurrencyType currencyType) {
         commandSender.sendMessage("bal will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
     }
 
     @CommandHook("balother")
-    public void balother(CommandSender commandSender, CurrencyTypes currencyTypes, Player target) {
+    public void balother(CommandSender commandSender, CurrencyType currencyType, Player target) {
         commandSender.sendMessage("balother will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Target : " + target.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
     }
 
     @CommandHook("baltop")
-    public void baltop(CommandSender commandSender, CurrencyTypes currencyTypes) {
+    public void baltop(CommandSender commandSender, CurrencyType currencyType) {
         commandSender.sendMessage("balother will be implemented soon!");
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
-        commandSender.sendMessage("Currency Type : " + currencyTypes.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
     }
 
 }

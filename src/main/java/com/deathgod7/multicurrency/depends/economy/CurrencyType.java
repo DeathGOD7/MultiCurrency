@@ -10,7 +10,7 @@ import java.util.Map;
 
 @ConfigMappable
 @ConfigSubclassable
-public class CurrencyTypes {
+public class CurrencyType {
     @Comment("Note : Currency name shouldn't contain any spaces")
     @ConfigName("name")
     final String name;
@@ -44,7 +44,7 @@ public class CurrencyTypes {
 
     final transient DataFormatter dataFormatter;
 
-    public CurrencyTypes(){
+    public CurrencyType(){
         this.name = "Soul";
         this.currencysymbol = "Soul";
         this.singularName = "Soul";
@@ -63,7 +63,7 @@ public class CurrencyTypes {
         this.customStartBal.put("DeathGOD7s_Milady", "70707070");
     }
 
-    public CurrencyTypes(CurrencyConfig cfg){
+    public CurrencyType(CurrencyConfig cfg){
         this.name = cfg.currency.name;
         this.currencysymbol = cfg.currency.currencysymbol;
         this.singularName = cfg.currency.singularName;
@@ -80,7 +80,7 @@ public class CurrencyTypes {
         dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
     }
 
-    public CurrencyTypes(String name, String currencysymbol,String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
+    public CurrencyType(String name, String currencysymbol, String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
         this.name = name;
         this.currencysymbol = currencysymbol;
         this.singularName = singular;
