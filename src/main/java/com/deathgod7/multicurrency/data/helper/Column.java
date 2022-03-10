@@ -9,10 +9,25 @@ public class Column {
     public int limit = 0;
     private Object value;
 
+    public Column(String name, SQLite.DataType dataType) {
+        this.name = name;
+        this.dataType = dataType;
+        this.limit = 0;
+        this.value = 0;
+    }
+
     public Column(String name, SQLite.DataType dataType, int limit) {
         this.name = name;
         this.dataType = dataType;
         this.limit = limit;
+        this.value = 0;
+    }
+
+    public Column(String name, Object value, SQLite.DataType dataType) {
+        this.name = name;
+        this.dataType = dataType;
+        this.limit = 0;
+        this.value = value;
     }
 
     public Column(String name, Object value, SQLite.DataType dataType, int limit) {
@@ -22,18 +37,7 @@ public class Column {
         this.value = value;
     }
 
-    public Column(String name, SQLite.DataType dataType) {
-        this.name = name;
-        this.dataType = dataType;
-        this.limit = 0;
-    }
 
-    public Column(String name, Object value, SQLite.DataType dataType) {
-        this.name = name;
-        this.dataType = dataType;
-        this.limit = 0;
-        this.value = value;
-    }
 
     public String getName() {
         return name;

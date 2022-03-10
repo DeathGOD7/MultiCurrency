@@ -42,7 +42,7 @@ public class CommandHandler {
             databaseType = ConvertTextColor('&', "&3SQLite");
         }
 
-        if (MultiCurrency.getInstance().getDbm().getSQLite().isConnected()){
+        if (MultiCurrency.getInstance().getDBM().getSQLite().isConnected()){
             isConnected = ConvertTextColor('&', "&2ONLINE");
         }
         else{
@@ -55,7 +55,7 @@ public class CommandHandler {
         commandSender.sendMessage("API Version : " + apiversion);
         commandSender.sendMessage("Database : " + databaseType);
         commandSender.sendMessage("Status : " + isConnected);
-        MultiCurrency.getInstance().getDbm().loadSqliteTable();
+        MultiCurrency.getInstance().getDBM().loadSqliteTable();
     }
 
     @CommandHook("reload")

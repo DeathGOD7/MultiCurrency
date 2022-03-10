@@ -6,6 +6,7 @@ import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.response.EconomySubscriber;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransaction;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionInitiator;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,23 +16,25 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TreasuryAccount implements PlayerAccount {
+public class TreasuryPlayerAccount implements PlayerAccount {
     private final MultiCurrency multiCurrency;
-    private final Player playerA;
+    private final Player player;
+    private final UUID uuid;
 
-    public TreasuryAccount(MultiCurrency instance, Player player){
-        multiCurrency = instance;
-        playerA = player;
+    public TreasuryPlayerAccount(MultiCurrency instance, UUID uuid){
+        this.multiCurrency = instance;
+        this.uuid = uuid;
+        this.player = (Player) Bukkit.getOfflinePlayer(uuid);
     }
 
     @Override
     public @NotNull UUID getUniqueId() {
-        return playerA.getUniqueId();
+        return this.uuid;
     }
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(playerA.getName());
+        return Optional.of(player.getName());
     }
 
     @Override

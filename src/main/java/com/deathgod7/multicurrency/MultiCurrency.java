@@ -6,6 +6,7 @@ import com.deathgod7.multicurrency.configs.MainConfig;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypeManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConfigHelper;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
@@ -66,7 +67,7 @@ public final class MultiCurrency extends JavaPlugin {
     }
 
     private DatabaseManager dbm;
-    public DatabaseManager getDbm(){
+    public DatabaseManager getDBM(){
         return dbm;
     }
 
@@ -76,7 +77,6 @@ public final class MultiCurrency extends JavaPlugin {
     public TreasuryManager getTreasuryManager() {
         return treasuryManager;
     }
-
 
     public void ReloadConfigs() {
         // main config
@@ -92,6 +92,8 @@ public final class MultiCurrency extends JavaPlugin {
         _currencyConfigs = ConfigHelper._configs;
         _currencyConfigsManager = ConfigHelper._configsManager;
     }
+	
+	
 
     public static PluginDescriptionFile getPDFile() {
         return _instance.getDescription();
@@ -100,6 +102,20 @@ public final class MultiCurrency extends JavaPlugin {
     @Override
     public void onEnable() {
         _instance = this;
+		
+		if (Bukkit.getPluginManager().getPlugin("RedLib") == null) {
+            getLogger().info("Required dependent plugin was not found : RedLib");
+            getLogger().info("Disabling " + this.getName());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+				
+		if (Bukkit.getPluginManager().getPlugin("Treasury") == null) {
+            getLogger().info("Required dependent plugin was not found : Treasury");
+            getLogger().info("Disabling " + this.getName());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         currencypath = MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString();
 
@@ -112,23 +128,6 @@ public final class MultiCurrency extends JavaPlugin {
         _messages = Messages.load(MultiCurrency.getInstance());
 
         currencyTypeManager = new CurrencyTypeManager(MultiCurrency.getInstance());
-
-        if (Bukkit.getPluginManager().getPlugin("Treasury") == null) {
-            ConsoleLogger.severe("Required dependent plugin was not found : Treasury", ConsoleLogger.logTypes.log);
-            ConsoleLogger.severe("Disabling Multi Currency", ConsoleLogger.logTypes.log);
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
-
-        treasuryManager  = new TreasuryManager();
-
-//        if (Bukkit.getPluginManager().getPlugin("RedLib") == null) {
-//            ConsoleLogger.severe("Required dependent plugin was not found : RedLib", ConsoleLogger.logTypes.log);
-//            ConsoleLogger.severe("Disabling Multi Currency", ConsoleLogger.logTypes.log);
-//            Bukkit.getPluginManager().disablePlugin(this);
-//            return;
-//        }
-
 
         String configVer = _mainConfig.version;
         String pluginVer = MultiCurrency.getPDFile().getVersion();
@@ -149,8 +148,6 @@ public final class MultiCurrency extends JavaPlugin {
         ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
 
 
-
-
         Path defaultexample = MultiCurrency.getInstance().getPluginFolder().resolve("Economy");
         if (!Files.exists(defaultexample)) {
             ConfigManager.create(this, defaultexample.resolve("Example Currency.yml")).target(new CurrencyConfig()).saveDefaults().load();
@@ -161,6 +158,8 @@ public final class MultiCurrency extends JavaPlugin {
         _currencyConfigs = ConfigHelper._configs;
         _currencyConfigsManager = ConfigHelper._configsManager;
 
+        // manages all treasuy things
+        treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
 
         ArgType<CurrencyType> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
 

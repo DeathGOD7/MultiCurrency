@@ -10,11 +10,24 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import java.util.*;
 
 public class TreasuryManager {
-    //TreasuryHook treasuryHook = new TreasuryHook();
+    MultiCurrency instance;
 
-//    public TreasuryHook getTreasuryHook() {
-//        return treasuryHook;
-//    }
+    final TreasuryAccountManager treasuryAccountmanager;
+    public final TreasuryAccountManager getTreasuryAccountmanager() {
+        return treasuryAccountmanager;
+    }
+
+    final TreasuryHook treasuryHook;
+    public final TreasuryHook getTreasuryHook() {
+        return treasuryHook;
+    }
+
+    public TreasuryManager (MultiCurrency instance){
+        this.instance = instance;
+        treasuryAccountmanager = new TreasuryAccountManager(instance);
+        treasuryHook = new TreasuryHook(instance);
+        load();
+    }
 
     public static HashMap<String, Currency> treasuryCurrency = new HashMap<>();
     public static HashMap<String, CurrencyType> currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
@@ -30,7 +43,7 @@ public class TreasuryManager {
         }
 
         if (MultiCurrency.getInstance().getMainConfig().disable_essentials) {
-            if (Bukkit.getPluginManager().getPlugin("Treasury") == null){
+            if (Bukkit.getPluginManager().getPlugin("Vault") == null){
                 Collection<RegisteredServiceProvider<Economy>> registeredecons = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("Vault")).getServer().getServicesManager().getRegistrations(Economy.class);
                 for (RegisteredServiceProvider<Economy> eco : registeredecons) {
                     if (eco.getProvider().getName().equalsIgnoreCase("Essentials Economy")) {

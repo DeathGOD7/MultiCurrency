@@ -6,7 +6,10 @@ import org.jetbrains.annotations.NotNull;
 public enum  FailureReasons implements FailureReason {
     INVALID_VALUE("Invalid value inputted!"),
     INVALID_CURRENCY("Invalid currency inputted!"),
-    NEGATIVE_BALANCES_NOT_SUPPORTED("Negative value in currency is not supported!");
+    NEGATIVE_BALANCES_NOT_SUPPORTED("Negative value in currency is not supported!"),
+    ACCOUNT_CREATE_FAILURE("Account could not be created!"),
+    ACCOUNTS_RETRIEVE_FAILURE("Account could not be retrieved!"),
+    ACCOUNT_NOT_FOUND("Account could not be found!");
     private final String description;
 
     FailureReasons(String description) {

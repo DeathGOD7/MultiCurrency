@@ -20,6 +20,8 @@ public final class ConfigHelper {
         _configsManager = new HashMap<>();
         List<String> configloc = listConfigs(path);
 
+        MultiCurrency.getInstance().getDBM().createAccountTable();
+
         for (String x:configloc) {
             CurrencyConfig ccfg = new CurrencyConfig();
             ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();
@@ -34,7 +36,7 @@ public final class ConfigHelper {
 
             List<Column> temp = new ArrayList<>();
             Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
-            Column playername = new Column("Player", SQLite.DataType.STRING, 100);
+            Column playername = new Column("Name", SQLite.DataType.STRING, 100);
             Column money = new Column("Money", SQLite.DataType.STRING, 100);
 
             temp.add(uuid);
@@ -43,8 +45,7 @@ public final class ConfigHelper {
 
            Table table = new Table(currencyName, temp);
 
-           MultiCurrency.getInstance().getDbm().createTable(table);
-
+           MultiCurrency.getInstance().getDBM().createTable(table);
 
         }
 

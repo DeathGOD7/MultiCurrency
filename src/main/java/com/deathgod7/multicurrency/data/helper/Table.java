@@ -106,7 +106,7 @@ public class Table {
             }
             query.append(";");
             try {
-                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query.toString());
+                PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query.toString());
                 for (int i = 0; i < columns.size(); i++) {
                     if (columns.get(i).dataType == SQLite.DataType.STRING) {
                         s.setString(i + 1, columns.get(i).getValue().toString());
@@ -133,7 +133,7 @@ public class Table {
         List<Column> result = new ArrayList<>();
         String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`=?";
         try {
-            PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query);
+            PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
             if (column.dataType == SQLite.DataType.STRING) {
                 s.setString(1, column.getValue().toString());
             } else if (column.dataType == SQLite.DataType.INTEGER) {
@@ -155,7 +155,7 @@ public class Table {
                     }
                     result.add(rCol);
                 }
-                MultiCurrency.getInstance().getDbm().close(s, rs);
+                MultiCurrency.getInstance().getDBM().close(s, rs);
             } catch (SQLException e) {
                 s.close();
                 return null;
@@ -177,7 +177,7 @@ public class Table {
         if (!column.getName().equalsIgnoreCase(primaryKey.getName())) {
             String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`=?";
             try {
-                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query);
+                PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
                 if (column.dataType == SQLite.DataType.STRING) {
                     s.setString(1, column.getValue().toString());
                 } else if (column.dataType == SQLite.DataType.INTEGER) {
@@ -202,7 +202,7 @@ public class Table {
                     }
                     results.add(result);
                 }
-                MultiCurrency.getInstance().getDbm().close(s, rs);
+                MultiCurrency.getInstance().getDBM().close(s, rs);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -216,7 +216,7 @@ public class Table {
         List<List<Column>> results = new ArrayList<>();
         String query = "SELECT * FROM " + getName();
         try {
-            PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query);
+            PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
             ResultSet rs = s.executeQuery();
             while (rs.next()) {
                 List<Column> result = new ArrayList<>();
@@ -234,7 +234,7 @@ public class Table {
                 }
                 results.add(result);
             }
-            MultiCurrency.getInstance().getDbm().close(s, rs);
+            MultiCurrency.getInstance().getDBM().close(s, rs);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -245,7 +245,7 @@ public class Table {
         if (column.getName().equalsIgnoreCase(primaryKey.getName())) {
             String query = "DELETE FROM " + getName() + " WHERE `" + column.getName() + "`=?";
             try {
-                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query);
+                PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
                 if (column.dataType == SQLite.DataType.STRING) {
                     s.setString(1, column.getValue().toString());
                 } else if (column.dataType == SQLite.DataType.INTEGER) {
@@ -286,7 +286,7 @@ public class Table {
                 query.append(primaryKey.getValue().toString());
             }
             try {
-                PreparedStatement s = MultiCurrency.getInstance().getDbm().getConnection().prepareStatement(query.toString());
+                PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query.toString());
                 s.executeUpdate();
                 s.close();
                 return true;
