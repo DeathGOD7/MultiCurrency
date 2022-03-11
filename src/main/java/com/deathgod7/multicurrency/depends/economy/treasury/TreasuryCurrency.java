@@ -2,6 +2,7 @@ package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.utils.TextUtils;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.response.EconomyException;
 import me.lokka30.treasury.api.economy.response.EconomySubscriber;
@@ -58,7 +59,7 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public void to(@NotNull Currency currency, @NotNull BigDecimal amount, @NotNull EconomySubscriber<BigDecimal> subscription) {
-        String currencyName = currency.getIdentifier().replace( "Multi Currency - ", "");
+        String currencyName = TextUtils.GetCurrencyName(currency.getIdentifier());
 
         Set<Currency> currencyCollection = MultiCurrency.getInstance().getTreasuryManager().getTreasuryHook().getCurrencies();
 

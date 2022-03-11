@@ -7,4 +7,8 @@ public class TextUtils {
         return ChatColor.translateAlternateColorCodes(symbol, text);
     }
 
+    public static String GetCurrencyName (String identifier){
+        return identifier.replace( "Multi Currency - ", "");
+    }
+
 }

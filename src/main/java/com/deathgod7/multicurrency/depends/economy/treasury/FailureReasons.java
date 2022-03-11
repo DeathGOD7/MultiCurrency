@@ -4,6 +4,7 @@ import me.lokka30.treasury.api.common.response.FailureReason;
 import org.jetbrains.annotations.NotNull;
 
 public enum  FailureReasons implements FailureReason {
+    FEATURE_NOT_SUPPORTED("Feature is not supported at the moment!"),
     INVALID_VALUE("Invalid value inputted!"),
     INVALID_CURRENCY("Invalid currency inputted!"),
     NEGATIVE_BALANCES_NOT_SUPPORTED("Negative value in currency is not supported!"),

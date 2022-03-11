@@ -174,6 +174,6 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public void registerCurrency(@NotNull Currency currency, @NotNull EconomySubscriber<Boolean> subscription) {
-
+        subscription.fail(new EconomyException(FailureReasons.FEATURE_NOT_SUPPORTED));
     }
 }

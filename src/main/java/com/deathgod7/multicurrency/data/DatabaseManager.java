@@ -6,6 +6,7 @@ import com.deathgod7.multicurrency.data.mysql.MySQL;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class DatabaseManager {
-    private final MultiCurrency _multiCurrency;
+    private final MultiCurrency instance;
     private SQLite _sqlite;
     private MySQL _mysql;
 
@@ -45,8 +46,8 @@ public class DatabaseManager {
     }
 
     public DatabaseManager(MultiCurrency multiCurrency){
-        _multiCurrency = multiCurrency;
-        choosenDB = _multiCurrency.getMainConfig().db_type;
+        instance = multiCurrency;
+        choosenDB = instance.getMainConfig().db_type;
         loadDB();
     }
 
@@ -59,7 +60,7 @@ public class DatabaseManager {
             return null;
         }
         else {
-            _multiCurrency.getMainConfig().db_type = "sqlite";
+            instance.getMainConfig().db_type = "sqlite";
             return _sqlite.getConnection();
         }
     }
@@ -70,10 +71,10 @@ public class DatabaseManager {
         }
         else if (Objects.equals(choosenDB, "mysql")){
             // to do mysql support
-            return _multiCurrency.getMainConfig().db_name;
+            return instance.getMainConfig().db_name;
         }
         else {
-            _multiCurrency.getMainConfig().db_type = "sqlite";
+            instance.getMainConfig().db_type = "sqlite";
             return  _sqlite.getDbName();
         }
     }
@@ -91,7 +92,7 @@ public class DatabaseManager {
 
     public void loadDB(){
         if (Objects.equals(choosenDB, "sqlite")){
-            _sqlite = new SQLite(_multiCurrency, "database", _multiCurrency.getPluginFolder().resolve("Database").toString());
+            _sqlite = new SQLite(instance, "database", instance.getPluginFolder().resolve("Database").toString());
             ConsoleLogger.info("Database Type : SQLite", ConsoleLogger.logTypes.log);
 
         }
@@ -100,8 +101,8 @@ public class DatabaseManager {
             ConsoleLogger.info("Database Type : MySQL", ConsoleLogger.logTypes.log);
         }
         else {
-            _multiCurrency.getMainConfig().db_type = "sqlite";
-            _sqlite = new SQLite(_multiCurrency, "database");
+            instance.getMainConfig().db_type = "sqlite";
+            _sqlite = new SQLite(instance, "database");
             ConsoleLogger.info("Database Type : SQLite", ConsoleLogger.logTypes.log);
         }
     }
@@ -189,6 +190,12 @@ public class DatabaseManager {
         Table table = tables.get(ctyp.getName());
         List<Column> temp = new ArrayList<>();
 
+       TreasuryAccountManager tAM = instance.getTreasuryManager().getTreasuryAccountmanager();
+
+        if (!tAM.hasPlayerAccount(player.getUniqueId())){
+            tAM.registerPlayerAccount(player.getUniqueId());
+        }
+
         if (!doesUserExists(player, ctyp)) {
             Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
             Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
@@ -198,9 +205,7 @@ public class DatabaseManager {
             temp.add(name);
             temp.add(money);
 
-            table.insert(temp);
-
-            return true;
+            return table.insert(temp);
         }
        return false;
    }
@@ -281,7 +286,7 @@ public class DatabaseManager {
         return table.update(uuid, temp);
     }
 
-    public BigDecimal gettBalance(Player player, CurrencyType ctyp){
+    public BigDecimal getBalance(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
         if (!doesUserExists(player, ctyp)){

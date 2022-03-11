@@ -7,9 +7,14 @@ import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypeManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryHook;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
+import com.deathgod7.multicurrency.events.EventHandler;
 import com.deathgod7.multicurrency.utils.ConfigHelper;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import me.lokka30.treasury.api.common.service.ServicePriority;
+import me.lokka30.treasury.api.common.service.ServiceRegistry;
+import me.lokka30.treasury.api.economy.EconomyProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,21 +52,19 @@ public final class MultiCurrency extends JavaPlugin {
     }
 
     private MainConfig _mainConfig;
-
-    private ConfigManager _mainConfigManager;
     public MainConfig getMainConfig(){
         return  _mainConfig;
     }
 
+    private ConfigManager _mainConfigManager;
     public ConfigManager getMainConfigManager() { return  _mainConfigManager; }
 
     private Map<String, CurrencyConfig> _currencyConfigs;
-
-    private Map<String, ConfigManager> _currencyConfigsManager;
     public Map<String, CurrencyConfig> getCurrencyConfigs() {
         return _currencyConfigs;
     }
 
+    private Map<String, ConfigManager> _currencyConfigsManager;
     public Map<String, ConfigManager> getCurrencyConfigsManager() {
         return _currencyConfigsManager;
     }
@@ -92,7 +95,8 @@ public final class MultiCurrency extends JavaPlugin {
         _currencyConfigs = ConfigHelper._configs;
         _currencyConfigsManager = ConfigHelper._configsManager;
     }
-	
+
+    private EventHandler eventHandler;
 	
 
     public static PluginDescriptionFile getPDFile() {
@@ -174,13 +178,34 @@ public final class MultiCurrency extends JavaPlugin {
                         )
                 );
 
+        // Register to Treasury
+        ServiceRegistry.INSTANCE.registerService(
+                EconomyProvider.class,
+                treasuryManager.getTreasuryHook(),
+                getName(),
+                ServicePriority.NORMAL
+        );
+
+        // Register Events
+        eventHandler = new EventHandler(MultiCurrency.getInstance());
+        this.getServer().getPluginManager().registerEvents(this.eventHandler, MultiCurrency.getInstance());
+
+
+        ConsoleLogger.info("Hooked to Treasury", ConsoleLogger.logTypes.log);
+
+
         ConsoleLogger.info("All files loaded", ConsoleLogger.logTypes.log);
 
     }
 
     @Override
     public void onDisable() {
-        //getMainConfigManager().save();
-        //ConsoleLogger.info("Saving config file!!", ConsoleLogger.logTypes.log);
+        //some usage idk XD
+
+        // Unregister to Treasury
+        ServiceRegistry.INSTANCE.unregister(
+                EconomyProvider.class,
+                treasuryManager.getTreasuryHook()
+        );
     }
 }
