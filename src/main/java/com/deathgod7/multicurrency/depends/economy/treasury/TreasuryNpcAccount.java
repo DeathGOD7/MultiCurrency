@@ -4,6 +4,7 @@ import com.deathgod7.multicurrency.MultiCurrency;
 import me.lokka30.treasury.api.common.misc.TriState;
 import me.lokka30.treasury.api.economy.account.Account;
 import me.lokka30.treasury.api.economy.account.AccountPermission;
+import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.response.EconomySubscriber;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransaction;
@@ -18,13 +19,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TreasuryNpcAccount implements Account {
+public class TreasuryNpcAccount implements NonPlayerAccount {
     MultiCurrency instance;
     String accountname;
+    String identifier;
 
-    public TreasuryNpcAccount(MultiCurrency instance, String accountname) {
+    public TreasuryNpcAccount(MultiCurrency instance, String identifier, String accountname) {
         this.instance = instance;
         this.accountname = accountname;
+        this.identifier = identifier;
     }
 
     @Override

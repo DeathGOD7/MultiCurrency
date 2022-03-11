@@ -32,11 +32,11 @@ public class SQLite {
         return  connection;
     }
 
-    public enum DataType {
-        STRING,
-        INTEGER,
-        FLOAT
-    }
+//    public enum DataType {
+//        STRING,
+//        INTEGER,
+//        FLOAT
+//    }
 
     public SQLite(MultiCurrency multiCurrency, String dbName) {
         this._multiCurrency = multiCurrency;

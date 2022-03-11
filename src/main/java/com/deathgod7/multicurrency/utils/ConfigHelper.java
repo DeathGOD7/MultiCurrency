@@ -2,6 +2,7 @@ package com.deathgod7.multicurrency.utils;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.configs.CurrencyConfig;
+import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
@@ -35,9 +36,9 @@ public final class ConfigHelper {
             ConsoleLogger.info(String.format("Loaded %s currency config from file!", currencyName), ConsoleLogger.logTypes.log);
 
             List<Column> temp = new ArrayList<>();
-            Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
-            Column playername = new Column("Name", SQLite.DataType.STRING, 100);
-            Column money = new Column("Money", SQLite.DataType.STRING, 100);
+            Column uuid = new Column("UUID", DatabaseManager.DataType.STRING, 100);
+            Column playername = new Column("Name", DatabaseManager.DataType.STRING, 100);
+            Column money = new Column("Money", DatabaseManager.DataType.STRING, 100);
 
             temp.add(uuid);
             temp.add(playername);

@@ -1,36 +1,36 @@
 package com.deathgod7.multicurrency.data.helper;
 
-import com.deathgod7.multicurrency.data.sqlite.SQLite;
+import com.deathgod7.multicurrency.data.DatabaseManager;
 
 public class Column {
 
     public String name;
-    public SQLite.DataType dataType;
+    public DatabaseManager.DataType dataType;
     public int limit = 0;
     private Object value;
 
-    public Column(String name, SQLite.DataType dataType) {
+    public Column(String name, DatabaseManager.DataType dataType) {
         this.name = name;
         this.dataType = dataType;
         this.limit = 0;
         this.value = 0;
     }
 
-    public Column(String name, SQLite.DataType dataType, int limit) {
+    public Column(String name, DatabaseManager.DataType dataType, int limit) {
         this.name = name;
         this.dataType = dataType;
         this.limit = limit;
         this.value = 0;
     }
 
-    public Column(String name, Object value, SQLite.DataType dataType) {
+    public Column(String name, Object value, DatabaseManager.DataType dataType) {
         this.name = name;
         this.dataType = dataType;
         this.limit = 0;
         this.value = value;
     }
 
-    public Column(String name, Object value, SQLite.DataType dataType, int limit) {
+    public Column(String name, Object value, DatabaseManager.DataType dataType, int limit) {
         this.name = name;
         this.dataType = dataType;
         this.limit = limit;
@@ -47,11 +47,11 @@ public class Column {
         this.name = name;
     }
 
-    public SQLite.DataType getDataType() {
+    public DatabaseManager.DataType getDataType() {
         return dataType;
     }
 
-    public void setDataType(SQLite.DataType dataType) {
+    public void setDataType(DatabaseManager.DataType dataType) {
         this.dataType = dataType;
     }
 

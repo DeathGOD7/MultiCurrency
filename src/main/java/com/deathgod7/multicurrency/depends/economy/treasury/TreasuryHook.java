@@ -3,6 +3,7 @@ package com.deathgod7.multicurrency.depends.economy.treasury;
 import com.deathgod7.multicurrency.MultiCurrency;
 import me.lokka30.treasury.api.economy.EconomyProvider;
 import me.lokka30.treasury.api.economy.account.Account;
+import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.misc.OptionalEconomyApiFeature;
@@ -64,8 +65,8 @@ public class TreasuryHook implements EconomyProvider {
 
         HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
 
-        for (String x : temp.keySet()) {
-            uuidList.add(temp.get(x).getUniqueId());
+        for (PlayerAccount x : temp.values()) {
+            uuidList.add(x.getUniqueId());
         }
 
         if (!uuidList.isEmpty()){
@@ -80,29 +81,81 @@ public class TreasuryHook implements EconomyProvider {
     // non player account uses "hasAccount" method
     @Override
     public void hasAccount(@NotNull String identifier, @NotNull EconomySubscriber<Boolean> subscription) {
+        boolean status = instance.getTreasuryManager().getTreasuryAccountmanager().hasNpcAccount(identifier);
 
+        subscription.succeed(status);
     }
 
     @Override
     public void retrieveAccount(@NotNull String identifier, @NotNull EconomySubscriber<Account> subscription) {
+        NonPlayerAccount nonPlayerAccount = instance.getTreasuryManager().getTreasuryAccountmanager().getNpcAccount(identifier);
+
+        if (nonPlayerAccount != null){
+            subscription.succeed(nonPlayerAccount);
+        }
+        else {
+            subscription.fail(new EconomyException(FailureReasons.ACCOUNT_NOT_FOUND));
+        }
 
     }
 
     @Override
     public void createAccount(@Nullable String name, @NotNull String identifier, @NotNull EconomySubscriber<Account> subscription) {
+        NonPlayerAccount nonPlayerAccount = instance.getTreasuryManager().getTreasuryAccountmanager().registerNpcAccount(identifier, name);
 
-    }
-
-    @Override
-    public void retrieveAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
-
+        if (nonPlayerAccount != null){
+            subscription.succeed(nonPlayerAccount);
+        }
+        else {
+            subscription.fail(new EconomyException(FailureReasons.ACCOUNT_CREATE_FAILURE));
+        }
     }
 
     @Override
     public void retrieveNonPlayerAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
+        List<String> accountIds = new ArrayList<>();
+
+        HashMap<String, NonPlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
+
+        for (NonPlayerAccount x : temp.values()) {
+            accountIds.add(x.getIdentifier());
+        }
+
+        if (!accountIds.isEmpty()){
+            subscription.succeed(accountIds);
+        }
+        else {
+            subscription.fail(new EconomyException(FailureReasons.ACCOUNTS_RETRIEVE_FAILURE));
+        }
+    }
+
+    // for retrieving all accounts
+    @Override
+    public void retrieveAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
+        List<String> accountIds = new ArrayList<>();
+
+        HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
+        HashMap<String, NonPlayerAccount> temp1 = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
+
+        for (PlayerAccount x : temp.values()) {
+            accountIds.add(x.getUniqueId().toString());
+        }
+
+        for (NonPlayerAccount x : temp1.values()) {
+            accountIds.add(x.getIdentifier());
+        }
+
+        if (!accountIds.isEmpty()){
+            subscription.succeed(accountIds);
+        }
+        else {
+            subscription.fail(new EconomyException(FailureReasons.ACCOUNTS_RETRIEVE_FAILURE));
+        }
 
     }
 
+
+    // all overall methods.... sike
     @Override
     public @NotNull Currency getPrimaryCurrency() {
         String primaryCurrency = instance.getMainConfig().primary_currency;

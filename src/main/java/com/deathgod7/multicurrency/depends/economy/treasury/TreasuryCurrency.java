@@ -70,13 +70,13 @@ public class TreasuryCurrency implements Currency {
             return;
         }
 
-        Map<String, Double> conversionRates = currencyTypes.conversionRate;
+        Map<String, Double> conversionRates = currencyType.getConversionRate();
 
         if (!conversionRates.containsKey(currencyName)){
             return;
         }
 
-        Double rate = currencyTypes.conversionRate.get(currencyName);
+        Double rate = currencyType.getConversionRate().get(currencyName);
 
         BigDecimal convertedValue = amount.multiply(BigDecimal.valueOf(rate));
 

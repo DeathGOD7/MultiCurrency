@@ -1,6 +1,7 @@
 package com.deathgod7.multicurrency.data.helper;
 
 import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 
 import java.sql.PreparedStatement;
@@ -65,7 +66,7 @@ public class Table {
         this.primaryKey = primaryKey;
     }
 
-    public static String getStringType(SQLite.DataType dataType) {
+    public static String getStringType(DatabaseManager.DataType dataType) {
         switch(dataType) {
             case STRING: return "VARCHAR";
             case INTEGER: return "INT";
@@ -108,9 +109,9 @@ public class Table {
             try {
                 PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query.toString());
                 for (int i = 0; i < columns.size(); i++) {
-                    if (columns.get(i).dataType == SQLite.DataType.STRING) {
+                    if (columns.get(i).dataType == DatabaseManager.DataType.STRING) {
                         s.setString(i + 1, columns.get(i).getValue().toString());
-                    } else if (columns.get(i).dataType == SQLite.DataType.INTEGER) {
+                    } else if (columns.get(i).dataType == DatabaseManager.DataType.INTEGER) {
                         s.setInt(i + 1, Integer.parseInt(columns.get(i).getValue().toString()));
                     } else {
                         s.setFloat(i + 1, Float.parseFloat(columns.get(i).getValue().toString()));
@@ -134,9 +135,9 @@ public class Table {
         String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`=?";
         try {
             PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
-            if (column.dataType == SQLite.DataType.STRING) {
+            if (column.dataType == DatabaseManager.DataType.STRING) {
                 s.setString(1, column.getValue().toString());
-            } else if (column.dataType == SQLite.DataType.INTEGER) {
+            } else if (column.dataType == DatabaseManager.DataType.INTEGER) {
                 s.setInt(1, Integer.parseInt(column.getValue().toString()));
             } else {
                 s.setFloat(1, Float.parseFloat(column.getValue().toString()));
@@ -146,9 +147,9 @@ public class Table {
                 for (int i = 0; i < getColumns().size(); i++) {
                     Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
                             getColumns().get(i).limit);
-                    if (rCol.dataType == SQLite.DataType.STRING) {
+                    if (rCol.dataType == DatabaseManager.DataType.STRING) {
                         rCol.setValue(rs.getString(i + 1));
-                    } else if (rCol.dataType == SQLite.DataType.INTEGER) {
+                    } else if (rCol.dataType == DatabaseManager.DataType.INTEGER) {
                         rCol.setValue(rs.getInt(i + 1));
                     } else {
                         rCol.setValue(rs.getFloat(i + 1));
@@ -178,9 +179,9 @@ public class Table {
             String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`=?";
             try {
                 PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
-                if (column.dataType == SQLite.DataType.STRING) {
+                if (column.dataType == DatabaseManager.DataType.STRING) {
                     s.setString(1, column.getValue().toString());
-                } else if (column.dataType == SQLite.DataType.INTEGER) {
+                } else if (column.dataType == DatabaseManager.DataType.INTEGER) {
                     s.setInt(1, Integer.parseInt(column.getValue().toString()));
                 } else {
                     s.setFloat(1, Float.parseFloat(column.getValue().toString()));
@@ -191,9 +192,9 @@ public class Table {
                     for (int i = 0; i < getColumns().size(); i++) {
                         Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
                                 getColumns().get(i).limit);
-                        if (getColumns().get(i).dataType == SQLite.DataType.STRING) {
+                        if (getColumns().get(i).dataType == DatabaseManager.DataType.STRING) {
                             rCol.setValue(rs.getString(i + 1));
-                        } else if (getColumns().get(i).dataType == SQLite.DataType.INTEGER) {
+                        } else if (getColumns().get(i).dataType == DatabaseManager.DataType.INTEGER) {
                             rCol.setValue(rs.getInt(i + 1));
                         } else {
                             rCol.setValue(rs.getFloat(i + 1));
@@ -223,9 +224,9 @@ public class Table {
                 for (int i = 0; i < getColumns().size(); i++) {
                     Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
                             getColumns().get(i).limit);
-                    if (getColumns().get(i).dataType == SQLite.DataType.STRING) {
+                    if (getColumns().get(i).dataType == DatabaseManager.DataType.STRING) {
                         s.setString(1, getColumns().get(i).getValue().toString());
-                    } else if (getColumns().get(i).dataType == SQLite.DataType.INTEGER) {
+                    } else if (getColumns().get(i).dataType == DatabaseManager.DataType.INTEGER) {
                         s.setInt(1, Integer.parseInt(getColumns().get(i).getValue().toString()));
                     } else {
                         s.setFloat(1, Float.parseFloat(getColumns().get(i).getValue().toString()));
@@ -246,9 +247,9 @@ public class Table {
             String query = "DELETE FROM " + getName() + " WHERE `" + column.getName() + "`=?";
             try {
                 PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
-                if (column.dataType == SQLite.DataType.STRING) {
+                if (column.dataType == DatabaseManager.DataType.STRING) {
                     s.setString(1, column.getValue().toString());
-                } else if (column.dataType == SQLite.DataType.INTEGER) {
+                } else if (column.dataType == DatabaseManager.DataType.INTEGER) {
                     s.setInt(1, Integer.parseInt(column.getValue().toString()));
                 } else {
                     s.setFloat(1, Float.parseFloat(column.getValue().toString()));
@@ -268,7 +269,7 @@ public class Table {
         if (!containsPrimaryKey(columns)) {
             StringBuilder query = new StringBuilder("UPDATE " + getName() + " SET ");
             for (Column column : columns) {
-                if (column.dataType == SQLite.DataType.STRING) {
+                if (column.dataType == DatabaseManager.DataType.STRING) {
                     query.append("`").append(column.getName()).append("`='").append(column.getValue().toString()).append("'");
                 } else {
                     query.append("`").append(column.getName()).append("`=").append(column.getValue().toString());
@@ -280,7 +281,7 @@ public class Table {
                 }
             }
             query.append("WHERE `").append(primaryKey.getName()).append("`=");
-            if (primaryKey.dataType == SQLite.DataType.STRING) {
+            if (primaryKey.dataType == DatabaseManager.DataType.STRING) {
                 query.append("'").append(primaryKey.getValue().toString()).append("'");
             } else {
                 query.append(primaryKey.getValue().toString());

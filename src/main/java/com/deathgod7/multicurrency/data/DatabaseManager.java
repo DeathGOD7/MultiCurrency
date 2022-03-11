@@ -38,6 +38,12 @@ public class DatabaseManager {
 
     String choosenDB;
 
+    public enum DataType {
+        STRING,
+        INTEGER,
+        FLOAT
+    }
+
     public DatabaseManager(MultiCurrency multiCurrency){
         _multiCurrency = multiCurrency;
         choosenDB = _multiCurrency.getMainConfig().db_type;
@@ -142,9 +148,9 @@ public class DatabaseManager {
 
     public void createAccountTable() {
         List<Column> temp = new ArrayList<>();
-        Column uuid = new Column("UUID", SQLite.DataType.STRING, 100);
-        Column name = new Column("Name", SQLite.DataType.STRING, 100);
-        Column type = new Column("Type", SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", DatabaseManager.DataType.STRING, 100);
+        Column name = new Column("Name", DatabaseManager.DataType.STRING, 100);
+        Column type = new Column("Type", DatabaseManager.DataType.STRING, 100);
 
         temp.add(uuid);
         temp.add(name);
@@ -184,9 +190,9 @@ public class DatabaseManager {
         List<Column> temp = new ArrayList<>();
 
         if (!doesUserExists(player, ctyp)) {
-            Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-            Column name = new Column("Name", player.getName(), SQLite.DataType.STRING, 100);
-            Column money = new Column("Money", ctyp.getStartBal(), SQLite.DataType.STRING, 100);
+            Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+            Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
+            Column money = new Column("Money", ctyp.getStartBal(), DatabaseManager.DataType.STRING, 100);
 
             temp.add(uuid);
             temp.add(name);
@@ -205,9 +211,9 @@ public class DatabaseManager {
         Player player = (Player) Bukkit.getOfflinePlayer(playerID);
 
         if (!doesUserExists(playerID, ctyp)) {
-            Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-            Column name = new Column("Name", player.getName(), SQLite.DataType.STRING, 100);
-            Column money = new Column("Money", ctyp.getStartBal(), SQLite.DataType.STRING, 100);
+            Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+            Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
+            Column money = new Column("Money", ctyp.getStartBal(), DatabaseManager.DataType.STRING, 100);
 
             temp.add(uuid);
             temp.add(name);
@@ -222,7 +228,7 @@ public class DatabaseManager {
 
    public boolean doesUserExists(Player player, CurrencyType ctyp){
        Table table = tables.get(ctyp.getName());
-       Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+       Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
        return table.getExact(uuid) != null;
    }
 
@@ -231,7 +237,7 @@ public class DatabaseManager {
 
         Player player = (Player) Bukkit.getOfflinePlayer(playerID);
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
         return table.getExact(uuid) != null;
     }
 
@@ -243,8 +249,8 @@ public class DatabaseManager {
             return true;
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-        Column money = new Column("Money", newmoney.toString(), SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", newmoney.toString(), DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();
         temp.add(money);
@@ -266,8 +272,8 @@ public class DatabaseManager {
             return true;
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-        Column money = new Column("Money", newmoney.toString(), SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", newmoney.toString(), DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();
         temp.add(money);
@@ -283,7 +289,7 @@ public class DatabaseManager {
             return BigDecimal.valueOf(0);
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
 
         HashMap<String, Column> tableslist =  new HashMap<>();
         for (Column c : table.getExact(uuid)) {
@@ -309,7 +315,7 @@ public class DatabaseManager {
             return BigDecimal.valueOf(0);
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
 
         HashMap<String, Column> tableslist =  new HashMap<>();
         for (Column c : table.getExact(uuid)) {
@@ -324,8 +330,8 @@ public class DatabaseManager {
     public boolean resetBalance(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", "0", DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();
         temp.add(money);
@@ -342,8 +348,8 @@ public class DatabaseManager {
             return  false;
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), SQLite.DataType.STRING, 100);
-        Column money = new Column("Money", "0", SQLite.DataType.STRING, 100);
+        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", "0", DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();
         temp.add(money);
