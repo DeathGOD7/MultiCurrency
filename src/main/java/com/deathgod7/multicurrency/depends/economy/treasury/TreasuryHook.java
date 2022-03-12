@@ -30,7 +30,6 @@ public class TreasuryHook implements EconomyProvider {
     @Override
     public void hasPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<Boolean> subscription) {
         boolean status = instance.getTreasuryManager().getTreasuryAccountmanager().hasPlayerAccount(accountId);
-
         subscription.succeed(status);
     }
 
@@ -65,8 +64,8 @@ public class TreasuryHook implements EconomyProvider {
 
         HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
 
-        for (PlayerAccount x : temp.values()) {
-            uuidList.add(x.getUniqueId());
+        for (String x : temp.keySet()) {
+            uuidList.add(UUID.fromString(x));
         }
 
         if (!uuidList.isEmpty()){
@@ -113,13 +112,10 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public void retrieveNonPlayerAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
-        List<String> accountIds = new ArrayList<>();
 
         HashMap<String, NonPlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
 
-        for (NonPlayerAccount x : temp.values()) {
-            accountIds.add(x.getIdentifier());
-        }
+        List<String> accountIds = new ArrayList<>(temp.keySet());
 
         if (!accountIds.isEmpty()){
             subscription.succeed(accountIds);
@@ -137,13 +133,8 @@ public class TreasuryHook implements EconomyProvider {
         HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
         HashMap<String, NonPlayerAccount> temp1 = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
 
-        for (PlayerAccount x : temp.values()) {
-            accountIds.add(x.getUniqueId().toString());
-        }
-
-        for (NonPlayerAccount x : temp1.values()) {
-            accountIds.add(x.getIdentifier());
-        }
+        accountIds.addAll(temp.keySet());
+        accountIds.addAll(temp1.keySet());
 
         if (!accountIds.isEmpty()){
             subscription.succeed(accountIds);

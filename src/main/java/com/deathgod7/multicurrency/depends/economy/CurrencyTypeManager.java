@@ -7,12 +7,13 @@ import java.util.*;
 
 public class CurrencyTypeManager {
 
-    private final HashMap<String, CurrencyType> currencyTypes = new HashMap<>();
+    private final HashMap<String, CurrencyType> currencyTypes;
     private final MultiCurrency multiCurrency;
     private final List<String> availableCurrency;
 
     public CurrencyTypeManager(MultiCurrency multiCurrency) {
         this.multiCurrency = multiCurrency;
+        currencyTypes = new HashMap<>();
         availableCurrency = new ArrayList<>();
     }
 

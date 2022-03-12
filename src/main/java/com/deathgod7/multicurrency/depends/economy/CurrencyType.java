@@ -53,7 +53,7 @@ public class CurrencyType {
         this.decimalPrecision = 2;
         this.isCurrencyInt = true;
         this.thousandSeperator = ",";
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
+        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
         this.minBal = "0";
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = "0";
@@ -77,7 +77,7 @@ public class CurrencyType {
         this.conversionRate = cfg.currency.conversionRate;
         this.customStartBal = cfg.currency.customStartBal;
         this.decimalPrecision = cfg.currency.decimalPrecision;
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
+        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
     }
 
     public CurrencyType(String name, String currencysymbol, String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
@@ -89,7 +89,7 @@ public class CurrencyType {
         this.decimalPrecision = decimalPrecision;
         this.isCurrencyInt = currencyAsInt;
         this.thousandSeperator = thousandSeperator;
-        dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxbal, isCurrencyInt, thousandSeperator);
+        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxbal, isCurrencyInt, thousandSeperator);
         this.minBal = minbal;
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = startbal;
@@ -134,8 +134,12 @@ public class CurrencyType {
         return customStartBal.getOrDefault(player.getName(), startBal);
     }
 
-    public boolean getCurrencyFractional(){
+    public boolean isCurrencyInt(){
         return isCurrencyInt;
+    }
+
+    public DataFormatter getDataFormatter() {
+        return dataFormatter;
     }
 
     public char getThousandSeperator(){

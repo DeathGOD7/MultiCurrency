@@ -15,6 +15,7 @@ import me.lokka30.treasury.api.economy.transaction.EconomyTransactionInitiator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
@@ -48,7 +49,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         BigDecimal value;
         DatabaseManager dbm = instance.getDBM();
 
-        String currencyName = TextUtils.GetCurrencyName(currency.getIdentifier());
+        String currencyName = currency.getIdentifier();
         CurrencyType ctyp = TreasuryManager.currencyTypes.get(currencyName);
 
         if (!dbm.doesUserExists(player, ctyp)){
@@ -62,7 +63,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
     @Override
     public void setBalance(@NotNull BigDecimal amount, @NotNull EconomyTransactionInitiator<?> initiator, @NotNull Currency currency, @NotNull EconomySubscriber<BigDecimal> subscription) {
-        String currencyName = TextUtils.GetCurrencyName(currency.getIdentifier());
+        String currencyName = currency.getIdentifier();
         DatabaseManager dbm = instance.getDBM();
         CurrencyType ctyp;
 
@@ -71,6 +72,16 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         }
         else {
             ctyp = TreasuryManager.currencyTypes.get(currencyName);
+            BigDecimal fixedAmount = instance.getCurrencyTypeManager()
+                                                .getCurrencyType(currencyName)
+                                                .getDataFormatter()
+                                                .formatdouble(amount);
+
+            String formattedAmount = instance.getCurrencyTypeManager()
+                    .getCurrencyType(currencyName)
+                    .getDataFormatter()
+                    .formatBigDecimal(fixedAmount);
+
             boolean status = dbm.updateBalance(player, ctyp, amount);
 
             if (status) {
@@ -78,19 +89,29 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 String consolemsg;
                 String playermsg;
                 if (type == EconomyTransactionInitiator.Type.PLAYER) {
-                    consolemsg = type.toString() + " has set balance for " + player.getName() + " to " + amount.toString())
-                    playermsg = initiator.getData().
+                    UUID playerID = (UUID) initiator.getData();
+                    Player player = (Player) Bukkit.getOfflinePlayer(playerID);
+                    consolemsg = "Player " + player.getName() + " has set balance for " + player.getName() + " to " + formattedAmount;
                 }
-                else if (type == EconomyTransactionInitiator.Type.SERVER) {
-
+                else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
+                    String pluginname = (String) initiator.getData();
+                    consolemsg = "Plugin " + pluginname + " has set balance for " + player.getName() + " to " + formattedAmount;
                 }
                 else {
-
+                    consolemsg = "Server has set balance for " + player.getName() + " to " + formattedAmount;
                 }
-                ConsoleLogger.info(.toString() + " set balance for ");
+
+                playermsg = Messages.msg("prefix") + " Your balance has been updated to " + formattedAmount;
+
+                ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
+                player.sendMessage(playermsg);
+
+                subscription.succeed(fixedAmount);
+
+
             }
             else {
-
+                subscription.fail(new EconomyException(FailureReasons.UPDATE_FAILED));
             }
         }
     }

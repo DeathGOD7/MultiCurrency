@@ -24,7 +24,7 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public @NotNull String getIdentifier() {
-        return "Multi Currency - " + currencyType.getName();
+        return currencyType.getName();
     }
 
     @Override
@@ -54,12 +54,12 @@ public class TreasuryCurrency implements Currency {
 
     @Override
     public boolean isPrimary() {
-        return Objects.equals(currencyType.getName(), MultiCurrency.getInstance().getMainConfig().primary_currency);
+        return MultiCurrency.getInstance().getMainConfig().primary_currency.equals(currencyType.getName());
     }
 
     @Override
     public void to(@NotNull Currency currency, @NotNull BigDecimal amount, @NotNull EconomySubscriber<BigDecimal> subscription) {
-        String currencyName = TextUtils.GetCurrencyName(currency.getIdentifier());
+        String currencyName = currency.getIdentifier();
 
         Set<Currency> currencyCollection = MultiCurrency.getInstance().getTreasuryManager().getTreasuryHook().getCurrencies();
 

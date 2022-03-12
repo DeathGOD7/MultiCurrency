@@ -11,19 +11,18 @@ public class DataFormatter {
 
     public DecimalFormat decimalFormat;
     public BigDecimal maxNumber;
-    static String displayformat; // = XConomy.config.getString("Currency.display-format");
-    static String pluralname; // = XConomy.config.getString("Currency.plural-name");
-    static String singularname;// = XConomy.config.getString("Currency.singular-name");
-    static boolean isInt;
+    String displayformat; // = XConomy.config.getString("Currency.display-format");
+    String pluralname; // = XConomy.config.getString("Currency.plural-name");
+    String singularname;// = XConomy.config.getString("Currency.singular-name");
+    boolean isInt;
 
     public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, String thousandseperator){
-        DataFormatter.displayformat = displayformat;
-        DataFormatter.singularname = singularname;
-        DataFormatter.pluralname = pluralname;
-
-        maxNumber = getMaxNumber(maxBal);
-        decimalFormat = new DecimalFormat();
-        isInt = isintegar;
+        this.displayformat = displayformat;
+        this.singularname = singularname;
+        this.pluralname = pluralname;
+        this.maxNumber = getMaxNumber(maxBal);
+        this.decimalFormat = new DecimalFormat();
+        this.isInt = isintegar;
 
         if (!isInt) {
             decimalFormat.setMinimumFractionDigits(2);
@@ -56,8 +55,16 @@ public class DataFormatter {
         }
     }
 
+    public BigDecimal formatdouble(BigDecimal am) {
+        if (isInt) {
+            return am.setScale(0, RoundingMode.DOWN);
+        } else {
+            return am.setScale(2, RoundingMode.DOWN);
+        }
+    }
+
     //@SuppressWarnings("ConstantConditions")
-    public String shown(BigDecimal am) {
+    public String formatBigDecimal(BigDecimal am) {
         if (am.compareTo(BigDecimal.ONE) == 0) {
             return ChatColor.translateAlternateColorCodes('&', displayformat
                     .replace("%balance%", decimalFormat.format(am))
@@ -68,7 +75,7 @@ public class DataFormatter {
                 .replace("%currencyname%", pluralname));
     }
 
-    public String shownd(double am) {
+    public String formatDouble(double am) {
         if (am > 1) {
             return ChatColor.translateAlternateColorCodes('&', displayformat
                     .replace("%balance%", decimalFormat.format(am))

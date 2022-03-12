@@ -6,14 +6,14 @@ import redempt.redlib.commandmanager.Messages;
 
 public final class ConsoleLogger {
 
-    static String logPrefix = Messages.msg("prefix") + " ";
+    static String logPrefix = "[MultiCurrency] ";
 
     public enum logTypes {
         log,
         debug
     }
 
-    public static Boolean debugMode = MultiCurrency.getInstance().getMainConfig().debug;
+    public static boolean debugMode = MultiCurrency.getInstance().getMainConfig().debug;
 
     public static void severe(String msg, logTypes logType) {
         if (logType == logTypes.debug) {
