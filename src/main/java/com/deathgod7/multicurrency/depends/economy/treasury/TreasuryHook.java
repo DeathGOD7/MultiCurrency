@@ -24,13 +24,18 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public @NotNull Set<OptionalEconomyApiFeature> getSupportedOptionalEconomyApiFeatures() {
-        return Collections.emptySet();
+        Set<OptionalEconomyApiFeature> features = new HashSet<>();
+        //features.add(OptionalEconomyApiFeature.NEGATIVE_BALANCES);
+        features.add(OptionalEconomyApiFeature.TRANSACTION_EVENTS);
+        return features;
     }
 
     @Override
     public void hasPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<Boolean> subscription) {
-        boolean status = instance.getTreasuryManager().getTreasuryAccountmanager().hasPlayerAccount(accountId);
-        subscription.succeed(status);
+        subscription.succeed(instance.getTreasuryManager()
+                .getTreasuryAccountmanager()
+                .hasPlayerAccount(accountId)
+        );
     }
 
     @Override

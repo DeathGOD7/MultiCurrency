@@ -2,22 +2,22 @@ package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DatabaseManager;
-import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
-import com.deathgod7.multicurrency.utils.TextUtils;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import me.lokka30.treasury.api.economy.currency.Currency;
 import me.lokka30.treasury.api.economy.response.EconomyException;
 import me.lokka30.treasury.api.economy.response.EconomySubscriber;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransaction;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionInitiator;
+import me.lokka30.treasury.api.economy.transaction.EconomyTransactionType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Optional;
@@ -82,16 +82,16 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     .getDataFormatter()
                     .formatBigDecimal(fixedAmount);
 
-            boolean status = dbm.updateBalance(player, ctyp, amount);
+            boolean status = dbm.updateBalance(player, ctyp, fixedAmount);
 
             if (status) {
                 EconomyTransactionInitiator.Type type = initiator.getType();
                 String consolemsg;
                 String playermsg;
                 if (type == EconomyTransactionInitiator.Type.PLAYER) {
-                    UUID playerID = (UUID) initiator.getData();
-                    Player player = (Player) Bukkit.getOfflinePlayer(playerID);
-                    consolemsg = "Player " + player.getName() + " has set balance for " + player.getName() + " to " + formattedAmount;
+                    UUID initiatorPlayerID = (UUID) initiator.getData();
+                    Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
+                    consolemsg = "Player " + initiatorPlayer.getName() + " has set balance for " + player.getName() + " to " + formattedAmount;
                 }
                 else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                     String pluginname = (String) initiator.getData();
@@ -106,8 +106,11 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
                 player.sendMessage(playermsg);
 
-                subscription.succeed(fixedAmount);
+                if (ctyp.logTransactionEnabled()) {
+                    // do something
+                }
 
+                subscription.succeed(fixedAmount);
 
             }
             else {
@@ -118,6 +121,93 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
     @Override
     public void doTransaction(@NotNull EconomyTransaction economyTransaction, EconomySubscriber<BigDecimal> subscription) {
+        String currencyName = economyTransaction.getCurrencyID();
+        String transactionReason = String.valueOf(economyTransaction.getReason());
+        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(economyTransaction.getTimestamp());
+        BigDecimal amount = economyTransaction.getTransactionAmount();
+        EconomyTransactionType transactionType = economyTransaction.getTransactionType();
+        EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
+
+        DatabaseManager dbm = instance.getDBM();
+        CurrencyType ctyp;
+
+        if (!TreasuryManager.treasuryCurrency.containsKey(currencyName)) {
+            subscription.fail(new EconomyException(FailureReasons.INVALID_CURRENCY));
+        }
+        else {
+            ctyp = TreasuryManager.currencyTypes.get(currencyName);
+
+            BigDecimal fixedAmount = instance.getCurrencyTypeManager()
+                    .getCurrencyType(currencyName)
+                    .getDataFormatter()
+                    .formatdouble(amount);
+
+            String formattedAmount = instance.getCurrencyTypeManager()
+                    .getCurrencyType(currencyName)
+                    .getDataFormatter()
+                    .formatBigDecimal(fixedAmount);
+
+            // check if the transaction is withdrawl or deposit
+            BigDecimal previousAmount = BigDecimal.valueOf(0);
+            BigDecimal newAmount = BigDecimal.valueOf(0);
+
+            if (!dbm.doesUserExists(uuid, ctyp)) {
+                dbm.createUser(uuid, ctyp);
+            }
+
+            previousAmount = dbm.getBalance(uuid, ctyp);
+
+            if (transactionType == EconomyTransactionType.WITHDRAWAL) {
+                if (previousAmount.signum() <= 0){
+                    subscription.fail(new EconomyException(FailureReasons.BALANCE_NOT_ENOUGH));
+                }
+                else if (previousAmount.subtract(fixedAmount).signum() == -1) {
+                    subscription.fail(new EconomyException(FailureReasons.BALANCE_NOT_ENOUGH));
+                }
+
+                newAmount = previousAmount.subtract(fixedAmount);
+            }
+            else {
+                newAmount = previousAmount.add(fixedAmount);
+            }
+
+
+            boolean status = dbm.updateBalance(player, ctyp, newAmount);
+
+            if (status) {
+                EconomyTransactionInitiator.Type type = initiator.getType();
+                String consolemsg;
+                String playermsg;
+                if (type == EconomyTransactionInitiator.Type.PLAYER) {
+                    UUID initiatorPlayerID = (UUID) initiator.getData();
+                    Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
+                    consolemsg = "Player " + initiatorPlayer.getName() + " has given " + player.getName() + " " + formattedAmount;
+                    playermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
+                }
+                else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
+                    String pluginname = (String) initiator.getData();
+                    consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
+                    playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
+                }
+                else {
+                    consolemsg = "Server has given " + player.getName() + " " + formattedAmount;
+                    playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
+                }
+
+
+                ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
+                player.sendMessage(playermsg);
+
+                subscription.succeed(newAmount);
+
+                if (ctyp.logTransactionEnabled()) {
+                    // do something
+                }
+            }
+            else {
+                subscription.fail(new EconomyException(FailureReasons.UPDATE_FAILED));
+            }
+        }
 
     }
 

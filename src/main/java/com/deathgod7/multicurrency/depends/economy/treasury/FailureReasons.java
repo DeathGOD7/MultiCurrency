@@ -9,6 +9,7 @@ public enum  FailureReasons implements FailureReason {
     INVALID_CURRENCY("Invalid currency inputted!"),
     UPDATE_FAILED("Updating player currency failed!"),
     NEGATIVE_BALANCES_NOT_SUPPORTED("Negative value in currency is not supported!"),
+    BALANCE_NOT_ENOUGH("Balance is not enough!"),
     ACCOUNT_CREATE_FAILURE("Account could not be created!"),
     ACCOUNTS_RETRIEVE_FAILURE("Account could not be retrieved!"),
     ACCOUNT_NOT_FOUND("Account could not be found!");

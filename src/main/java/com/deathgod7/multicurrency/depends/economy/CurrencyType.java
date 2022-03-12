@@ -24,6 +24,8 @@ public class CurrencyType {
     final String startBal;
     @ConfigName("is-currency-int")
     final boolean isCurrencyInt;
+    @ConfigName("log-transaction")
+    final boolean logTransaction;
     @ConfigName("thousand-seperator")
     final String thousandSeperator;
     @ConfigName("singular-name")
@@ -52,6 +54,7 @@ public class CurrencyType {
         this.displayFormat = "%balance% %currencysymbol%";
         this.decimalPrecision = 2;
         this.isCurrencyInt = true;
+        this.logTransaction = false;
         this.thousandSeperator = ",";
         this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
         this.minBal = "0";
@@ -73,6 +76,7 @@ public class CurrencyType {
         this.maxBal = cfg.currency.maxBal;
         this.startBal = cfg.currency.startBal;
         this.isCurrencyInt =  cfg.currency.isCurrencyInt;
+        this.logTransaction = cfg.currency.logTransaction;
         this.thousandSeperator = cfg.currency.thousandSeperator;
         this.conversionRate = cfg.currency.conversionRate;
         this.customStartBal = cfg.currency.customStartBal;
@@ -80,7 +84,7 @@ public class CurrencyType {
         this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
     }
 
-    public CurrencyType(String name, String currencysymbol, String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
+    public CurrencyType(String name, String currencysymbol, String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, boolean logTransaction, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
         this.name = name;
         this.currencysymbol = currencysymbol;
         this.singularName = singular;
@@ -89,6 +93,7 @@ public class CurrencyType {
         this.decimalPrecision = decimalPrecision;
         this.isCurrencyInt = currencyAsInt;
         this.thousandSeperator = thousandSeperator;
+        this.logTransaction = logTransaction;
         this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxbal, isCurrencyInt, thousandSeperator);
         this.minBal = minbal;
         this.maxBal = dataFormatter.maxNumber.toString();
@@ -137,6 +142,8 @@ public class CurrencyType {
     public boolean isCurrencyInt(){
         return isCurrencyInt;
     }
+
+    public boolean logTransactionEnabled() { return logTransaction; }
 
     public DataFormatter getDataFormatter() {
         return dataFormatter;
