@@ -8,28 +8,43 @@ import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import redempt.redlib.config.ConfigManager;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class ConfigHelper {
-    public static Map<String, CurrencyConfig> _configs;
-    public static Map<String, ConfigManager> _configsManager;
+    MultiCurrency instance;
+    DatabaseManager dbm;
+    private HashMap<String, CurrencyConfig> currencyConfigs;
+    public HashMap<String, CurrencyConfig> getCurrencyConfigs() {
+        return currencyConfigs;
+    }
+
+    private HashMap<String, ConfigManager> currencyConfigsManager;
+    public HashMap<String, ConfigManager> getCurrencyConfigsManager() {
+        return currencyConfigsManager;
+    }
+
+    public ConfigHelper(MultiCurrency instance) {
+        this.instance = instance;
+        this.dbm = instance.getDBM();
+    }
 
     public void loadConfigs(String path) {
-        _configs = new HashMap<>();
-        _configsManager = new HashMap<>();
+        currencyConfigs = new HashMap<>();
+        currencyConfigsManager = new HashMap<>();
         List<String> configloc = listConfigs(path);
 
-        MultiCurrency.getInstance().getDBM().createAccountTable();
+        dbm.createAccountTable();
 
         for (String x:configloc) {
             CurrencyConfig ccfg = new CurrencyConfig();
             ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();
 
             String currencyName = ccfg.currency.getName();
-            _configs.put(currencyName, ccfg);
-            _configsManager.put(currencyName, cfg);
+            currencyConfigs.put(currencyName, ccfg);
+            currencyConfigsManager.put(currencyName, cfg);
 
             MultiCurrency.getInstance().getCurrencyTypeManager().registerCurrencyType(ccfg.currency);
 
@@ -46,7 +61,7 @@ public final class ConfigHelper {
 
            Table table = new Table(currencyName, temp);
 
-           MultiCurrency.getInstance().getDBM().createTable(table);
+           dbm.createTable(table);
 
         }
 

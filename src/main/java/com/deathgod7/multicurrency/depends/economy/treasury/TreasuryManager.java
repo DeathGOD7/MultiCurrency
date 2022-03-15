@@ -22,21 +22,31 @@ public class TreasuryManager {
         return treasuryHook;
     }
 
+    private HashMap<String, Currency> treasuryCurrency;
+    public HashMap<String, Currency> getTreasuryCurrency() {
+        return treasuryCurrency;
+    }
+
+    private HashMap<String, CurrencyType> currencyTypes;
+    public HashMap<String, CurrencyType> getCurrencyTypes() {
+        return currencyTypes;
+    }
+
     public TreasuryManager (MultiCurrency instance){
         this.instance = instance;
         treasuryAccountmanager = new TreasuryAccountManager(instance);
         treasuryHook = new TreasuryHook(instance);
+        this.treasuryCurrency = new HashMap<>();
+        this.currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
         load();
     }
 
-    public static HashMap<String, Currency> treasuryCurrency = new HashMap<>();
-    public static HashMap<String, CurrencyType> currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
 
-    private static Currency convertToTreasury(CurrencyType currencyType){
+    private Currency convertToTreasury(CurrencyType currencyType){
         return new TreasuryCurrency(currencyType);
     }
 
-    public static void load() {
+    public void load() {
 
         for (String x : currencyTypes.keySet()) {
             treasuryCurrency.put(x, convertToTreasury(currencyTypes.get(x)));
@@ -54,11 +64,11 @@ public class TreasuryManager {
         }
     }
 
-    public static void unload() {
+    public void unload() {
         MultiCurrency.getInstance().getServer().getServicesManager().unregister(treasuryCurrency);
     }
 
-    public static void reload() {
+    public void reload() {
         unload();
         currencyTypes =  MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
         load();

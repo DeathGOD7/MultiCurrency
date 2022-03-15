@@ -17,9 +17,11 @@ import java.util.*;
 public class TreasuryHook implements EconomyProvider {
 
     MultiCurrency instance;
+    TreasuryManager treasuryManager;
 
     public TreasuryHook(MultiCurrency instance){
         this.instance = instance;
+        this.treasuryManager = instance.getTreasuryManager();
     }
 
     @Override
@@ -155,17 +157,17 @@ public class TreasuryHook implements EconomyProvider {
     @Override
     public @NotNull Currency getPrimaryCurrency() {
         String primaryCurrency = instance.getMainConfig().primary_currency;
-        return TreasuryManager.treasuryCurrency.get(primaryCurrency);
+        return treasuryManager.getTreasuryCurrency().get(primaryCurrency);
     }
 
     @Override
     public Optional<Currency> findCurrency(@NotNull String identifier) {
-        return Optional.ofNullable(TreasuryManager.treasuryCurrency.get(identifier));
+        return Optional.ofNullable(treasuryManager.getTreasuryCurrency().get(identifier));
     }
 
     @Override
     public Set<Currency> getCurrencies() {
-        return new HashSet<>(TreasuryManager.treasuryCurrency.values());
+        return new HashSet<>(treasuryManager.getTreasuryCurrency().values());
     }
 
     @Override

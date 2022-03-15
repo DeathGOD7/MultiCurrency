@@ -31,7 +31,7 @@ import java.util.Objects;
 
 public final class MultiCurrency extends JavaPlugin {
 
-    public ConfigHelper configHelper = new ConfigHelper();
+    public ConfigHelper configHelper;
 
     private CurrencyTypeManager currencyTypeManager;
     public CurrencyTypeManager getCurrencyTypeManager(){
@@ -92,12 +92,10 @@ public final class MultiCurrency extends JavaPlugin {
         // currency configs
         currencyTypeManager.clearCurrencyTypes();
         configHelper.loadConfigs(currencypath);
-        _currencyConfigs = ConfigHelper._configs;
-        _currencyConfigsManager = ConfigHelper._configsManager;
+        _currencyConfigs = configHelper.getCurrencyConfigs();
+        _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
     }
 
-    private EventHandler eventHandler;
-	
 
     public static PluginDescriptionFile getPDFile() {
         return _instance.getDescription();
@@ -158,9 +156,10 @@ public final class MultiCurrency extends JavaPlugin {
         }
 
         // currency configs
+        configHelper = new ConfigHelper(MultiCurrency.getInstance());
         configHelper.loadConfigs(currencypath);
-        _currencyConfigs = ConfigHelper._configs;
-        _currencyConfigsManager = ConfigHelper._configsManager;
+        _currencyConfigs = configHelper.getCurrencyConfigs();
+        _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
 
         // manages all treasuy things
         treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
@@ -187,8 +186,8 @@ public final class MultiCurrency extends JavaPlugin {
         );
 
         // Register Events
-        eventHandler = new EventHandler(MultiCurrency.getInstance());
-        this.getServer().getPluginManager().registerEvents(this.eventHandler, MultiCurrency.getInstance());
+        EventHandler eventHandler = new EventHandler(MultiCurrency.getInstance());
+        this.getServer().getPluginManager().registerEvents(eventHandler, MultiCurrency.getInstance());
 
 
         ConsoleLogger.info("Hooked to Treasury", ConsoleLogger.logTypes.log);
