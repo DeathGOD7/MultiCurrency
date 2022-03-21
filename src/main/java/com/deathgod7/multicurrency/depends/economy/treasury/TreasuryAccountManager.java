@@ -2,10 +2,12 @@ package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DatabaseManager;
+import com.deathgod7.multicurrency.data.helper.AccountData;
 import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import com.deathgod7.multicurrency.data.helper.TransactionData;
 import me.lokka30.treasury.api.economy.account.Account;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
@@ -64,16 +66,12 @@ public class TreasuryAccountManager {
             return playerAccount;
         }
 
-        List<Column> temp = new ArrayList<>();
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
-        Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
-        Column type = new Column("Type", "PLAYER",DatabaseManager.DataType.STRING, 100);
-
-        temp.add(uuid);
-        temp.add(name);
-        temp.add(type);
-
-        boolean status = accountsTable.insert(temp);
+        boolean status = accountsTable.insert(
+                AccountData.PlayerAccount(
+                        player.getUniqueId().toString(),
+                        player.getName()
+                )
+        );
 
         if (!status){
             ConsoleLogger.severe("Couldn't register player account for player " + player.getName(), ConsoleLogger.logTypes.log);
@@ -116,16 +114,14 @@ public class TreasuryAccountManager {
             return npcAccount;
         }
 
-        List<Column> temp = new ArrayList<>();
-        Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
-        Column name = new Column("Name", npcname, DatabaseManager.DataType.STRING, 100);
-        Column type = new Column("Type", "NPC",DatabaseManager.DataType.STRING, 100);
 
-        temp.add(uuid);
-        temp.add(name);
-        temp.add(type);
 
-        boolean status = accountsTable.insert(temp);
+        boolean status = accountsTable.insert(
+                AccountData.NonPlayerAccount(
+                        identifier,
+                        npcname
+                )
+        );
 
         if (!status){
             ConsoleLogger.severe("Couldn't register NPC account named " + npcname, ConsoleLogger.logTypes.log);

@@ -12,10 +12,10 @@ import static com.deathgod7.multicurrency.utils.TextUtils.ConvertTextColor;
 
 public class CommandHandler {
 
-    private final MultiCurrency multiCurrency;
+    private final MultiCurrency instance;
 
-    public CommandHandler(MultiCurrency multiCurrency) {
-        this.multiCurrency = multiCurrency;
+    public CommandHandler(MultiCurrency instance) {
+        this.instance = instance;
     }
 
 //    @CommandHook("info")
@@ -60,16 +60,17 @@ public class CommandHandler {
 
     @CommandHook("reload")
     public void reload(CommandSender commandSender){
-        commandSender.sendMessage("Reloading all configs!");
-        MultiCurrency.getInstance().ReloadConfigs();
-        commandSender.sendMessage("All configs are reloaded!");
+        String warning = "&aIt is best to restart the server as reloading will just break the plugin.\n" +
+                "&aIf you want this feature then please request in discord with good reason.";
+        String warningFormatted = ConvertTextColor('&', warning);
+        commandSender.sendMessage(warningFormatted);
     }
 
     @CommandHook("listcurrency")
     public void listcurrency(CommandSender commandSender) {
         commandSender.sendMessage("listcurrency will be implemented soon!");
         StringBuilder temp = new StringBuilder();
-        for (String x : MultiCurrency.getInstance().getCurrencyTypeManager().listAvailableCurrency()) {
+        for (String x : instance.getTreasuryManager().getTreasuryCurrency().keySet()) {
             temp.append(x).append(", ");
         }
         String ftemp = temp.substring(0, temp.length() - 2);

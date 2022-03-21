@@ -6,25 +6,10 @@ public class EconomyManager {
     public static boolean haseco = false;
     public static boolean vault = false;
 
-    public static boolean load() {
-        if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-            vault = true;
-            //VaultHook.load();
-            haseco = true;
-        }
-        return haseco;
-    }
+    // STUB CLAss METHODS
 
-    public static void unload() {
-        if (vault) {
-            //VaultHook.unload();
-        }
-    }
-
-    public static void reload() {
-        if (vault) {
-            //VaultHook.reload();
-        }
-    }
+    // TO BE ADDED
+    // Multiple Hook Connection
+    // To Treasury and Vault
 
 }

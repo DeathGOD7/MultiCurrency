@@ -162,6 +162,29 @@ public class DatabaseManager {
         createTable(table);
     }
 
+    public void createTransactionTable() {
+        List<Column> temp = new ArrayList<>();
+        Column timestamp = new Column("Timestamp", DatabaseManager.DataType.STRING, 100);
+        Column currency = new Column("Currency", DatabaseManager.DataType.STRING, 100);
+        Column amount = new Column("Amount", DatabaseManager.DataType.STRING, 100);
+        Column type = new Column("Type", DatabaseManager.DataType.STRING, 100);
+        Column from = new Column("From", DatabaseManager.DataType.STRING, 100);
+        Column to = new Column("To", DatabaseManager.DataType.STRING, 100);
+        Column reason = new Column("Reason", DatabaseManager.DataType.STRING, 100);
+
+        temp.add(timestamp);
+        temp.add(currency);
+        temp.add(amount);
+        temp.add(type);
+        temp.add(from);
+        temp.add(to);
+        temp.add(reason);
+
+        Table table = new Table("Transactions", temp);
+
+        createTable(table);
+    }
+
     public void createTable(Table table) {
         StringBuilder query = new StringBuilder("CREATE TABLE IF NOT EXISTS `" + table.getName() + "` (");
         for (Column column : table.getColumns()) {

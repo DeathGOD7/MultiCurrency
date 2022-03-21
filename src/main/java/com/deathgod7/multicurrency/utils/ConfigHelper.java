@@ -38,6 +38,8 @@ public final class ConfigHelper {
 
         dbm.createAccountTable();
 
+        dbm.createTransactionTable();
+
         for (String x:configloc) {
             CurrencyConfig ccfg = new CurrencyConfig();
             ConfigManager cfg = ConfigManager.create(MultiCurrency.getInstance(), "Economy" + "/" + x).target(ccfg).saveDefaults().load();

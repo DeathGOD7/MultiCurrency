@@ -2,6 +2,9 @@ package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DatabaseManager;
+import com.deathgod7.multicurrency.data.helper.Column;
+import com.deathgod7.multicurrency.data.helper.Table;
+import com.deathgod7.multicurrency.data.helper.TransactionData;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import me.lokka30.treasury.api.common.event.EventBus;
@@ -21,9 +24,7 @@ import redempt.redlib.commandmanager.Messages;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class TreasuryPlayerAccount implements PlayerAccount {
     private final MultiCurrency instance;
@@ -189,19 +190,27 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     EconomyTransactionInitiator.Type type = initiator.getType();
                     String consolemsg;
                     String playermsg;
+                    String transactionFrom;
+                    String transactionTypeFormatted;
 
                     if (type == EconomyTransactionInitiator.Type.PLAYER) {
                         UUID initiatorPlayerID = (UUID) initiator.getData();
                         Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
+                        transactionTypeFormatted = "PLAYER";
+                        transactionFrom = initiatorPlayer.getName();
                         consolemsg = "Player " + initiatorPlayer.getName() + " has given " + player.getName() + " " + formattedAmount;
                         playermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                         String pluginname = (String) initiator.getData();
+                        transactionTypeFormatted = "PLUGIN";
+                        transactionFrom = pluginname;
                         consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
                         playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
                     else {
+                        transactionTypeFormatted = "SERVER";
+                        transactionFrom = "Server";
                         consolemsg = "Server has given " + player.getName() + " " + formattedAmount;
                         playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
@@ -211,8 +220,22 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     player.sendMessage(playermsg);
 
                     if (ctyp.logTransactionEnabled()) {
-                        // to be added logging ignore the below command
-                        ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
+                        Table transactionsTable = dbm.getTables().get("Transactions");
+                        if (transactionsTable != null) {
+                            List<Column> temp = TransactionData.Transaction(timestamp, currencyName,
+                                    newAmount.toString(), transactionTypeFormatted, transactionFrom,
+                                    player.getName(), transactionReason);
+
+                            // put in db
+                            transactionsTable.insert(temp);
+
+                            ConsoleLogger.info("Logged the transaction in database.", ConsoleLogger.logTypes.debug);
+
+
+                        }
+                        else {
+                            ConsoleLogger.severe("Couldn't log the transaction in database. Please check if you have configured db correctly.", ConsoleLogger.logTypes.debug);
+                        }
                     }
 
                     subscription.succeed(newAmount);
@@ -229,16 +252,33 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
     @Override
     public void deleteAccount(@NotNull EconomySubscriber<Boolean> subscription) {
-
+        // to be added
     }
 
     @Override
     public void retrieveHeldCurrencies(@NotNull EconomySubscriber<Collection<String>> subscription) {
+        List<String> heldCurrencies = new ArrayList<>();
+
+        for (CurrencyType x : instance.getTreasuryManager().getCurrencyTypes().values()) {
+            if (dbm.doesUserExists(player, x)) {
+                if (instance.getTreasuryManager().getTreasuryCurrency().containsKey(x.getName())) {
+                    heldCurrencies.add(x.getName());
+                }
+                else {
+                    ConsoleLogger.info("Currency not loaded : " + x.getName(), ConsoleLogger.logTypes.debug);
+                }
+            }
+            else {
+                ConsoleLogger.info("User not in table of currency : " + x.getName(), ConsoleLogger.logTypes.debug);
+            }
+        }
+
+        subscription.succeed(heldCurrencies);
 
     }
 
     @Override
     public void retrieveTransactionHistory(int transactionCount, @NotNull Temporal from, @NotNull Temporal to, @NotNull EconomySubscriber<Collection<EconomyTransaction>> subscription) {
-
+        // to be added (after i verify transaction are stored in db)
     }
 }
