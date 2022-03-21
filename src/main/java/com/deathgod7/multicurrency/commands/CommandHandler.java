@@ -31,7 +31,7 @@ public class CommandHandler {
         String apiversion = ConvertTextColor('&', "&e"+MultiCurrency.getPDFile().getAPIVersion());
         String developer = ConvertTextColor('&', "&1"+MultiCurrency.getPDFile().getAuthors());
 
-        String temp1 = multiCurrency.getConfig().getString("Database.type");
+        String temp1 = instance.getConfig().getString("Database.type");
         if (Objects.equals(temp1, "sqlite")){
             databaseType = ConvertTextColor('&', "&3SQLite");
         }
