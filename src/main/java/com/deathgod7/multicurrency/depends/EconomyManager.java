@@ -6,7 +6,7 @@ public class EconomyManager {
     public static boolean haseco = false;
     public static boolean vault = false;
 
-    // STUB CLAss METHODS
+    // STUB CLASS METHODS
 
     // TO BE ADDED
     // Multiple Hook Connection
