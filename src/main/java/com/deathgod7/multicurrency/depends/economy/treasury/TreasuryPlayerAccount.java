@@ -1,10 +1,11 @@
 package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
+import com.deathgod7.multicurrency.data.DataFormatter;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.data.helper.Table;
-import com.deathgod7.multicurrency.data.helper.TransactionData;
+import com.deathgod7.multicurrency.data.helper.TransactionTable;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import me.lokka30.treasury.api.common.event.EventBus;
@@ -73,21 +74,16 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     public void setBalance(@NotNull BigDecimal amount, @NotNull EconomyTransactionInitiator<?> initiator, @NotNull Currency currency, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = currency.getIdentifier();
         CurrencyType ctyp;
+        DataFormatter dataFormatter = instance.getCurrencyTypeManager().getCurrencyType(currencyName).getDataFormatter();
 
         if (!treasuryManager.getTreasuryCurrency().containsKey(currencyName)) {
             subscription.fail(new EconomyException(FailureReasons.INVALID_CURRENCY));
         }
         else {
             ctyp = treasuryManager.getCurrencyTypes().get(currencyName);
-            BigDecimal fixedAmount = instance.getCurrencyTypeManager()
-                                                .getCurrencyType(currencyName)
-                                                .getDataFormatter()
-                                                .formatdouble(amount);
+            BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-            String formattedAmount = instance.getCurrencyTypeManager()
-                    .getCurrencyType(currencyName)
-                    .getDataFormatter()
-                    .formatBigDecimal(fixedAmount);
+            String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount);
 
             boolean status = dbm.updateBalance(player, ctyp, fixedAmount);
 
@@ -131,6 +127,8 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         EconomyTransactionType transactionType = economyTransaction.getTransactionType();
         EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
 
+        DataFormatter dataFormatter = instance.getCurrencyTypeManager().getCurrencyType(currencyName).getDataFormatter();
+
         CurrencyType ctyp;
 
         if (!treasuryManager.getTreasuryCurrency().containsKey(currencyName)) {
@@ -150,15 +148,9 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     subscription.fail(new EconomyException(FailureReasons.INVALID_VALUE));
                 }
 
-                BigDecimal fixedAmount = instance.getCurrencyTypeManager()
-                        .getCurrencyType(currencyName)
-                        .getDataFormatter()
-                        .formatdouble(amount);
+                BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-                String formattedAmount = instance.getCurrencyTypeManager()
-                        .getCurrencyType(currencyName)
-                        .getDataFormatter()
-                        .formatBigDecimal(fixedAmount);
+                String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount);
 
                 // check if the transaction is withdrawl or deposit
                 BigDecimal previousAmount; // = BigDecimal.valueOf(0);
@@ -222,7 +214,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     if (ctyp.logTransactionEnabled()) {
                         Table transactionsTable = dbm.getTables().get("Transactions");
                         if (transactionsTable != null) {
-                            List<Column> temp = TransactionData.Transaction(timestamp, currencyName,
+                            List<Column> temp = TransactionTable.TransactionData(timestamp, currencyName,
                                     newAmount.toString(), transactionTypeFormatted, transactionFrom,
                                     player.getName(), transactionReason);
 

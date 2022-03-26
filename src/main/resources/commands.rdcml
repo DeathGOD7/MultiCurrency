@@ -13,10 +13,10 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.reload
     }
 
-    list {
-        hook listcurrency
-        help Lists all the available currency
-        permission multicurrency.list
+    debug {
+        hook debug
+        help Helps debugging the plugin
+        permission multicurrency.debug
     }
 
     add player:target CurrencyType:type int:moneyAmount --silent {

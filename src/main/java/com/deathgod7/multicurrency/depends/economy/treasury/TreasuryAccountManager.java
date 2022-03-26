@@ -1,20 +1,15 @@
 package com.deathgod7.multicurrency.depends.economy.treasury;
 
 import com.deathgod7.multicurrency.MultiCurrency;
-import com.deathgod7.multicurrency.data.DatabaseManager;
-import com.deathgod7.multicurrency.data.helper.AccountData;
+import com.deathgod7.multicurrency.data.helper.AccountTable;
 import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.data.helper.Table;
-import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
-import com.deathgod7.multicurrency.data.helper.TransactionData;
-import me.lokka30.treasury.api.economy.account.Account;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +48,9 @@ public class TreasuryAccountManager {
             }
             ConsoleLogger.info("All account data are loaded", ConsoleLogger.logTypes.debug);
         }
-        ConsoleLogger.info("Hmmm...strange, Accounts Table seems to be null.", ConsoleLogger.logTypes.debug);
+        else {
+            ConsoleLogger.info("Hmmm...strange, Accounts Table seems to be null.", ConsoleLogger.logTypes.debug);
+        }
     }
 
     // PLAYER REGION
@@ -67,7 +64,7 @@ public class TreasuryAccountManager {
         }
 
         boolean status = accountsTable.insert(
-                AccountData.PlayerAccount(
+                AccountTable.PlayerAccount(
                         player.getUniqueId().toString(),
                         player.getName()
                 )
@@ -117,7 +114,7 @@ public class TreasuryAccountManager {
 
 
         boolean status = accountsTable.insert(
-                AccountData.NonPlayerAccount(
+                AccountTable.NonPlayerAccount(
                         identifier,
                         npcname
                 )

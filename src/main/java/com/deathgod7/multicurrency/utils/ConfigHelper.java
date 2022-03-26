@@ -4,6 +4,7 @@ import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.configs.CurrencyConfig;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.data.helper.Column;
+import com.deathgod7.multicurrency.data.helper.CurrencyTable;
 import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import redempt.redlib.config.ConfigManager;
@@ -36,9 +37,19 @@ public final class ConfigHelper {
         currencyConfigsManager = new HashMap<>();
         List<String> configloc = listConfigs(path);
 
-        dbm.createAccountTable();
+        if (!dbm.getTables().containsKey("TreasuryAccounts")) {
+            dbm.createAccountTable();
+        }
+        else {
+            ConsoleLogger.warn("TreasuryAccounts table exists in database!", ConsoleLogger.logTypes.debug);
+        }
 
-        dbm.createTransactionTable();
+        if (!dbm.getTables().containsKey("Transactions")) {
+            dbm.createTransactionTable();
+        }
+        else {
+            ConsoleLogger.warn("Transactions table exists in database!", ConsoleLogger.logTypes.debug);
+        }
 
         for (String x:configloc) {
             CurrencyConfig ccfg = new CurrencyConfig();
@@ -52,18 +63,13 @@ public final class ConfigHelper {
 
             ConsoleLogger.info(String.format("Loaded %s currency config from file!", currencyName), ConsoleLogger.logTypes.log);
 
-            List<Column> temp = new ArrayList<>();
-            Column uuid = new Column("UUID", DatabaseManager.DataType.STRING, 100);
-            Column playername = new Column("Name", DatabaseManager.DataType.STRING, 100);
-            Column money = new Column("Money", DatabaseManager.DataType.STRING, 100);
-
-            temp.add(uuid);
-            temp.add(playername);
-            temp.add(money);
-
-           Table table = new Table(currencyName, temp);
-
-           dbm.createTable(table);
+            if (!dbm.getTables().containsKey(currencyName)) {
+                Table table = new Table(currencyName, CurrencyTable.CurrencyData());
+                dbm.createTable(table);
+            }
+            else {
+                ConsoleLogger.warn(String.format("%s currency table exists in database!", currencyName), ConsoleLogger.logTypes.debug);
+            }
 
         }
 

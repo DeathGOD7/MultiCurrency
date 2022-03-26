@@ -1,5 +1,6 @@
 package com.deathgod7.multicurrency.data;
 
+import com.deathgod7.multicurrency.utils.TextUtils;
 import org.bukkit.ChatColor;
 
 import java.math.BigDecimal;
@@ -37,7 +38,7 @@ public class DataFormatter {
         //ServerINFO.PaymentTax = setpaymenttax();
     }
 
-    public BigDecimal formatString(String am) {
+    public BigDecimal parseString(String am) {
         BigDecimal bigDecimal = new BigDecimal(am);
         if (isInt) {
             return bigDecimal.setScale(0, RoundingMode.DOWN);
@@ -46,7 +47,7 @@ public class DataFormatter {
         }
     }
 
-    public BigDecimal formatdouble(double am) {
+    public BigDecimal parseDouble(double am) {
         BigDecimal bigDecimal = BigDecimal.valueOf(am);
         if (isInt) {
             return bigDecimal.setScale(0, RoundingMode.DOWN);
@@ -55,7 +56,7 @@ public class DataFormatter {
         }
     }
 
-    public BigDecimal formatdouble(BigDecimal am) {
+    public BigDecimal parseBigDecimal(BigDecimal am) {
         if (isInt) {
             return am.setScale(0, RoundingMode.DOWN);
         } else {
@@ -66,22 +67,22 @@ public class DataFormatter {
     //@SuppressWarnings("ConstantConditions")
     public String formatBigDecimal(BigDecimal am) {
         if (am.compareTo(BigDecimal.ONE) == 0) {
-            return ChatColor.translateAlternateColorCodes('&', displayformat
+            return TextUtils.ConvertTextColor('&', displayformat
                     .replace("%balance%", decimalFormat.format(am))
                     .replace("%currencyname%", singularname));
         }
-        return ChatColor.translateAlternateColorCodes('&', displayformat
+        return TextUtils.ConvertTextColor('&', displayformat
                 .replace("%balance%", decimalFormat.format(am))
                 .replace("%currencyname%", pluralname));
     }
 
     public String formatDouble(double am) {
         if (am > 1) {
-            return ChatColor.translateAlternateColorCodes('&', displayformat
+            return TextUtils.ConvertTextColor('&', displayformat
                     .replace("%balance%", decimalFormat.format(am))
                     .replace("%currencyname%", pluralname));
         }
-        return ChatColor.translateAlternateColorCodes('&', displayformat
+        return TextUtils.ConvertTextColor('&', displayformat
                 .replace("%balance%", decimalFormat.format(am))
                 .replace("%currencyname%", singularname));
     }

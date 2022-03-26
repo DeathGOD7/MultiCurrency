@@ -143,12 +143,10 @@ public final class MultiCurrency extends JavaPlugin {
 
         ConsoleLogger.info("Loaded messages from file!", ConsoleLogger.logTypes.log);
 
+        // Load database
         if (dbm == null){
             dbm = new DatabaseManager(MultiCurrency.getInstance());
         }
-
-        ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
-
 
         Path defaultexample = MultiCurrency.getInstance().getPluginFolder().resolve("Economy");
         if (!Files.exists(defaultexample)) {
@@ -202,9 +200,12 @@ public final class MultiCurrency extends JavaPlugin {
         //some usage idk XD
 
         // Unregister to Treasury
-        ServiceRegistry.INSTANCE.unregister(
-                EconomyProvider.class,
-                treasuryManager.getTreasuryHook()
-        );
+        if (Bukkit.getPluginManager().getPlugin("Treasury") != null) {
+            ServiceRegistry.INSTANCE.unregister(
+                    EconomyProvider.class,
+                    treasuryManager.getTreasuryHook()
+            );
+        }
+
     }
 }

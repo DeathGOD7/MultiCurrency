@@ -1,13 +1,13 @@
 package com.deathgod7.multicurrency.data;
 
 import com.deathgod7.multicurrency.MultiCurrency;
-import com.deathgod7.multicurrency.data.helper.Column;
+import com.deathgod7.multicurrency.data.helper.*;
 import com.deathgod7.multicurrency.data.mysql.MySQL;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
-import com.deathgod7.multicurrency.data.helper.Table;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import me.lokka30.treasury.api.economy.account.Account;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -94,29 +94,35 @@ public class DatabaseManager {
         if (Objects.equals(choosenDB, "sqlite")){
             _sqlite = new SQLite(instance, "database", instance.getPluginFolder().resolve("Database").toString());
             ConsoleLogger.info("Database Type : SQLite", ConsoleLogger.logTypes.log);
-
+            loadSqliteTable();
+            ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
         }
         else if (Objects.equals(choosenDB, "mysql")){
             // to do mysql support
             ConsoleLogger.info("Database Type : MySQL", ConsoleLogger.logTypes.log);
+            loadMysqlTables();
+            ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
         }
         else {
             instance.getMainConfig().db_type = "sqlite";
             _sqlite = new SQLite(instance, "database");
             ConsoleLogger.info("Database Type : SQLite", ConsoleLogger.logTypes.log);
+            loadSqliteTable();
+            ConsoleLogger.info("Loaded database!", ConsoleLogger.logTypes.log);
         }
     }
 
     public void loadMysqlTables() {
-        // SELECT table_name FROM information_schema.tables;
-        String query = "SELECT * FROM information_schema.columns " +
-                "WHERE table_schema = '"+ this.getDBName() +"' " +
-                "ORDER BY table_name,ordinal_position";
+        String query = "SELECT table_name FROM information_schema.tables " +
+                "WHERE table_schema = '"+ this.getDBName() +"' AND table_type = 'base table' " +
+                "ORDER BY table_name";
         try {
             PreparedStatement ps = this.getConnection().prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                ConsoleLogger.info(rs.toString(), ConsoleLogger.logTypes.log);
+            while (rs.next()) {
+                String tablename = rs.getString(1);
+                ConsoleLogger.warn("Loaded Table : " + tablename, ConsoleLogger.logTypes.debug);
+                tables.put(tablename, new Table(tablename, CurrencyTable.CurrencyData()));
             }
             ps.close();
         } catch (SQLException e) {
@@ -125,17 +131,16 @@ public class DatabaseManager {
     }
 
     public void loadSqliteTable() {
-        // SELECT * FROM sqlite_master;
-        String queryx = "SELECT * FROM sqlite_master " +
-                "WHERE table_schema = '"+ this.getDBName() +"' " +
-                "ORDER BY table_name,ordinal_position";
-        String query = "SELECT * FROM sqlite_master WHERE type = 'table'";
+        String query = "SELECT tbl_name FROM sqlite_schema " +
+                "WHERE type = 'table' AND name NOT LIKE 'sqlite_%' " +
+                "ORDER by tbl_name";
         try {
             PreparedStatement ps = this.getConnection().prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                ConsoleLogger.info("Response : " + rs , ConsoleLogger.logTypes.debug);
+            while (rs.next()) {
+                String tablename = rs.getString(1);
+                ConsoleLogger.warn("Loaded Table : " + tablename, ConsoleLogger.logTypes.debug);
+                tables.put(tablename, new Table(tablename, CurrencyTable.CurrencyData()));
             }
             ps.close();
         } catch (SQLException e) {
@@ -148,40 +153,12 @@ public class DatabaseManager {
     }
 
     public void createAccountTable() {
-        List<Column> temp = new ArrayList<>();
-        Column uuid = new Column("UUID", DatabaseManager.DataType.STRING, 100);
-        Column name = new Column("Name", DatabaseManager.DataType.STRING, 100);
-        Column type = new Column("Type", DatabaseManager.DataType.STRING, 100);
-
-        temp.add(uuid);
-        temp.add(name);
-        temp.add(type);
-
-        Table table = new Table("TreasuryAccounts", temp);
-
+        Table table = new Table("TreasuryAccounts", AccountTable.AccountData());
         createTable(table);
     }
 
     public void createTransactionTable() {
-        List<Column> temp = new ArrayList<>();
-        Column timestamp = new Column("Timestamp", DatabaseManager.DataType.STRING, 100);
-        Column currency = new Column("Currency", DatabaseManager.DataType.STRING, 100);
-        Column amount = new Column("Amount", DatabaseManager.DataType.STRING, 100);
-        Column type = new Column("Type", DatabaseManager.DataType.STRING, 100);
-        Column from = new Column("From", DatabaseManager.DataType.STRING, 100);
-        Column to = new Column("To", DatabaseManager.DataType.STRING, 100);
-        Column reason = new Column("Reason", DatabaseManager.DataType.STRING, 100);
-
-        temp.add(timestamp);
-        temp.add(currency);
-        temp.add(amount);
-        temp.add(type);
-        temp.add(from);
-        temp.add(to);
-        temp.add(reason);
-
-        Table table = new Table("Transactions", temp);
-
+        Table table = new Table("Transactions", TransactionTable.TransactionData());
         createTable(table);
     }
 
@@ -211,22 +188,12 @@ public class DatabaseManager {
 
    public boolean createUser(Player player, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
-        List<Column> temp = new ArrayList<>();
-
-       TreasuryAccountManager tAM = instance.getTreasuryManager().getTreasuryAccountmanager();
-
-        if (!tAM.hasPlayerAccount(player.getUniqueId())){
-            tAM.registerPlayerAccount(player.getUniqueId());
-        }
 
         if (!doesUserExists(player, ctyp)) {
-            Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
-            Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
-            Column money = new Column("Money", ctyp.getStartBal(), DatabaseManager.DataType.STRING, 100);
-
-            temp.add(uuid);
-            temp.add(name);
-            temp.add(money);
+            List<Column> temp = CurrencyTable.CurrencyData(player.getUniqueId().toString(),
+                    player.getName(),
+                    ctyp.getStartBal(player)
+            );
 
             return table.insert(temp);
         }
@@ -235,21 +202,15 @@ public class DatabaseManager {
 
     public boolean createUser(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
-        List<Column> temp = new ArrayList<>();
         Player player = (Player) Bukkit.getOfflinePlayer(playerID);
 
         if (!doesUserExists(playerID, ctyp)) {
-            Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
-            Column name = new Column("Name", player.getName(), DatabaseManager.DataType.STRING, 100);
-            Column money = new Column("Money", ctyp.getStartBal(), DatabaseManager.DataType.STRING, 100);
+            List<Column> temp = CurrencyTable.CurrencyData(player.getUniqueId().toString(),
+                    player.getName(),
+                    ctyp.getStartBal(player)
+            );
 
-            temp.add(uuid);
-            temp.add(name);
-            temp.add(money);
-
-            table.insert(temp);
-
-            return true;
+            return table.insert(temp);
         }
         return false;
     }
