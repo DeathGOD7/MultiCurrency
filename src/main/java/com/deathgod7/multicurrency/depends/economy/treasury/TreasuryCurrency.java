@@ -157,9 +157,9 @@ public class TreasuryCurrency implements Currency {
             temp = new BigDecimal(currencyType.getStartBal());
         }
         else{
-            Player p = Bukkit.getPlayer(playerID.toString());
+            Player p = Bukkit.getPlayer(playerID);
             assert p != null;
-            temp = new BigDecimal(currencyType.getStartBal(p));
+            temp = new BigDecimal(currencyType.getStartBal(p.getName()));
         }
         return  temp;
     }

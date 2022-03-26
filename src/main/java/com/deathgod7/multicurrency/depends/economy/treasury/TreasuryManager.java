@@ -12,11 +12,6 @@ import java.util.*;
 public class TreasuryManager {
     MultiCurrency instance;
 
-    final TreasuryAccountManager treasuryAccountmanager;
-    public final TreasuryAccountManager getTreasuryAccountmanager() {
-        return treasuryAccountmanager;
-    }
-
     final TreasuryHook treasuryHook;
     public final TreasuryHook getTreasuryHook() {
         return treasuryHook;
@@ -34,7 +29,6 @@ public class TreasuryManager {
 
     public TreasuryManager (MultiCurrency instance){
         this.instance = instance;
-        treasuryAccountmanager = new TreasuryAccountManager(instance);
         treasuryHook = new TreasuryHook(instance);
         this.treasuryCurrency = new HashMap<>();
         this.currencyTypes = MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();

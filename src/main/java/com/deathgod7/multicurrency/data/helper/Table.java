@@ -3,6 +3,7 @@ package com.deathgod7.multicurrency.data.helper;
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -213,7 +214,7 @@ public class Table {
         }
     }
 
-    public List<List<Column>> getAll() {
+    public List<List<Column>> getAllColumns() {
         List<List<Column>> results = new ArrayList<>();
         String query = "SELECT * FROM " + getName();
         try {
@@ -224,12 +225,12 @@ public class Table {
                 for (int i = 0; i < getColumns().size(); i++) {
                     Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
                             getColumns().get(i).limit);
-                    if (getColumns().get(i).dataType == DatabaseManager.DataType.STRING) {
-                        s.setString(1, getColumns().get(i).getValue().toString());
-                    } else if (getColumns().get(i).dataType == DatabaseManager.DataType.INTEGER) {
-                        s.setInt(1, Integer.parseInt(getColumns().get(i).getValue().toString()));
+                    if (rCol.dataType == DatabaseManager.DataType.STRING) {
+                        rCol.setValue(rs.getString(i + 1));
+                    } else if (rCol.dataType == DatabaseManager.DataType.INTEGER) {
+                        rCol.setValue(rs.getInt(i + 1));
                     } else {
-                        s.setFloat(1, Float.parseFloat(getColumns().get(i).getValue().toString()));
+                        rCol.setValue(rs.getFloat(i + 1));
                     }
                     result.add(rCol);
                 }

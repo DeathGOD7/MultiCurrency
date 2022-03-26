@@ -18,6 +18,7 @@ import me.lokka30.treasury.api.economy.transaction.EconomyTransaction;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionInitiator;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionType;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import redempt.redlib.commandmanager.Messages;
@@ -29,7 +30,7 @@ import java.util.*;
 
 public class TreasuryPlayerAccount implements PlayerAccount {
     private final MultiCurrency instance;
-    private final Player player;
+    private final OfflinePlayer player;
     private final UUID uuid;
     private final EventBus eventBus = EventBus.INSTANCE;
     DatabaseManager dbm;
@@ -40,7 +41,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         this.dbm = instance.getDBM();
         this.treasuryManager = instance.getTreasuryManager();
         this.uuid = uuid;
-        this.player = (Player) Bukkit.getOfflinePlayer(uuid);
+        this.player = Bukkit.getOfflinePlayer(uuid);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(player.getName());
+        return Optional.ofNullable(player.getName());
     }
 
     @Override
@@ -61,13 +62,18 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         String currencyName = currency.getIdentifier();
         CurrencyType ctyp = treasuryManager.getCurrencyTypes().get(currencyName);
 
-        if (!dbm.doesUserExists(player, ctyp)){
-            dbm.createUser(player, ctyp);
+        if (!dbm.doesUserExists(uuid, ctyp)){
+            dbm.createUser(uuid, ctyp);
         }
 
-        value = new BigDecimal(dbm.getBalance(player, ctyp).toString());
+        value = dbm.getBalance(uuid, ctyp);
 
-        subscription.succeed(value);
+        if (value != null) {
+            subscription.succeed(value);
+        }
+        else {
+            subscription.fail(new EconomyException(FailureReasons.ACCOUNTS_RETRIEVE_FAILURE));
+        }
     }
 
     @Override
@@ -83,9 +89,9 @@ public class TreasuryPlayerAccount implements PlayerAccount {
             ctyp = treasuryManager.getCurrencyTypes().get(currencyName);
             BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-            String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount);
+            String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
 
-            boolean status = dbm.updateBalance(player, ctyp, fixedAmount);
+            boolean status = dbm.updateBalance(uuid, ctyp, fixedAmount);
 
             if (status) {
                 EconomyTransactionInitiator.Type type = initiator.getType();
@@ -107,7 +113,9 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 playermsg = Messages.msg("prefix") + " Your balance has been updated to " + formattedAmount;
 
                 ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
-                player.sendMessage(playermsg);
+                if (player.isOnline()) {
+                    Objects.requireNonNull(player.getPlayer()).sendMessage(playermsg);
+                }
 
                 subscription.succeed(fixedAmount);
 
@@ -116,6 +124,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 subscription.fail(new EconomyException(FailureReasons.UPDATE_FAILED));
             }
         }
+
     }
 
     @Override
@@ -150,7 +159,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
                 BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-                String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount);
+                String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
 
                 // check if the transaction is withdrawl or deposit
                 BigDecimal previousAmount; // = BigDecimal.valueOf(0);
@@ -161,6 +170,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 }
 
                 previousAmount = dbm.getBalance(uuid, ctyp);
+                boolean isWithdrawal = false;
 
                 if (transactionType == EconomyTransactionType.WITHDRAWAL) {
                     if (previousAmount.signum() <= 0){
@@ -171,17 +181,19 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     }
 
                     newAmount = previousAmount.subtract(fixedAmount);
+                    isWithdrawal = true;
                 }
                 else {
                     newAmount = previousAmount.add(fixedAmount);
                 }
 
-                boolean status = dbm.updateBalance(player, ctyp, newAmount);
+                boolean status = dbm.updateBalance(uuid, ctyp, newAmount);
 
                 if (status) {
                     EconomyTransactionInitiator.Type type = initiator.getType();
                     String consolemsg;
-                    String playermsg;
+                    String initiatormsg;
+                    String accountholdermsg;
                     String transactionFrom;
                     String transactionTypeFormatted;
 
@@ -191,25 +203,36 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                         transactionTypeFormatted = "PLAYER";
                         transactionFrom = initiatorPlayer.getName();
                         consolemsg = "Player " + initiatorPlayer.getName() + " has given " + player.getName() + " " + formattedAmount;
-                        playermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
+
+                        if (!isWithdrawal) {
+                            initiatormsg = Messages.msg("prefix") + " You have given player " + initiatorPlayer.getName()+ " " + formattedAmount;
+                            accountholdermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
+                            initiatorPlayer.sendMessage(initiatormsg);
+                        }
+                        else {
+                            accountholdermsg = Messages.msg("prefix") + " Your account has been deducted by " + formattedAmount;
+                        }
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                         String pluginname = (String) initiator.getData();
                         transactionTypeFormatted = "PLUGIN";
                         transactionFrom = pluginname;
                         consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
-                        playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
+                        accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
                     else {
                         transactionTypeFormatted = "SERVER";
                         transactionFrom = "Server";
                         consolemsg = "Server has given " + player.getName() + " " + formattedAmount;
-                        playermsg = Messages.msg("prefix") + " You got " + formattedAmount;
+                        accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
 
 
                     ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
-                    player.sendMessage(playermsg);
+
+                    if (player.isOnline()) {
+                        Objects.requireNonNull(player.getPlayer()).sendMessage(accountholdermsg);
+                    }
 
                     if (ctyp.logTransactionEnabled()) {
                         Table transactionsTable = dbm.getTables().get("Transactions");
@@ -252,7 +275,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         List<String> heldCurrencies = new ArrayList<>();
 
         for (CurrencyType x : instance.getTreasuryManager().getCurrencyTypes().values()) {
-            if (dbm.doesUserExists(player, x)) {
+            if (dbm.doesUserExists(uuid, x)) {
                 if (instance.getTreasuryManager().getTreasuryCurrency().containsKey(x.getName())) {
                     heldCurrencies.add(x.getName());
                 }

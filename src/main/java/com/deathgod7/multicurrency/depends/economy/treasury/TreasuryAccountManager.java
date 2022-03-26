@@ -28,20 +28,31 @@ public class TreasuryAccountManager {
 
     public void loadData() {
         if (accountsTable != null) {
-            for (List<Column> account : accountsTable.getAll()) {
-                if (account.get(2).getValue().toString().toUpperCase().equals("PLAYER")){
+            List<List<Column>> temp = accountsTable.getAllColumns();
+
+            if (temp == null) {
+                ConsoleLogger.severe("Ohh....something is wrong...It seems I couldn't get all accounts.", ConsoleLogger.logTypes.debug);
+                return;
+            }
+
+            for (List<Column> account : temp) {
+                String uuid = account.get(0).getValue().toString();
+                String name = account.get(1).getValue().toString();
+                String type = account.get(2).getValue().toString();
+
+                if (type.equalsIgnoreCase("PLAYER")) {
                     playerAccounts.put(
-                            account.get(0).getValue().toString(),
+                            uuid,
                             new TreasuryPlayerAccount(
-                                    instance, UUID.fromString(account.get(0).toString())
+                                    instance, UUID.fromString(uuid)
                                     )
                             );
                 }
                 else {
                     nonPlayerAccounts.put(
-                            account.get(0).getValue().toString(),
+                            uuid,
                             new TreasuryNpcAccount(
-                                    instance, account.get(0).toString(), account.get(1).toString()
+                                    instance, uuid, name
                             )
                     );
                 }
@@ -49,7 +60,7 @@ public class TreasuryAccountManager {
             ConsoleLogger.info("All account data are loaded", ConsoleLogger.logTypes.debug);
         }
         else {
-            ConsoleLogger.info("Hmmm...strange, Accounts Table seems to be null.", ConsoleLogger.logTypes.debug);
+            ConsoleLogger.info("Hmmm...strange, Accounts table seems to be null.", ConsoleLogger.logTypes.debug);
         }
     }
 
@@ -107,11 +118,8 @@ public class TreasuryAccountManager {
         NonPlayerAccount npcAccount;
 
         if (hasNpcAccount(identifier)) {
-            npcAccount = null;
-            return npcAccount;
+            return null;
         }
-
-
 
         boolean status = accountsTable.insert(
                 AccountTable.NonPlayerAccount(

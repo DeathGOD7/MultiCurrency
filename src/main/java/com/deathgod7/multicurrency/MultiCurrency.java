@@ -7,9 +7,8 @@ import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyTypeManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
-import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryHook;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
-import com.deathgod7.multicurrency.events.EventHandler;
+import com.deathgod7.multicurrency.events.EventHandlers;
 import com.deathgod7.multicurrency.utils.ConfigHelper;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import me.lokka30.treasury.api.common.service.ServicePriority;
@@ -79,6 +78,11 @@ public final class MultiCurrency extends JavaPlugin {
     TreasuryManager treasuryManager;
     public TreasuryManager getTreasuryManager() {
         return treasuryManager;
+    }
+
+    TreasuryAccountManager treasuryAccountmanager;
+    public TreasuryAccountManager getTreasuryAccountmanager() {
+        return treasuryAccountmanager;
     }
 
     public void ReloadConfigs() {
@@ -162,6 +166,8 @@ public final class MultiCurrency extends JavaPlugin {
         // manages all treasuy things
         treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
 
+        treasuryAccountmanager = new TreasuryAccountManager(MultiCurrency.getInstance());
+
         ArgType<CurrencyType> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
 
         new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
@@ -184,7 +190,7 @@ public final class MultiCurrency extends JavaPlugin {
         );
 
         // Register Events
-        EventHandler eventHandler = new EventHandler(MultiCurrency.getInstance());
+        EventHandlers eventHandler = new EventHandlers(MultiCurrency.getInstance());
         this.getServer().getPluginManager().registerEvents(eventHandler, MultiCurrency.getInstance());
 
 

@@ -34,15 +34,14 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public void hasPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<Boolean> subscription) {
-        subscription.succeed(instance.getTreasuryManager()
-                .getTreasuryAccountmanager()
+        subscription.succeed(instance.getTreasuryAccountmanager()
                 .hasPlayerAccount(accountId)
         );
     }
 
     @Override
     public void retrievePlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<PlayerAccount> subscription) {
-        PlayerAccount playerAccount =  instance.getTreasuryManager().getTreasuryAccountmanager().getPlayerAccount(accountId);
+        PlayerAccount playerAccount =  instance.getTreasuryAccountmanager().getPlayerAccount(accountId);
 
         if (playerAccount != null){
             subscription.succeed(playerAccount);
@@ -55,7 +54,7 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public void createPlayerAccount(@NotNull UUID accountId, @NotNull EconomySubscriber<PlayerAccount> subscription) {
-        PlayerAccount playerAccount = instance.getTreasuryManager().getTreasuryAccountmanager().registerPlayerAccount(accountId);
+        PlayerAccount playerAccount = instance.getTreasuryAccountmanager().registerPlayerAccount(accountId);
 
         if (playerAccount != null){
             subscription.succeed(playerAccount);
@@ -69,7 +68,7 @@ public class TreasuryHook implements EconomyProvider {
     public void retrievePlayerAccountIds(@NotNull EconomySubscriber<Collection<UUID>> subscription) {
         List<UUID> uuidList = new ArrayList<>();
 
-        HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
+        HashMap<String, PlayerAccount> temp = instance.getTreasuryAccountmanager().getAllPlayerAccounts();
 
         for (String x : temp.keySet()) {
             uuidList.add(UUID.fromString(x));
@@ -87,14 +86,14 @@ public class TreasuryHook implements EconomyProvider {
     // non player account uses "hasAccount" method
     @Override
     public void hasAccount(@NotNull String identifier, @NotNull EconomySubscriber<Boolean> subscription) {
-        boolean status = instance.getTreasuryManager().getTreasuryAccountmanager().hasNpcAccount(identifier);
+        boolean status = instance.getTreasuryAccountmanager().hasNpcAccount(identifier);
 
         subscription.succeed(status);
     }
 
     @Override
     public void retrieveAccount(@NotNull String identifier, @NotNull EconomySubscriber<Account> subscription) {
-        NonPlayerAccount nonPlayerAccount = instance.getTreasuryManager().getTreasuryAccountmanager().getNpcAccount(identifier);
+        NonPlayerAccount nonPlayerAccount = instance.getTreasuryAccountmanager().getNpcAccount(identifier);
 
         if (nonPlayerAccount != null){
             subscription.succeed(nonPlayerAccount);
@@ -107,7 +106,7 @@ public class TreasuryHook implements EconomyProvider {
 
     @Override
     public void createAccount(@Nullable String name, @NotNull String identifier, @NotNull EconomySubscriber<Account> subscription) {
-        NonPlayerAccount nonPlayerAccount = instance.getTreasuryManager().getTreasuryAccountmanager().registerNpcAccount(identifier, name);
+        NonPlayerAccount nonPlayerAccount = instance.getTreasuryAccountmanager().registerNpcAccount(identifier, name);
 
         if (nonPlayerAccount != null){
             subscription.succeed(nonPlayerAccount);
@@ -120,7 +119,7 @@ public class TreasuryHook implements EconomyProvider {
     @Override
     public void retrieveNonPlayerAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
 
-        HashMap<String, NonPlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
+        HashMap<String, NonPlayerAccount> temp = instance.getTreasuryAccountmanager().getAllNpcAccounts();
 
         List<String> accountIds = new ArrayList<>(temp.keySet());
 
@@ -137,8 +136,8 @@ public class TreasuryHook implements EconomyProvider {
     public void retrieveAccountIds(@NotNull EconomySubscriber<Collection<String>> subscription) {
         List<String> accountIds = new ArrayList<>();
 
-        HashMap<String, PlayerAccount> temp = instance.getTreasuryManager().getTreasuryAccountmanager().getAllPlayerAccounts();
-        HashMap<String, NonPlayerAccount> temp1 = instance.getTreasuryManager().getTreasuryAccountmanager().getAllNpcAccounts();
+        HashMap<String, PlayerAccount> temp = instance.getTreasuryAccountmanager().getAllPlayerAccounts();
+        HashMap<String, NonPlayerAccount> temp1 = instance.getTreasuryAccountmanager().getAllNpcAccounts();
 
         accountIds.addAll(temp.keySet());
         accountIds.addAll(temp1.keySet());

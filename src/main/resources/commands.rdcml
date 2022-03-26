@@ -61,10 +61,47 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.balance.others
     }
 
+    bal,balance,money,cash CurrencyType:type string:target {
+        hook balother2
+        help Checks money from specified currency of other player
+        permission multicurrency.balance.others
+    }
+
     baltop CurrencyType:type {
         hook baltop
         help Opens a list of top balances of specified currency
         permission multicurrency.baltop
+    }
+
+    npc,nonplayer {
+        permission multicurrency.npc
+
+        list CurrencyType:type {
+            hook npclist
+            help Shows a list of all non player accounts
+            permission multicurrency.npc.list
+        }
+
+        create,add CurrencyType:type {
+            hook npccreate
+            help Shows a list of all non player accounts
+            permission multicurrency.npc.create
+        }
+
+        delete,remove CurrencyType:type {
+            hook npcdelete
+            help Shows a list of all non player accounts
+            permission multicurrency.npc.delete
+        }
+
+        rename CurrencyType:type {
+            hook npcrename
+            help Shows a list of all non player accounts
+            permission multicurrency.npc.rename
+        }
+
+
+
     }
 
 }

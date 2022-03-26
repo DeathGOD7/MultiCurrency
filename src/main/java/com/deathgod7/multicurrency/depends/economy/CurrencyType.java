@@ -41,10 +41,7 @@ public class CurrencyType {
     @ConfigName("custom-start-bal")
     Map<String, String> customStartBal = new HashMap<>();
 
-    //this._displayFormat = "%balance% %currencyname%";
-    //Long.parseLong(s
-
-    final transient DataFormatter dataFormatter;
+    transient DataFormatter dataFormatter;
 
     public CurrencyType(){
         this.name = "Soul";
@@ -56,7 +53,7 @@ public class CurrencyType {
         this.isCurrencyInt = true;
         this.logTransaction = false;
         this.thousandSeperator = ",";
-        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, null, isCurrencyInt, thousandSeperator);
+        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, null, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
         this.minBal = "0";
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = "0";
@@ -81,21 +78,21 @@ public class CurrencyType {
         this.conversionRate = cfg.currency.conversionRate;
         this.customStartBal = cfg.currency.customStartBal;
         this.decimalPrecision = cfg.currency.decimalPrecision;
-        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxBal, isCurrencyInt, thousandSeperator);
+        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, this.maxBal, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
     }
 
-    public CurrencyType(String name, String currencysymbol, String thousandSeperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, boolean logTransaction, String singular, String plural, String baldisplayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
+    public CurrencyType(String name, String currencySymbol, String thousandseperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, boolean logTransaction, String singular, String plural, String displayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
         this.name = name;
-        this.currencysymbol = currencysymbol;
+        this.currencysymbol = currencySymbol;
         this.singularName = singular;
         this.pluralName = plural;
-        this.displayFormat = baldisplayformat;
+        this.displayFormat = displayformat;
         this.decimalPrecision = decimalPrecision;
         this.isCurrencyInt = currencyAsInt;
-        this.thousandSeperator = thousandSeperator;
+        this.thousandSeperator = thousandseperator;
         this.logTransaction = logTransaction;
-        this.dataFormatter = new DataFormatter(displayFormat, singularName, pluralName, maxbal, isCurrencyInt, thousandSeperator);
         this.minBal = minbal;
+        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, maxbal, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
         this.maxBal = dataFormatter.maxNumber.toString();
         this.startBal = startbal;
         this.conversionRate = conversionRate;
@@ -135,8 +132,8 @@ public class CurrencyType {
         return startBal;
     }
 
-    public String getStartBal(Player player){
-        return customStartBal.getOrDefault(player.getName(), startBal);
+    public String getStartBal(String player){
+        return customStartBal.getOrDefault(player, startBal);
     }
 
     public boolean isCurrencyInt(){

@@ -4,14 +4,24 @@ import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DataFormatter;
 import com.deathgod7.multicurrency.data.DatabaseManager;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import com.deathgod7.multicurrency.utils.TextUtils;
+import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
+import me.lokka30.treasury.api.economy.account.PlayerAccount;
+import me.lokka30.treasury.api.economy.currency.Currency;
+import me.lokka30.treasury.api.economy.response.EconomyException;
+import me.lokka30.treasury.api.economy.response.EconomySubscriber;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import redempt.redlib.commandmanager.CommandHook;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.deathgod7.multicurrency.utils.TextUtils.ConvertTextColor;
 
@@ -20,11 +30,13 @@ public class CommandHandler {
     private final MultiCurrency instance;
     private final DatabaseManager dbm;
     private final TreasuryManager treasuryManager;
+    private final TreasuryAccountManager tAM;
 
     public CommandHandler(MultiCurrency instance) {
         this.instance = instance;
         this.dbm = instance.getDBM();
         this.treasuryManager = instance.getTreasuryManager();
+        this.tAM = instance.getTreasuryAccountmanager();
     }
 
     @CommandHook("info")
@@ -169,25 +181,46 @@ public class CommandHandler {
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
         }
 
-        if (commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+        if (!commandSender.getName().equalsIgnoreCase("PLAYER")) {
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Cannot invoke this command from server console!!"));
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Please specify player if you want to view players balance."));
             return;
         }
 
-        Player player = (Player) commandSender;
+        Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
 
-        //if ()
-
-
-        if (!dbm.doesUserExists(player, currencyType)) {
-            dbm.createUser(player, currencyType);
+        if (currency == null) {
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+            return;
         }
 
+        Player player = (Player) commandSender;
         DataFormatter dataFormatter = currencyType.getDataFormatter();
-        BigDecimal amount = new BigDecimal(dbm.getBalance(player,currencyType).toString());
+        final BigDecimal[] amount = {BigDecimal.ZERO};
 
-        commandSender.sendMessage("Your balance is " + dataFormatter.formatBigDecimal(amount));
+        if ( !tAM.hasPlayerAccount(player.getUniqueId() )) {
+            tAM.registerPlayerAccount(player.getUniqueId());
+        }
+
+        PlayerAccount playerAccount = tAM.getPlayerAccount(player.getUniqueId());
+
+        playerAccount.retrieveBalance(currency,
+            new EconomySubscriber<BigDecimal>() {
+                @Override
+                public void succeed(@NotNull BigDecimal bigDecimal) {
+                    amount[0] = bigDecimal;
+                }
+
+                @Override
+                public void fail(@NotNull EconomyException exception) {
+                    commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get player account from database!!"));
+                    ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                }
+            }
+        );
+
+        commandSender.sendMessage("Your balance is " + dataFormatter.formatBigDecimal(amount[0], false));
 
     }
 
@@ -199,14 +232,117 @@ public class CommandHandler {
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
         }
 
-        if (!dbm.doesUserExists(target, currencyType)) {
-            dbm.createUser(target, currencyType);
+        Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
+
+        if (currency == null) {
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+            return;
         }
 
         DataFormatter dataFormatter = currencyType.getDataFormatter();
-        BigDecimal amount = new BigDecimal(dbm.getBalance(target,currencyType).toString());
+        final BigDecimal[] amount = {BigDecimal.ZERO};
 
-        commandSender.sendMessage("Your balance is " + dataFormatter.formatBigDecimal(amount));
+        if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
+            tAM.registerPlayerAccount(target.getUniqueId());
+        }
+
+        PlayerAccount playerAccount = tAM.getPlayerAccount(target.getUniqueId());
+
+        playerAccount.retrieveBalance(currency,
+                new EconomySubscriber<BigDecimal>() {
+                    @Override
+                    public void succeed(@NotNull BigDecimal bigDecimal) {
+                        amount[0] = bigDecimal;
+                    }
+
+                    @Override
+                    public void fail(@NotNull EconomyException exception) {
+                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get player account from database!!"));
+                        ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                    }
+                }
+        );
+
+        commandSender.sendMessage(target.getName() + " balance is " + dataFormatter.formatBigDecimal(amount[0], false));
+    }
+
+    @CommandHook("balother2")
+    public void balother2(CommandSender commandSender, CurrencyType currencyType, String target) {
+        if (instance.getMainConfig().debug) {
+            commandSender.sendMessage("Command Sender : " + commandSender.getName());
+            commandSender.sendMessage("Target : " + target);
+            commandSender.sendMessage("Currency Type : " + currencyType.getName());
+        }
+
+        Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
+
+        if (currency == null) {
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+            return;
+        }
+
+        DataFormatter dataFormatter = currencyType.getDataFormatter();
+        UUID playerID = Bukkit.getPlayerUniqueId(target);
+        final BigDecimal[] amount = {BigDecimal.ZERO};
+
+        if (playerID == null) {
+            if ( !tAM.hasNpcAccount(target)) {
+                String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
+                commandSender.sendMessage(msg);
+                ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
+                return;
+            }
+
+            NonPlayerAccount nonPlayerAccount = tAM.getNpcAccount(target);
+
+            nonPlayerAccount.retrieveBalance(currency,
+                    new EconomySubscriber<BigDecimal>() {
+                        @Override
+                        public void succeed(@NotNull BigDecimal bigDecimal) {
+                            amount[0] = bigDecimal;
+                        }
+
+                        @Override
+                        public void fail(@NotNull EconomyException exception) {
+                            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get non player account from database!!"));
+                            ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                        }
+                    }
+            );
+
+            commandSender.sendMessage("NPC " + target + " balance is " + dataFormatter.formatBigDecimal(amount[0], false));
+
+        }
+        else {
+
+            if (!tAM.hasPlayerAccount(playerID)) {
+                tAM.registerPlayerAccount(playerID);
+            }
+
+            PlayerAccount playerAccount = tAM.getPlayerAccount(playerID);
+
+            playerAccount.retrieveBalance(currency,
+                    new EconomySubscriber<BigDecimal>() {
+                        @Override
+                        public void succeed(@NotNull BigDecimal bigDecimal) {
+                            amount[0] = bigDecimal;
+                        }
+
+                        @Override
+                        public void fail(@NotNull EconomyException exception) {
+                            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get player account from database!!"));
+                            ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                        }
+                    }
+            );
+
+            commandSender.sendMessage(target + " balance is " + dataFormatter.formatBigDecimal(amount[0], false));
+            commandSender.sendMessage("Display Format : " + dataFormatter.displayformat);
+            commandSender.sendMessage("Symbol : " + dataFormatter.symbol);
+        }
+
     }
 
     @CommandHook("baltop")
@@ -215,5 +351,44 @@ public class CommandHandler {
         commandSender.sendMessage("Command Sender : " + commandSender.getName());
         commandSender.sendMessage("Currency Type : " + currencyType.getName());
     }
+
+    // -------------------------------------------------------------------
+    // ------------------[ NON PLAYER SECTION ]---------------------------
+    // -------------------------------------------------------------------
+
+    @CommandHook("npclist")
+    public void npclist(CommandSender commandSender, CurrencyType currencyType) {
+        commandSender.sendMessage("npclist will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
+    }
+
+    @CommandHook("npccreate")
+    public void npccreate(CommandSender commandSender, CurrencyType currencyType) {
+        commandSender.sendMessage("npccreate will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
+    }
+
+    @CommandHook("npcdelete")
+    public void npcdelete(CommandSender commandSender, CurrencyType currencyType) {
+        commandSender.sendMessage("npcdelete will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
+    }
+
+    @CommandHook("npcrename")
+    public void npcrename(CommandSender commandSender, CurrencyType currencyType) {
+        commandSender.sendMessage("npcrename will be implemented soon!");
+        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+        commandSender.sendMessage("Currency Type : " + currencyType.getName());
+    }
+
+//    @CommandHook("baltop")
+//    public void baltop(CommandSender commandSender, CurrencyType currencyType) {
+//        commandSender.sendMessage("balother will be implemented soon!");
+//        commandSender.sendMessage("Command Sender : " + commandSender.getName());
+//        commandSender.sendMessage("Currency Type : " + currencyType.getName());
+//    }
 
 }

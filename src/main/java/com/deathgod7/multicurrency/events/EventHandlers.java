@@ -7,28 +7,31 @@ import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManag
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class EventHandler implements Listener {
+public class EventHandlers implements Listener {
 
     MultiCurrency instance;
     TreasuryManager treasuryManager;
     DatabaseManager dbm;
     TreasuryAccountManager tAM;
 
-    public EventHandler(MultiCurrency instance) {
+    public EventHandlers(MultiCurrency instance) {
         this.instance = instance;
         this.treasuryManager = instance.getTreasuryManager();
         this.dbm = instance.getDBM();
-        this.tAM = this.treasuryManager.getTreasuryAccountmanager();
+        this.tAM = instance.getTreasuryAccountmanager();
     }
 
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         if (!tAM.hasPlayerAccount(player.getUniqueId())){
             tAM.registerPlayerAccount(player.getUniqueId());
+            ConsoleLogger.info("User ("+ player.getName() +") player account created.", ConsoleLogger.logTypes.debug);
         }
 
         for (CurrencyType ctyp : treasuryManager.getCurrencyTypes().values()) {
@@ -39,14 +42,14 @@ public class EventHandler implements Listener {
                     boolean status = dbm.createUser(player, ctyp);
 
                     if (status){
-                        ConsoleLogger.info("User ("+ player.getName() +") account created.", ConsoleLogger.logTypes.debug);
+                        ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency created.", ConsoleLogger.logTypes.debug);
                     }
                     else {
-                        ConsoleLogger.info("User ("+ player.getName() +") account couldnot be created.", ConsoleLogger.logTypes.debug);
+                        ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency couldn't be created.", ConsoleLogger.logTypes.debug);
                     }
                 }
                 else {
-                    ConsoleLogger.info("User ("+ player.getName() +") already exists. Skipping account creation.", ConsoleLogger.logTypes.debug);
+                    ConsoleLogger.info("User ("+ player.getName() +") in " + ctyp.getName() + " already exists. Skipping account creation.", ConsoleLogger.logTypes.debug);
                 }
             }
         }

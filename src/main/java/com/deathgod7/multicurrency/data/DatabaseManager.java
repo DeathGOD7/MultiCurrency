@@ -5,10 +5,9 @@ import com.deathgod7.multicurrency.data.helper.*;
 import com.deathgod7.multicurrency.data.mysql.MySQL;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
-import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
-import me.lokka30.treasury.api.economy.account.Account;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -192,7 +191,7 @@ public class DatabaseManager {
         if (!doesUserExists(player, ctyp)) {
             List<Column> temp = CurrencyTable.CurrencyData(player.getUniqueId().toString(),
                     player.getName(),
-                    ctyp.getStartBal(player)
+                    ctyp.getStartBal(player.getName())
             );
 
             return table.insert(temp);
@@ -200,14 +199,29 @@ public class DatabaseManager {
        return false;
    }
 
-    public boolean createUser(UUID playerID, CurrencyType ctyp){
+    public boolean createUser(UUID uuid, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
-        Player player = (Player) Bukkit.getOfflinePlayer(playerID);
 
-        if (!doesUserExists(playerID, ctyp)) {
-            List<Column> temp = CurrencyTable.CurrencyData(player.getUniqueId().toString(),
+        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+
+        if (!doesUserExists(uuid, ctyp)) {
+            List<Column> temp = CurrencyTable.CurrencyData(uuid.toString(),
                     player.getName(),
-                    ctyp.getStartBal(player)
+                    ctyp.getStartBal(player.getName())
+            );
+
+            return table.insert(temp);
+        }
+        return false;
+    }
+
+    public boolean createNonUser(String identifier, CurrencyType ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        if (!doesNonUserExists(identifier, ctyp)) {
+            List<Column> temp = CurrencyTable.CurrencyData(identifier,
+                    identifier,
+                    ctyp.getStartBal()
             );
 
             return table.insert(temp);
@@ -224,9 +238,13 @@ public class DatabaseManager {
     public boolean doesUserExists(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
-        Player player = (Player) Bukkit.getOfflinePlayer(playerID);
+        Column uuid = new Column("UUID", playerID.toString(), DatabaseManager.DataType.STRING, 100);
+        return table.getExact(uuid) != null;
+    }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+    public boolean doesNonUserExists(String identifier, CurrencyType ctyp){
+        Table table = tables.get(ctyp.getName());
+        Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
         return table.getExact(uuid) != null;
     }
 
@@ -235,7 +253,6 @@ public class DatabaseManager {
 
         if (!doesUserExists(player, ctyp)){
             createUser(player, ctyp);
-            return true;
         }
 
         Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
@@ -250,18 +267,27 @@ public class DatabaseManager {
     public boolean updateBalance(UUID playerID, CurrencyType ctyp, BigDecimal newmoney){
         Table table = tables.get(ctyp.getName());
 
-        Player player = Bukkit.getPlayer(playerID);
-
-        if (player == null) {
-            return  false;
-        }
-
         if (!doesUserExists(playerID, ctyp)){
             createUser(playerID, ctyp);
-            return true;
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column uuid = new Column("UUID", playerID.toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", newmoney.toString(), DatabaseManager.DataType.STRING, 100);
+
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean updateNonUserBalance(String identifier, CurrencyType ctyp, BigDecimal newmoney){
+        Table table = tables.get(ctyp.getName());
+
+        if (!doesNonUserExists(identifier, ctyp)) {
+            createNonUser(identifier, ctyp);
+        }
+
+        Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
         Column money = new Column("Money", newmoney.toString(), DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();
@@ -293,18 +319,34 @@ public class DatabaseManager {
     public BigDecimal getBalance(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
-        Player player = Bukkit.getPlayer(playerID);
+        OfflinePlayer player = Bukkit.getOfflinePlayer(playerID);
 
-        if (player == null) {
-            return BigDecimal.valueOf(0);
-        }
-
-        if (!doesUserExists(player, ctyp)){
+        if (!doesUserExists(playerID, ctyp)){
             createUser(playerID, ctyp);
             return BigDecimal.valueOf(0);
         }
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        Column uuid = new Column("UUID", playerID.toString(), DatabaseManager.DataType.STRING, 100);
+
+        HashMap<String, Column> tableslist =  new HashMap<>();
+        for (Column c : table.getExact(uuid)) {
+            tableslist.put(c.getName(), c);
+        }
+
+        String playermoney = tableslist.get("Money").getValue().toString();
+
+        return new BigDecimal(playermoney);
+    }
+
+    public BigDecimal getNonUserBalance(String identifier, CurrencyType ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        if (!doesNonUserExists(identifier, ctyp)) {
+            createNonUser(identifier, ctyp);
+            return BigDecimal.valueOf(0);
+        }
+
+        Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
 
         HashMap<String, Column> tableslist =  new HashMap<>();
         for (Column c : table.getExact(uuid)) {
@@ -331,13 +373,21 @@ public class DatabaseManager {
     public boolean resetBalance(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
 
-        Player player = Bukkit.getPlayer(playerID);
+        OfflinePlayer player = Bukkit.getOfflinePlayer(playerID);
 
-        if (player == null) {
-            return  false;
-        }
+        Column uuid = new Column("UUID", playerID.toString(), DatabaseManager.DataType.STRING, 100);
+        Column money = new Column("Money", "0", DatabaseManager.DataType.STRING, 100);
 
-        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
+        List<Column> temp = new ArrayList<>();
+        temp.add(money);
+
+        return table.update(uuid, temp);
+    }
+
+    public boolean resetNonUserBalance(String identifier, CurrencyType ctyp){
+        Table table = tables.get(ctyp.getName());
+
+        Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
         Column money = new Column("Money", "0", DatabaseManager.DataType.STRING, 100);
 
         List<Column> temp = new ArrayList<>();

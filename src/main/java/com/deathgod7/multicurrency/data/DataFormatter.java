@@ -12,18 +12,20 @@ public class DataFormatter {
 
     public DecimalFormat decimalFormat;
     public BigDecimal maxNumber;
-    String displayformat; // = XConomy.config.getString("Currency.display-format");
-    String pluralname; // = XConomy.config.getString("Currency.plural-name");
-    String singularname;// = XConomy.config.getString("Currency.singular-name");
-    boolean isInt;
+    public String displayformat;
+    public String pluralname;
+    public String singularname;
+    public String symbol;
+    public boolean isInt;
 
-    public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, String thousandseperator){
+    public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, String thousandseperator, String symbol){
         this.displayformat = displayformat;
         this.singularname = singularname;
         this.pluralname = pluralname;
         this.maxNumber = getMaxNumber(maxBal);
         this.decimalFormat = new DecimalFormat();
         this.isInt = isintegar;
+        this.symbol = symbol;
 
         if (!isInt) {
             decimalFormat.setMinimumFractionDigits(2);
@@ -34,8 +36,6 @@ public class DataFormatter {
         spoint.setGroupingSeparator(thousandseperator.toCharArray()[0]);
         decimalFormat.setDecimalFormatSymbols(spoint);
 
-
-        //ServerINFO.PaymentTax = setpaymenttax();
     }
 
     public BigDecimal parseString(String am) {
@@ -64,27 +64,38 @@ public class DataFormatter {
         }
     }
 
-    //@SuppressWarnings("ConstantConditions")
-    public String formatBigDecimal(BigDecimal am) {
-        if (am.compareTo(BigDecimal.ONE) == 0) {
-            return TextUtils.ConvertTextColor('&', displayformat
-                    .replace("%balance%", decimalFormat.format(am))
-                    .replace("%currencyname%", singularname));
+    public String formatBigDecimal(BigDecimal am, boolean withName) {
+        if (withName) {
+            if (am.compareTo(BigDecimal.ONE) == 0) {
+                return decimalFormat.format(am) + singularname;
+            }
+            else {
+                return decimalFormat.format(am) + pluralname;
+            }
         }
-        return TextUtils.ConvertTextColor('&', displayformat
-                .replace("%balance%", decimalFormat.format(am))
-                .replace("%currencyname%", pluralname));
+        else {
+            return TextUtils.ConvertTextColor('&', displayformat
+                        .replace("%balance%", decimalFormat.format(am))
+                        .replace("%currencysymbol%", symbol)
+            );
+        }
     }
 
-    public String formatDouble(double am) {
-        if (am > 1) {
+    public String formatDouble(double am, boolean withName) {
+        if (withName) {
+            if (am > 1) {
+                return decimalFormat.format(am) + pluralname;
+            }
+            else {
+                return decimalFormat.format(am) + singularname;
+            }
+        }
+        else {
             return TextUtils.ConvertTextColor('&', displayformat
                     .replace("%balance%", decimalFormat.format(am))
-                    .replace("%currencyname%", pluralname));
+                    .replace("%currencysymbol%", symbol)
+            );
         }
-        return TextUtils.ConvertTextColor('&', displayformat
-                .replace("%balance%", decimalFormat.format(am))
-                .replace("%currencyname%", singularname));
     }
 
     public boolean isMAX(BigDecimal am) {
