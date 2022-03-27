@@ -29,7 +29,8 @@ public class DataFormatter {
 
         if (!isInt) {
             decimalFormat.setMinimumFractionDigits(2);
-            decimalFormat.setMaximumFractionDigits(2);
+        } else {
+            decimalFormat.setMaximumFractionDigits(0);
         }
 
         DecimalFormatSymbols spoint = new DecimalFormatSymbols();

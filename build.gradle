@@ -1,0 +1,111 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'maven-publish'
+}
+
+
+group = 'com.deathgod7'
+version = '1.0-alpha'
+description = 'A plugin to create custom multiple currency in server.'
+
+
+repositories {
+    mavenLocal()
+	mavenCentral()
+	
+	// ---------- [ Paper MC ] ----------
+    maven {
+        url = uri('https://papermc.io/repo/repository/maven-public/')
+    }
+	
+	// ---------- [ Sonatype ] ----------
+    maven {
+        url = uri('https://oss.sonatype.org/content/groups/public/')
+    }
+	
+	// ---------- [ Redempt / Redlib ] ----------
+    maven {
+        url = uri('https://redempt.dev')
+    }
+	
+	// ---------- [ Jitpack ] ----------
+    maven {
+        url = uri('https://jitpack.io')
+    }
+
+	// ---------- [ CodeMC ] ----------
+    maven {
+        url = uri('https://repo.codemc.org/repository/maven-public')
+    }
+
+	// ---------- [ PlaceholderAPI ] ----------
+    maven {
+        url = uri('https://repo.extendedclip.com/content/repositories/placeholderapi/')
+    }
+
+	// ---------- [ Apache Maven ] ----------
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+dependencies {
+	// ---------- [ Paper MC ] ----------
+	// !!! Good ol' mate. !!!
+    compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
+	// ---------- [ RedLib ] ----------
+	// !!! The lib developed by good guy to help other good guy like me! >.< !!!
+    implementation 'com.github.Redempt:RedLib:6.5.1.9'
+	// ---------- [ Treasury ] ----------
+	// !!! Where ya' gold stored at mate? Arrrrgh!! !!!
+    compileOnly 'me.lokka30:treasury-api:1.1.1'
+	// ---------- [ Vault ] ----------
+	// !!! Just to disable essentials incase you hate its economy. Might add vault support later. :> !!!
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+	// ---------- [ PlaceholderAPI ] ----------
+	// !!! Placeholders will be implemented later on. Trust me, I don't know about implementing it yet. !!!
+    compileOnly 'me.clip:placeholderapi:2.11.1'
+	// ---------- [ HikariCP ] ----------
+	// https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    // !!! Hikari CP for efficient MySQL support. Fast as F bois. :> !!!
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+}
+
+def targetJavaVersion = 17
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+shadowJar {
+    minimize()
+    relocation("com.zaxxer", "com.deathgod7")
+    relocation("com.github.Redempt", "com.deathgod7")
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+

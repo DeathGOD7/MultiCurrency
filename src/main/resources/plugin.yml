@@ -1,5 +1,5 @@
 name: "MultiCurrency"
-version: '${project.version}'
+version: '${version}'
 main: com.deathgod7.multicurrency.MultiCurrency
 api-version: 1.13
 prefix: "MultiCurrency"
