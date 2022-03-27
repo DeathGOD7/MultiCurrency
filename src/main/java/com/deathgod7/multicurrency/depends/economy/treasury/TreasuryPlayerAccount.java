@@ -80,13 +80,15 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     public void setBalance(@NotNull BigDecimal amount, @NotNull EconomyTransactionInitiator<?> initiator, @NotNull Currency currency, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = currency.getIdentifier();
         CurrencyType ctyp;
-        DataFormatter dataFormatter = instance.getCurrencyTypeManager().getCurrencyType(currencyName).getDataFormatter();
+        DataFormatter dataFormatter;
 
         if (!treasuryManager.getTreasuryCurrency().containsKey(currencyName)) {
             subscription.fail(new EconomyException(FailureReasons.INVALID_CURRENCY));
         }
         else {
             ctyp = treasuryManager.getCurrencyTypes().get(currencyName);
+            dataFormatter = new DataFormatter(ctyp);
+
             BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
             String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
@@ -136,8 +138,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
         EconomyTransactionType transactionType = economyTransaction.getTransactionType();
         EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
 
-        DataFormatter dataFormatter = instance.getCurrencyTypeManager().getCurrencyType(currencyName).getDataFormatter();
-
+        DataFormatter dataFormatter;
         CurrencyType ctyp;
 
         if (!treasuryManager.getTreasuryCurrency().containsKey(currencyName)) {
@@ -152,6 +153,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
             }
             else {
                 ctyp = treasuryManager.getCurrencyTypes().get(currencyName);
+                dataFormatter = new DataFormatter(ctyp);
 
                 if (amount.signum() <= 0) {
                     subscription.fail(new EconomyException(FailureReasons.INVALID_VALUE));

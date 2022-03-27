@@ -83,10 +83,14 @@ java {
     }
 }
 
+build {
+    dependsOn(shadowJar)
+}
+
 shadowJar {
     minimize()
-    relocation("com.zaxxer", "com.deathgod7")
-    relocation("com.github.Redempt", "com.deathgod7")
+    relocate ("com.zaxxer", "com.deathgod7")
+    relocate ("com.github.Redempt", "com.deathgod7")
 }
 
 compileJava {

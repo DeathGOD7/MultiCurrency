@@ -7,6 +7,7 @@ import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import com.deathgod7.multicurrency.utils.SE7ENUtils;
 import com.deathgod7.multicurrency.utils.TextUtils;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
@@ -86,9 +87,6 @@ public class CommandHandler {
 
     @CommandHook("debug")
     public void debug(CommandSender commandSender) {
-        if (instance.getMainConfig().debug) {
-            commandSender.sendMessage("Command Sender : " + commandSender.getName());
-        }
 
         StringBuilder temp = new StringBuilder();
         for (String x : instance.getTreasuryManager().getTreasuryCurrency().keySet()) {
@@ -107,7 +105,7 @@ public class CommandHandler {
 
     @CommandHook("add")
     public void add(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -115,13 +113,11 @@ public class CommandHandler {
             commandSender.sendMessage("Is Silent : " + isSilent);
         }
 
-
-
     }
 
     @CommandHook("set")
     public void set(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -135,7 +131,7 @@ public class CommandHandler {
 
     @CommandHook("take")
     public void take(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -149,7 +145,8 @@ public class CommandHandler {
 
     @CommandHook("give")
     public void give(CommandSender commandSender, Player target, CurrencyType currencyType, int amount, boolean isSilent) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -163,7 +160,7 @@ public class CommandHandler {
 
     @CommandHook("reset")
     public void reset(CommandSender commandSender, Player target, CurrencyType currencyType, boolean isSilent) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -176,7 +173,7 @@ public class CommandHandler {
 
     @CommandHook("bal")
     public void balself(CommandSender commandSender, CurrencyType currencyType) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
         }
@@ -196,7 +193,7 @@ public class CommandHandler {
         }
 
         Player player = (Player) commandSender;
-        DataFormatter dataFormatter = currencyType.getDataFormatter();
+        DataFormatter dataFormatter = new DataFormatter(currencyType);
         final BigDecimal[] amount = {BigDecimal.ZERO};
 
         if ( !tAM.hasPlayerAccount(player.getUniqueId() )) {
@@ -226,7 +223,7 @@ public class CommandHandler {
 
     @CommandHook("balother")
     public void balother(CommandSender commandSender, CurrencyType currencyType, Player target) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target.getName());
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -240,7 +237,7 @@ public class CommandHandler {
             return;
         }
 
-        DataFormatter dataFormatter = currencyType.getDataFormatter();
+        DataFormatter dataFormatter = new DataFormatter(currencyType);
         final BigDecimal[] amount = {BigDecimal.ZERO};
 
         if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
@@ -269,7 +266,7 @@ public class CommandHandler {
 
     @CommandHook("balother2")
     public void balother2(CommandSender commandSender, CurrencyType currencyType, String target) {
-        if (instance.getMainConfig().debug) {
+        if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
             commandSender.sendMessage("Command Sender : " + commandSender.getName());
             commandSender.sendMessage("Target : " + target);
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
@@ -283,14 +280,16 @@ public class CommandHandler {
             return;
         }
 
-        DataFormatter dataFormatter = currencyType.getDataFormatter();
+        DataFormatter dataFormatter = new DataFormatter(currencyType);
         UUID playerID = Bukkit.getPlayerUniqueId(target);
         final BigDecimal[] amount = {BigDecimal.ZERO};
 
         if (playerID == null) {
             if ( !tAM.hasNpcAccount(target)) {
                 String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
-                commandSender.sendMessage(msg);
+                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                    commandSender.sendMessage(msg);
+                }
                 ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
                 return;
             }
@@ -318,7 +317,12 @@ public class CommandHandler {
         else {
 
             if (!tAM.hasPlayerAccount(playerID)) {
-                tAM.registerPlayerAccount(playerID);
+                String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
+                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                    commandSender.sendMessage(msg);
+                }
+                ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
+                return;
             }
 
             PlayerAccount playerAccount = tAM.getPlayerAccount(playerID);
@@ -339,8 +343,6 @@ public class CommandHandler {
             );
 
             commandSender.sendMessage(target + " balance is " + dataFormatter.formatBigDecimal(amount[0], false));
-            commandSender.sendMessage("Display Format : " + dataFormatter.displayformat);
-            commandSender.sendMessage("Symbol : " + dataFormatter.symbol);
         }
 
     }

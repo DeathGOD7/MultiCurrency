@@ -2,6 +2,7 @@ package com.deathgod7.multicurrency.depends.economy;
 
 import com.deathgod7.multicurrency.configs.CurrencyConfig;
 import com.deathgod7.multicurrency.data.DataFormatter;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.entity.Player;
 import redempt.redlib.config.annotations.*;
 
@@ -41,8 +42,6 @@ public class CurrencyType {
     @ConfigName("custom-start-bal")
     Map<String, String> customStartBal = new HashMap<>();
 
-    transient DataFormatter dataFormatter;
-
     public CurrencyType(){
         this.name = "Soul";
         this.currencysymbol = "Soul";
@@ -53,9 +52,8 @@ public class CurrencyType {
         this.isCurrencyInt = true;
         this.logTransaction = false;
         this.thousandSeperator = ",";
-        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, null, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
         this.minBal = "0";
-        this.maxBal = dataFormatter.maxNumber.toString();
+        this.maxBal = "10000000000000000";
         this.startBal = "0";
         this.conversionRate.put("AnotherCurrency", 1.0);
         this.conversionRate.put("Another2ndCurrency", 1.0);
@@ -78,7 +76,6 @@ public class CurrencyType {
         this.conversionRate = cfg.currency.conversionRate;
         this.customStartBal = cfg.currency.customStartBal;
         this.decimalPrecision = cfg.currency.decimalPrecision;
-        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, this.maxBal, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
     }
 
     public CurrencyType(String name, String currencySymbol, String thousandseperator, String minbal, String maxbal, String startbal, int decimalPrecision, boolean currencyAsInt, boolean logTransaction, String singular, String plural, String displayformat, Map<String, Double> conversionRate, Map<String, String> customStartBal) {
@@ -92,8 +89,7 @@ public class CurrencyType {
         this.thousandSeperator = thousandseperator;
         this.logTransaction = logTransaction;
         this.minBal = minbal;
-        this.dataFormatter = new DataFormatter(this.displayFormat, this.singularName, this.pluralName, maxbal, this.isCurrencyInt, this.thousandSeperator, this.currencysymbol);
-        this.maxBal = dataFormatter.maxNumber.toString();
+        this.maxBal = maxbal;
         this.startBal = startbal;
         this.conversionRate = conversionRate;
         this.customStartBal = customStartBal;
@@ -141,10 +137,6 @@ public class CurrencyType {
     }
 
     public boolean logTransactionEnabled() { return logTransaction; }
-
-    public DataFormatter getDataFormatter() {
-        return dataFormatter;
-    }
 
     public char getThousandSeperator(){
         return  thousandSeperator.toCharArray()[0];

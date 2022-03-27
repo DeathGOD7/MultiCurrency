@@ -1,5 +1,7 @@
 package com.deathgod7.multicurrency.data;
 
+import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import com.deathgod7.multicurrency.utils.TextUtils;
 import org.bukkit.ChatColor;
 
@@ -18,14 +20,15 @@ public class DataFormatter {
     public String symbol;
     public boolean isInt;
 
-    public DataFormatter(String displayformat, String singularname, String pluralname, String maxBal, boolean isintegar, String thousandseperator, String symbol){
-        this.displayformat = displayformat;
-        this.singularname = singularname;
-        this.pluralname = pluralname;
-        this.maxNumber = getMaxNumber(maxBal);
+    public DataFormatter(CurrencyType ctype){
+
+        this.displayformat = ctype.getDisplayFormat();
+        this.singularname = ctype.getCurrencySingularName();
+        this.pluralname = ctype.getCurrencyPluralName();
+        this.maxNumber = getMaxNumber(ctype.getMaxBal());
         this.decimalFormat = new DecimalFormat();
-        this.isInt = isintegar;
-        this.symbol = symbol;
+        this.isInt = ctype.isCurrencyInt();
+        this.symbol = ctype.getCurrencySymbol();
 
         if (!isInt) {
             decimalFormat.setMinimumFractionDigits(2);
@@ -34,7 +37,7 @@ public class DataFormatter {
         }
 
         DecimalFormatSymbols spoint = new DecimalFormatSymbols();
-        spoint.setGroupingSeparator(thousandseperator.toCharArray()[0]);
+        spoint.setGroupingSeparator(ctype.getThousandSeperator());
         decimalFormat.setDecimalFormatSymbols(spoint);
 
     }
