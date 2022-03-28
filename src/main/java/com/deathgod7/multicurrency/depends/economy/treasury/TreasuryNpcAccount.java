@@ -179,7 +179,8 @@ public class TreasuryNpcAccount implements NonPlayerAccount {
                 }
 
                 previousAmount = dbm.getNonUserBalance(identifier, ctyp);
-                boolean isWithdrawal = false;
+                boolean isDeposit = true;
+                String transactionTypeFormatted;
 
                 if (transactionType == EconomyTransactionType.WITHDRAWAL) {
                     if (previousAmount.signum() <= 0){
@@ -190,10 +191,12 @@ public class TreasuryNpcAccount implements NonPlayerAccount {
                     }
 
                     newAmount = previousAmount.subtract(fixedAmount);
-                    isWithdrawal = true;
+                    isDeposit = false;
+                    transactionTypeFormatted = "Withdrawal";
                 }
                 else {
                     newAmount = previousAmount.add(fixedAmount);
+                    transactionTypeFormatted = "Deposit";
                 }
 
                 boolean status = dbm.updateNonUserBalance(identifier, ctyp, newAmount);
@@ -203,28 +206,24 @@ public class TreasuryNpcAccount implements NonPlayerAccount {
                     String consolemsg;
                     String initiatormsg;
                     String transactionFrom;
-                    String transactionTypeFormatted;
 
                     if (type == EconomyTransactionInitiator.Type.PLAYER) {
                         UUID initiatorPlayerID = (UUID) initiator.getData();
                         Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
-                        transactionTypeFormatted = "PLAYER";
                         transactionFrom = initiatorPlayer.getName();
                         consolemsg = "Player " + initiatorPlayer.getName() + " has given " + accountname + "(NPC) " + formattedAmount;
 
-                        if (!isWithdrawal) {
+                        if (isDeposit) {
                             initiatormsg = Messages.msg("prefix") + " You have given " + initiatorPlayer.getName()+ "(NPC) " + formattedAmount;
                             initiatorPlayer.sendMessage(initiatormsg);
                         }
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                         String pluginname = (String) initiator.getData();
-                        transactionTypeFormatted = "PLUGIN";
                         transactionFrom = pluginname;
                         consolemsg = "Plugin " + pluginname + " has given " + accountname + " " + formattedAmount;
                     }
                     else {
-                        transactionTypeFormatted = "SERVER";
                         transactionFrom = "Server";
                         consolemsg = "Server has given " + accountname + " " + formattedAmount;
                     }

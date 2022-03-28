@@ -8,6 +8,7 @@ import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class TreasuryAccountManager {
     // PLAYER REGION
     public PlayerAccount registerPlayerAccount(UUID playeruuid){
         PlayerAccount playerAccount;
-        Player player = (Player) Bukkit.getOfflinePlayer(playeruuid);
+        OfflinePlayer player = Bukkit.getOfflinePlayer(playeruuid);
 
         if (hasPlayerAccount(playeruuid)) {
             playerAccount = null;

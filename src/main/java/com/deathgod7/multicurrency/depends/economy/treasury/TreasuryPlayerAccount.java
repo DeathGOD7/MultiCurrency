@@ -172,7 +172,8 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 }
 
                 previousAmount = dbm.getBalance(uuid, ctyp);
-                boolean isWithdrawal = false;
+                boolean isDeposit = true;
+                String transactionTypeFormatted;
 
                 if (transactionType == EconomyTransactionType.WITHDRAWAL) {
                     if (previousAmount.signum() <= 0){
@@ -183,10 +184,12 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     }
 
                     newAmount = previousAmount.subtract(fixedAmount);
-                    isWithdrawal = true;
+                    isDeposit = false;
+                    transactionTypeFormatted = "Withdrawal";
                 }
                 else {
                     newAmount = previousAmount.add(fixedAmount);
+                    transactionTypeFormatted = "Deposit";
                 }
 
                 boolean status = dbm.updateBalance(uuid, ctyp, newAmount);
@@ -197,16 +200,14 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     String initiatormsg;
                     String accountholdermsg;
                     String transactionFrom;
-                    String transactionTypeFormatted;
 
                     if (type == EconomyTransactionInitiator.Type.PLAYER) {
                         UUID initiatorPlayerID = (UUID) initiator.getData();
                         Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
-                        transactionTypeFormatted = "PLAYER";
                         transactionFrom = initiatorPlayer.getName();
                         consolemsg = "Player " + initiatorPlayer.getName() + " has given " + player.getName() + " " + formattedAmount;
 
-                        if (!isWithdrawal) {
+                        if (isDeposit) {
                             initiatormsg = Messages.msg("prefix") + " You have given player " + initiatorPlayer.getName()+ " " + formattedAmount;
                             accountholdermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
                             initiatorPlayer.sendMessage(initiatormsg);
@@ -217,13 +218,11 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                         String pluginname = (String) initiator.getData();
-                        transactionTypeFormatted = "PLUGIN";
                         transactionFrom = pluginname;
                         consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
                         accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
                     else {
-                        transactionTypeFormatted = "SERVER";
                         transactionFrom = "Server";
                         consolemsg = "Server has given " + player.getName() + " " + formattedAmount;
                         accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
@@ -232,8 +231,8 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
                     ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
 
-                    if (player.isOnline()) {
-                        Objects.requireNonNull(player.getPlayer()).sendMessage(accountholdermsg);
+                    if (player.isOnline() && player.getPlayer() != null) {
+                        player.getPlayer().sendMessage(accountholdermsg);
                     }
 
                     if (ctyp.logTransactionEnabled()) {

@@ -15,12 +15,15 @@ import me.lokka30.treasury.api.common.service.ServicePriority;
 import me.lokka30.treasury.api.common.service.ServiceRegistry;
 import me.lokka30.treasury.api.economy.EconomyProvider;
 import org.bukkit.Bukkit;
+import org.bukkit.Effect;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import redempt.redlib.commandmanager.ArgType;
 import redempt.redlib.commandmanager.CommandParser;
 import redempt.redlib.commandmanager.Messages;
 import redempt.redlib.config.ConfigManager;
+import redempt.redlib.misc.UserCache;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -168,12 +171,18 @@ public final class MultiCurrency extends JavaPlugin {
 
         treasuryAccountmanager = new TreasuryAccountManager(MultiCurrency.getInstance());
 
-        ArgType<CurrencyType> currencyType = new ArgType<>("CurrencyType", currencyTypeManager::getCurrencyType);
+        ArgType<?> currencyType = ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes());
 
+        UserCache.asyncInit();
+        ArgType<?> offlinePlayerType = new ArgType<>("AllPlayer", UserCache::getOfflinePlayer).tabStream(c -> Bukkit.getOnlinePlayers().stream().map(Player::getName));
+
+        // register commands
         new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
                 .setArgTypes
                 (
-                   ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes())
+                   //ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes()),
+                   currencyType,
+                   offlinePlayerType
                 )
                 .parse()
                 .register("multicurrency",
