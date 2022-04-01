@@ -24,7 +24,9 @@ import org.jetbrains.annotations.NotNull;
 import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.Temporal;
 import java.util.*;
 
@@ -130,10 +132,10 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     }
 
     @Override
-    public void doTransaction(@NotNull EconomyTransaction economyTransaction, EconomySubscriber<BigDecimal> subscription) {
+    public void doTransaction(@NotNull EconomyTransaction economyTransaction, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = economyTransaction.getCurrencyID();
-        String transactionReason = String.valueOf(economyTransaction.getReason());
-        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(economyTransaction.getTimestamp());
+        String transactionReason = economyTransaction.getReason().isPresent() ? economyTransaction.getReason().get() : "";
+        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone( ZoneId.systemDefault() ).format(economyTransaction.getTimestamp());
         BigDecimal amount = economyTransaction.getTransactionAmount();
         EconomyTransactionType transactionType = economyTransaction.getTransactionType();
         EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
@@ -239,7 +241,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                         Table transactionsTable = dbm.getTables().get("Transactions");
                         if (transactionsTable != null) {
                             List<Column> temp = TransactionTable.TransactionData(timestamp, currencyName,
-                                    newAmount.toString(), transactionTypeFormatted, transactionFrom,
+                                    fixedAmount.toString(), transactionTypeFormatted, transactionFrom,
                                     player.getName(), transactionReason);
 
                             // put in db
@@ -254,7 +256,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                         }
                     }
 
-                    subscription.succeed(newAmount);
+                    subscription.succeed(fixedAmount);
 
                 }
                 else {

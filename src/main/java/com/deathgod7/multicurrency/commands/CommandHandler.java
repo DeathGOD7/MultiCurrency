@@ -182,8 +182,8 @@ public class CommandHandler {
 
         String initiatorname;
         String initiatorType = commandSender.getName();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        Temporal currenttime = LocalDateTime.now();
+        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+        //Temporal currenttime = LocalDateTime.now();
         String reason;
 
         if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
@@ -224,7 +224,7 @@ public class CommandHandler {
                                     return Type.PLAYER;
                                 }
                             },
-                            currenttime,
+                            null,
                             EconomyTransactionType.WITHDRAWAL,
                             reason,
                             new BigDecimal(amount),
@@ -283,10 +283,15 @@ public class CommandHandler {
 
                             @Override
                             public @NotNull Type getType() {
-                                return Type.PLAYER;
+                                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                                    return Type.PLAYER;
+                                }
+                                else {
+                                    return Type.SERVER;
+                                }
                             }
                         },
-                        currenttime,
+                        null,
                         EconomyTransactionType.DEPOSIT,
                         reason,
                         new BigDecimal(amount),
@@ -316,11 +321,13 @@ public class CommandHandler {
                                 receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
                             }
                             else {
-                                if (!commandSender.hasPermission("multicurrency.silent")) {
-                                    commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
-                                            "Receiver will now get transaction message."));
-                                    receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg));
-                                    receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
+                                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                                    if (!commandSender.hasPermission("multicurrency.silent")) {
+                                        commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+                                                "Receiver will now get transaction message."));
+                                        receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg));
+                                        receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
+                                    }
                                 }
                             }
                         }
@@ -361,7 +368,7 @@ public class CommandHandler {
                                                     return Type.PLAYER;
                                                 }
                                             },
-                                            currenttime,
+                                            null,
                                             EconomyTransactionType.DEPOSIT,
                                             failreason,
                                             new BigDecimal(amount),

@@ -71,10 +71,10 @@ public class DataFormatter {
     public String formatBigDecimal(BigDecimal am, boolean withName) {
         if (withName) {
             if (am.compareTo(BigDecimal.ONE) == 0) {
-                return decimalFormat.format(am) + singularname;
+                return decimalFormat.format(am) + " " + singularname.toLowerCase();
             }
             else {
-                return decimalFormat.format(am) + pluralname;
+                return decimalFormat.format(am) + " " + pluralname.toLowerCase();
             }
         }
         else {
@@ -88,10 +88,10 @@ public class DataFormatter {
     public String formatDouble(double am, boolean withName) {
         if (withName) {
             if (am > 1) {
-                return decimalFormat.format(am) + pluralname;
+                return decimalFormat.format(am) + pluralname.toLowerCase();
             }
             else {
-                return decimalFormat.format(am) + singularname;
+                return decimalFormat.format(am) + singularname.toLowerCase();
             }
         }
         else {
