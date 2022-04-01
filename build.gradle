@@ -59,7 +59,7 @@ dependencies {
     implementation 'com.github.Redempt:RedLib:6.5.1.9'
 	// ---------- [ Treasury ] ----------
 	// !!! Where ya' gold stored at mate? Arrrrgh!! !!!
-    compileOnly 'me.lokka30:treasury-api:1.1.1'
+    compileOnly 'me.lokka30:treasury-api:1.2.0'
 	// ---------- [ Vault ] ----------
 	// !!! Just to disable essentials incase you hate its economy. Might add vault support later. :> !!!
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'

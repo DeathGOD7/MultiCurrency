@@ -41,12 +41,14 @@ public class CommandHandler {
     private final DatabaseManager dbm;
     private final TreasuryManager treasuryManager;
     private final TreasuryAccountManager tAM;
+    private final String pluginPrefix;
 
     public CommandHandler(MultiCurrency instance) {
         this.instance = instance;
         this.dbm = instance.getDBM();
         this.treasuryManager = instance.getTreasuryManager();
         this.tAM = instance.getTreasuryAccountmanager();
+        this.pluginPrefix = Messages.msg("prefix");
     }
 
     // -------------------------------------------------------------------
@@ -171,16 +173,18 @@ public class CommandHandler {
         Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
 
         if (currency == null) {
-            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
-            commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Currency is not loaded properly in plugin!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4If you think this is mistake, please open issues at github or contact on discord.!!"));
             return;
         }
 
         DataFormatter dataFormatter = new DataFormatter(currencyType);
 
         String initiatorname;
+        String initiatorType = commandSender.getName();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
+        Temporal currenttime = LocalDateTime.now();
+        String reason;
 
         if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
             tAM.registerPlayerAccount(target.getUniqueId());
@@ -189,11 +193,17 @@ public class CommandHandler {
         PlayerAccount receiverPlayerAccount = tAM.getPlayerAccount(target.getUniqueId());
 
 
+        final boolean[] isWithdrawn = new boolean[1];
+        final boolean[] isDeposited = new boolean[1];
+
         // check if command sender is player
         // if it is then deduct money from account
         if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
             Player initiator = (Player) commandSender;
             initiatorname = initiator.getName();    // get player name
+
+            reason = initiator.getName() + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.";
+
 
             if ( !tAM.hasPlayerAccount(initiator.getUniqueId() )) {
                 tAM.registerPlayerAccount(initiator.getUniqueId());
@@ -214,34 +224,48 @@ public class CommandHandler {
                                     return Type.PLAYER;
                                 }
                             },
-                            now,
+                            currenttime,
                             EconomyTransactionType.WITHDRAWAL,
-                            initiator.getName() + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.",
+                            reason,
                             new BigDecimal(amount),
                             EconomyTransactionImportance.NORMAL
                     ),
                     new EconomySubscriber<BigDecimal>() {
                         @Override
                         public void succeed(@NotNull BigDecimal bigDecimal) {
-                            String initiatormsg = Messages.msg("prefix") + " You have given player " + target.getName()+ " " + dataFormatter.formatBigDecimal(bigDecimal, false);
-                            String initiatormsg1 = Messages.msg("prefix") + " Your account has been deducted by " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                            String initiatormsg = pluginPrefix + " You have given player " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                            String initiatormsg1 = pluginPrefix + " Your account has been deducted by " + dataFormatter.formatBigDecimal(bigDecimal, false);
 
                             // send to initiator
-                            //
-                            //
+                            if (initiator.isOnline()) {
+                                initiator.sendMessage(TextUtils.ConvertTextColor(initiatormsg));
+                                initiator.sendMessage(TextUtils.ConvertTextColor(initiatormsg1));
+                            }
+
+                            isWithdrawn[0] = true;
 
                         }
 
                         @Override
                         public void fail(@NotNull EconomyException exception) {
-                            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't do the transaction of give currency type!!"));
+                            String deductfail = pluginPrefix + " &4You transaction with " + target.getName() + " failed of " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false);
+                            commandSender.sendMessage(TextUtils.ConvertTextColor(deductfail));
                             ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                            isWithdrawn[0] = false;
                         }
+
                     }
             );
+
+            // check if withdraw is successfull
+            if (!isWithdrawn[0]) {
+                return;
+            }
+
         }
         else {
             initiatorname = commandSender.getName();
+            reason = initiatorname + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.";
         }
 
         // then put to receiver
@@ -262,9 +286,9 @@ public class CommandHandler {
                                 return Type.PLAYER;
                             }
                         },
-                        now,
+                        currenttime,
                         EconomyTransactionType.DEPOSIT,
-                        initiatorname + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.",
+                        reason,
                         new BigDecimal(amount),
                         EconomyTransactionImportance.NORMAL
                 ),
@@ -272,16 +296,103 @@ public class CommandHandler {
                     @Override
                     public void succeed(@NotNull BigDecimal bigDecimal) {
                         String consolemsg = initiatorname + " has given " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false) + " of " + currencyType.getName() + " currency.";
+
+                        String receivermsg = pluginPrefix + " " + initiatorname + " has given you " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                        String receivermsg1 = pluginPrefix + " Your account has been credited by " + dataFormatter.formatBigDecimal(bigDecimal, false);
+
+                        // log in console
                         ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
 
-                        String receivermsg = Messages.msg("prefix") + " " + initiatorname + " has given you " + dataFormatter.formatBigDecimal(bigDecimal, false);
-                        String receivermsg1 = Messages.msg("prefix") + " Your account has been credited by " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                        // check if receiver is online
+                        // check if isSilent is true and check if sender has isSilent permission
+                        // if it does don't send message
+                        // if it doesn't send message regardless of isSilent
+
+                        if (target.isOnline()) {
+                            Player receiver = (Player) target;
+
+                            if (!isSilent) {
+                                receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg));
+                                receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
+                            }
+                            else {
+                                if (!commandSender.hasPermission("multicurrency.silent")) {
+                                    commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+                                            "Receiver will now get transaction message."));
+                                    receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg));
+                                    receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
+                                }
+                            }
+                        }
+
                     }
 
                     @Override
                     public void fail(@NotNull EconomyException exception) {
-                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't do the transaction of give currency type!!"));
+                        String addtoreceiverfail = pluginPrefix + " &4You transaction with " + target.getName() + " failed of " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false);
+                        commandSender.sendMessage(TextUtils.ConvertTextColor(addtoreceiverfail));
+
                         ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+
+
+                        // if receiver couldn't get the transaction, then put the money back to sender (only applies to player)
+                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                            Player initiator = (Player) commandSender;
+
+                            String failreason = initiator.getName() + " to " + target.getName() + " failed with " + amount + " of " + currencyType.getName() + " currency.";
+
+
+                            if ( !tAM.hasPlayerAccount(initiator.getUniqueId() )) {
+                                tAM.registerPlayerAccount(initiator.getUniqueId());
+                            }
+
+                            PlayerAccount initiatorPlayerAccount = tAM.getPlayerAccount(initiator.getUniqueId());
+
+                            initiatorPlayerAccount.doTransaction(new EconomyTransaction(
+                                            currency.getIdentifier(),
+                                            new EconomyTransactionInitiator<Object>() {
+                                                @Override
+                                                public Object getData() {
+                                                    return initiator.getUniqueId();
+                                                }
+
+                                                @Override
+                                                public @NotNull Type getType() {
+                                                    return Type.PLAYER;
+                                                }
+                                            },
+                                            currenttime,
+                                            EconomyTransactionType.DEPOSIT,
+                                            failreason,
+                                            new BigDecimal(amount),
+                                            EconomyTransactionImportance.NORMAL
+                                    ),
+                                    new EconomySubscriber<BigDecimal>() {
+                                        @Override
+                                        public void succeed(@NotNull BigDecimal bigDecimal) {
+                                            String givebacksuccess = pluginPrefix + " &aYour account has been re-added by " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                                            ConsoleLogger.info(TextUtils.ConvertTextColor(givebacksuccess), ConsoleLogger.logTypes.log);
+
+                                            // send to initiator
+                                            if (initiator.isOnline()) {
+                                                initiator.sendMessage(TextUtils.ConvertTextColor(givebacksuccess));
+                                            }
+                                        }
+
+                                        @Override
+                                        public void fail(@NotNull EconomyException exception) {
+                                            String givebackfail = pluginPrefix + " &4Your failed transaction amount ("+ dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false) +") couldn't be re-added to your account of " + currencyType.getName() + " currency." ;
+                                            commandSender.sendMessage(TextUtils.ConvertTextColor(givebackfail));
+                                            ConsoleLogger.severe(TextUtils.ConvertTextColor(givebackfail), ConsoleLogger.logTypes.log);
+                                            ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                                        }
+
+                                    }
+                            );
+
+                        }
+
+
                     }
                 }
         );
@@ -556,7 +667,12 @@ public class CommandHandler {
         DataFormatter dataFormatter = new DataFormatter(currencyType);
 
         if ( !tAM.hasNpcAccount(target)) {
-            tAM.registerNpcAccount(target, target);
+            String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
+            if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                commandSender.sendMessage(msg);
+            }
+            ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
+            return;
         }
 
         NonPlayerAccount nonPlayerAccount = tAM.getNpcAccount(target);
@@ -671,7 +787,7 @@ public class CommandHandler {
 
                     @Override
                     public void fail(@NotNull EconomyException exception) {
-                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't reset NPC money!!"));
+                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't reset NPC " + target + " money!!"));
                         ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
                     }
                 }
