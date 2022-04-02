@@ -107,6 +107,7 @@ public class Table {
                 }
             }
             query.append(";");
+
             try {
                 PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query.toString());
                 for (int i = 0; i < columns.size(); i++) {
@@ -122,6 +123,7 @@ public class Table {
                 s.close();
                 return true;
             } catch (SQLException e) {
+                ConsoleLogger.severe("Failed to insert into table " + getName() + " : " + e.getMessage(), ConsoleLogger.logTypes.debug);
                 e.printStackTrace();
                 return false;
             }

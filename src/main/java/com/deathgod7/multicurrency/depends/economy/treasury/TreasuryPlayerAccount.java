@@ -135,7 +135,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     public void doTransaction(@NotNull EconomyTransaction economyTransaction, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = economyTransaction.getCurrencyID();
         String transactionReason = economyTransaction.getReason().isPresent() ? economyTransaction.getReason().get() : "";
-        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone( ZoneId.systemDefault() ).format(economyTransaction.getTimestamp());
+        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS").withZone( ZoneId.systemDefault() ).format(economyTransaction.getTimestamp());
         BigDecimal amount = economyTransaction.getTransactionAmount();
         EconomyTransactionType transactionType = economyTransaction.getTransactionType();
         EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
@@ -174,7 +174,6 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 }
 
                 previousAmount = dbm.getBalance(uuid, ctyp);
-                boolean isDeposit = true;
                 String transactionTypeFormatted;
 
                 if (transactionType == EconomyTransactionType.WITHDRAWAL) {
@@ -186,7 +185,6 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                     }
 
                     newAmount = previousAmount.subtract(fixedAmount);
-                    isDeposit = false;
                     transactionTypeFormatted = "Withdrawal";
                 }
                 else {
@@ -199,7 +197,6 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                 if (status) {
                     EconomyTransactionInitiator.Type type = initiator.getType();
                     String consolemsg;
-                    String initiatormsg;
                     String accountholdermsg;
                     String transactionFrom;
 
@@ -207,35 +204,25 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                         UUID initiatorPlayerID = (UUID) initiator.getData();
                         Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
                         transactionFrom = initiatorPlayer.getName();
-                        consolemsg = "Player " + initiatorPlayer.getName() + " has given " + player.getName() + " " + formattedAmount;
-
-                        if (isDeposit) {
-                            initiatormsg = Messages.msg("prefix") + " You have given player " + initiatorPlayer.getName()+ " " + formattedAmount;
-                            accountholdermsg = Messages.msg("prefix") + " Player " + initiatorPlayer.getName()+ " has given you " + formattedAmount;
-                            initiatorPlayer.sendMessage(initiatormsg);
-                        }
-                        else {
-                            accountholdermsg = Messages.msg("prefix") + " Your account has been deducted by " + formattedAmount;
-                        }
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
                         String pluginname = (String) initiator.getData();
                         transactionFrom = pluginname;
                         consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
                         accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
+
+                        ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
+
+                        if (player.isOnline() && player.getPlayer() != null) {
+                            player.getPlayer().sendMessage(accountholdermsg);
+                        }
+
                     }
                     else {
                         transactionFrom = "Server";
-                        consolemsg = "Server has given " + player.getName() + " " + formattedAmount;
-                        accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
                     }
 
 
-                    ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
-
-                    if (player.isOnline() && player.getPlayer() != null) {
-                        player.getPlayer().sendMessage(accountholdermsg);
-                    }
 
                     if (ctyp.logTransactionEnabled()) {
                         Table transactionsTable = dbm.getTables().get("Transactions");
@@ -245,9 +232,15 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                                     player.getName(), transactionReason);
 
                             // put in db
-                            transactionsTable.insert(temp);
+                            boolean up = transactionsTable.insert(temp);
 
-                            ConsoleLogger.info("Logged the transaction in database.", ConsoleLogger.logTypes.debug);
+                            if (up) {
+                                ConsoleLogger.info("From : " + transactionFrom + " To : " + player.getName(), ConsoleLogger.logTypes.debug);
+                                ConsoleLogger.info("Logged the transaction in database.", ConsoleLogger.logTypes.debug);
+                            }
+                            else {
+                                ConsoleLogger.info("Transaction logs not updated......hmmmmm", ConsoleLogger.logTypes.debug);
+                            }
 
 
                         }

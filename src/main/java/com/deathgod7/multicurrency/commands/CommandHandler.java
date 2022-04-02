@@ -18,7 +18,6 @@ import me.lokka30.treasury.api.economy.transaction.EconomyTransaction;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionImportance;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionInitiator;
 import me.lokka30.treasury.api.economy.transaction.EconomyTransactionType;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,11 +26,7 @@ import redempt.redlib.commandmanager.CommandHook;
 import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.Objects;
-import java.util.UUID;
 
 import static com.deathgod7.multicurrency.utils.TextUtils.ConvertTextColor;
 
@@ -182,8 +177,6 @@ public class CommandHandler {
 
         String initiatorname;
         String initiatorType = commandSender.getName();
-        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        //Temporal currenttime = LocalDateTime.now();
         String reason;
 
         if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
@@ -198,7 +191,7 @@ public class CommandHandler {
 
         // check if command sender is player
         // if it is then deduct money from account
-        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+        if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
             Player initiator = (Player) commandSender;
             initiatorname = initiator.getName();    // get player name
 
@@ -257,7 +250,7 @@ public class CommandHandler {
                     }
             );
 
-            // check if withdraw is successfull
+            // check if withdraw is successfully done
             if (!isWithdrawn[0]) {
                 return;
             }
@@ -274,7 +267,7 @@ public class CommandHandler {
                         new EconomyTransactionInitiator<Object>() {
                             @Override
                             public Object getData() {
-                                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                                if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                                     Player initiator = (Player) commandSender;
                                     return initiator.getUniqueId();
                                 }
@@ -283,7 +276,7 @@ public class CommandHandler {
 
                             @Override
                             public @NotNull Type getType() {
-                                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                                if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                                     return Type.PLAYER;
                                 }
                                 else {
@@ -300,13 +293,13 @@ public class CommandHandler {
                 new EconomySubscriber<BigDecimal>() {
                     @Override
                     public void succeed(@NotNull BigDecimal bigDecimal) {
-                        String consolemsg = initiatorname + " has given " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false) + " of " + currencyType.getName() + " currency.";
+                        String consolemsg = "&a" + initiatorname + " has given " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false) + " of " + currencyType.getName() + " currency.";
 
                         String receivermsg = pluginPrefix + " " + initiatorname + " has given you " + dataFormatter.formatBigDecimal(bigDecimal, false);
                         String receivermsg1 = pluginPrefix + " Your account has been credited by " + dataFormatter.formatBigDecimal(bigDecimal, false);
 
                         // log in console
-                        ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
+                        ConsoleLogger.info(TextUtils.ConvertTextColor(consolemsg), ConsoleLogger.logTypes.log);
 
                         // check if receiver is online
                         // check if isSilent is true and check if sender has isSilent permission
@@ -321,7 +314,7 @@ public class CommandHandler {
                                 receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg1));
                             }
                             else {
-                                if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                                if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                                     if (!commandSender.hasPermission("multicurrency.silent")) {
                                         commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
                                                 "Receiver will now get transaction message."));
@@ -332,6 +325,9 @@ public class CommandHandler {
                             }
                         }
 
+                        // deposit success
+                        isDeposited[0] = true;
+
                     }
 
                     @Override
@@ -341,76 +337,69 @@ public class CommandHandler {
 
                         ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
 
-
-                        // if receiver couldn't get the transaction, then put the money back to sender (only applies to player)
-                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
-                            Player initiator = (Player) commandSender;
-
-                            String failreason = initiator.getName() + " to " + target.getName() + " failed with " + amount + " of " + currencyType.getName() + " currency.";
-
-
-                            if ( !tAM.hasPlayerAccount(initiator.getUniqueId() )) {
-                                tAM.registerPlayerAccount(initiator.getUniqueId());
-                            }
-
-                            PlayerAccount initiatorPlayerAccount = tAM.getPlayerAccount(initiator.getUniqueId());
-
-                            initiatorPlayerAccount.doTransaction(new EconomyTransaction(
-                                            currency.getIdentifier(),
-                                            new EconomyTransactionInitiator<Object>() {
-                                                @Override
-                                                public Object getData() {
-                                                    return initiator.getUniqueId();
-                                                }
-
-                                                @Override
-                                                public @NotNull Type getType() {
-                                                    return Type.PLAYER;
-                                                }
-                                            },
-                                            null,
-                                            EconomyTransactionType.DEPOSIT,
-                                            failreason,
-                                            new BigDecimal(amount),
-                                            EconomyTransactionImportance.NORMAL
-                                    ),
-                                    new EconomySubscriber<BigDecimal>() {
-                                        @Override
-                                        public void succeed(@NotNull BigDecimal bigDecimal) {
-                                            String givebacksuccess = pluginPrefix + " &aYour account has been re-added by " + dataFormatter.formatBigDecimal(bigDecimal, false);
-                                            ConsoleLogger.info(TextUtils.ConvertTextColor(givebacksuccess), ConsoleLogger.logTypes.log);
-
-                                            // send to initiator
-                                            if (initiator.isOnline()) {
-                                                initiator.sendMessage(TextUtils.ConvertTextColor(givebacksuccess));
-                                            }
-                                        }
-
-                                        @Override
-                                        public void fail(@NotNull EconomyException exception) {
-                                            String givebackfail = pluginPrefix + " &4Your failed transaction amount ("+ dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false) +") couldn't be re-added to your account of " + currencyType.getName() + " currency." ;
-                                            commandSender.sendMessage(TextUtils.ConvertTextColor(givebackfail));
-                                            ConsoleLogger.severe(TextUtils.ConvertTextColor(givebackfail), ConsoleLogger.logTypes.log);
-                                            ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
-                                        }
-
-                                    }
-                            );
-
-                        }
-
-
+                        // deposit fail
+                        isDeposited[0] = false;
                     }
                 }
         );
 
+        if (!isDeposited[0]) {
+            // if receiver couldn't get the transaction, then put the money back to sender (only applies to player)
+            if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+                Player initiator = (Player) commandSender;
+
+                String failreason = initiator.getName() + " to " + target.getName() + " failed with " + amount + " of " + currencyType.getName() + " currency.";
 
 
+                if ( !tAM.hasPlayerAccount(initiator.getUniqueId() )) {
+                    tAM.registerPlayerAccount(initiator.getUniqueId());
+                }
 
+                PlayerAccount initiatorPlayerAccount = tAM.getPlayerAccount(initiator.getUniqueId());
 
+                initiatorPlayerAccount.doTransaction(new EconomyTransaction(
+                                currency.getIdentifier(),
+                                new EconomyTransactionInitiator<Object>() {
+                                    @Override
+                                    public Object getData() {
+                                        return initiator.getUniqueId();
+                                    }
 
+                                    @Override
+                                    public @NotNull Type getType() {
+                                        return Type.PLAYER;
+                                    }
+                                },
+                                null,
+                                EconomyTransactionType.DEPOSIT,
+                                failreason,
+                                new BigDecimal(amount),
+                                EconomyTransactionImportance.NORMAL
+                        ),
+                        new EconomySubscriber<BigDecimal>() {
+                            @Override
+                            public void succeed(@NotNull BigDecimal bigDecimal) {
+                                String givebacksuccess = pluginPrefix + " &aYour account has been re-added by " + dataFormatter.formatBigDecimal(bigDecimal, false);
+                                ConsoleLogger.info(TextUtils.ConvertTextColor(givebacksuccess), ConsoleLogger.logTypes.log);
 
+                                // send to initiator
+                                if (initiator.isOnline()) {
+                                    initiator.sendMessage(TextUtils.ConvertTextColor(givebacksuccess));
+                                }
+                            }
 
+                            @Override
+                            public void fail(@NotNull EconomyException exception) {
+                                String givebackfail = pluginPrefix + " &4Your failed transaction amount ("+ dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false) +") couldn't be re-added to your account of " + currencyType.getName() + " currency." ;
+                                commandSender.sendMessage(TextUtils.ConvertTextColor(givebackfail));
+                                ConsoleLogger.severe(TextUtils.ConvertTextColor(givebackfail), ConsoleLogger.logTypes.log);
+                                ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                            }
+
+                        }
+                );
+            }
+        }
 
     }
 
@@ -442,7 +431,7 @@ public class CommandHandler {
         playerAccount.setBalance(BigDecimal.ZERO, new EconomyTransactionInitiator<Object>() {
                     @Override
                     public Object getData() {
-                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                        if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                             Player initiatorplayer = (Player) commandSender;
                             return initiatorplayer.getUniqueId();
                         }
@@ -451,7 +440,7 @@ public class CommandHandler {
 
                     @Override
                     public @NotNull Type getType() {
-                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                        if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                             return Type.PLAYER;
                         } else {
                             return Type.SERVER;
@@ -492,7 +481,7 @@ public class CommandHandler {
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
         }
 
-        if (!commandSender.getName().equalsIgnoreCase("PLAYER")) {
+        if (!!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Cannot invoke this command from server console!!"));
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Please specify player if you want to view players balance."));
             return;
@@ -675,7 +664,7 @@ public class CommandHandler {
 
         if ( !tAM.hasNpcAccount(target)) {
             String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
-            if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+            if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                 commandSender.sendMessage(msg);
             }
             ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
@@ -707,7 +696,7 @@ public class CommandHandler {
 
         if ( !tAM.hasNpcAccount(target)) {
             String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
-            if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+            if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                 commandSender.sendMessage(msg);
             }
             ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
@@ -756,7 +745,7 @@ public class CommandHandler {
 
         if ( !tAM.hasNpcAccount(target)) {
             String msg = TextUtils.ConvertTextColor("&4Couldn't get any account with " + target + " from database!!");
-            if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+            if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                 commandSender.sendMessage(msg);
             }
             ConsoleLogger.severe(msg, ConsoleLogger.logTypes.log);
@@ -768,7 +757,7 @@ public class CommandHandler {
         nonPlayerAccount.setBalance(BigDecimal.ZERO, new EconomyTransactionInitiator<Object>() {
                     @Override
                     public Object getData() {
-                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                        if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                             Player initiatorplayer = (Player) commandSender;
                             return initiatorplayer.getUniqueId();
                         }
@@ -777,7 +766,7 @@ public class CommandHandler {
 
                     @Override
                     public @NotNull Type getType() {
-                        if (commandSender.getName().equalsIgnoreCase("PLAYER")) {
+                        if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
                             return Type.PLAYER;
                         } else {
                             return Type.SERVER;

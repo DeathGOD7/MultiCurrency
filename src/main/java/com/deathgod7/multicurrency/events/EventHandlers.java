@@ -49,7 +49,7 @@ public class EventHandlers implements Listener {
                     }
                 }
                 else {
-                    ConsoleLogger.info("User ("+ player.getName() +") in " + ctyp.getName() + " already exists. Skipping account creation.", ConsoleLogger.logTypes.debug);
+                    ConsoleLogger.info("User ("+ player.getName() +") account already exists in " + ctyp.getName() + " currency. Skipping account creation.", ConsoleLogger.logTypes.debug);
                 }
             }
         }

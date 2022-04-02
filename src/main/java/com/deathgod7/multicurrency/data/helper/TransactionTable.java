@@ -38,7 +38,13 @@ public class TransactionTable {
         Column _amount = new Column("Amount", amount, DatabaseManager.DataType.STRING, 100);
         Column _type = new Column("Type", type, DatabaseManager.DataType.STRING, 100);
         Column _from = new Column("From", from, DatabaseManager.DataType.STRING, 100);
-        Column _to = new Column("To", to, DatabaseManager.DataType.STRING, 100);
+        Column _to;
+        if (type.equalsIgnoreCase("Withdrawal")) {
+            _to = new Column("To", "-", DatabaseManager.DataType.STRING, 100);
+        }
+        else {
+            _to = new Column("To", to, DatabaseManager.DataType.STRING, 100);
+        }
         Column _reason = new Column("Reason", reason, DatabaseManager.DataType.STRING, 100);
 
         temp.add(_timestamp);
