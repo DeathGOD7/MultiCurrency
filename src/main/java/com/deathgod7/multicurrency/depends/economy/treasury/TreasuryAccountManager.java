@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.io.Console;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -69,6 +70,8 @@ public class TreasuryAccountManager {
     public PlayerAccount registerPlayerAccount(UUID playeruuid){
         PlayerAccount playerAccount;
         OfflinePlayer player = Bukkit.getOfflinePlayer(playeruuid);
+
+        ConsoleLogger.warn("Info: " + player.getName() + " " + player.getUniqueId(), ConsoleLogger.logTypes.debug);
 
         if (hasPlayerAccount(playeruuid)) {
             playerAccount = null;

@@ -9,6 +9,7 @@ import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import redempt.redlib.config.conversion.StringConverter;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -171,7 +172,7 @@ public class DatabaseManager {
         query.append("PRIMARY KEY (`").append(table.getPrimaryKey().getName()).append("`)");
         query.append(");");
 
-        ConsoleLogger.info("Query : " + query, ConsoleLogger.logTypes.debug);
+        ConsoleLogger.warn("Query from Create Table : " + query, ConsoleLogger.logTypes.debug);
 
 
         try {
@@ -193,9 +194,9 @@ public class DatabaseManager {
                     player.getName(),
                     ctyp.getStartBal(player.getName())
             );
-
             return table.insert(temp);
         }
+       ConsoleLogger.info("User ("+ player.getName() +") account already exists in " + ctyp.getName() + " currency. Skipping account creation.", ConsoleLogger.logTypes.debug);
        return false;
    }
 
@@ -209,9 +210,9 @@ public class DatabaseManager {
                     player.getName(),
                     ctyp.getStartBal(player.getName())
             );
-
             return table.insert(temp);
         }
+        ConsoleLogger.info("User ("+ player.getName() +") account already exists in " + ctyp.getName() + " currency. Skipping account creation.", ConsoleLogger.logTypes.debug);
         return false;
     }
 
@@ -226,26 +227,32 @@ public class DatabaseManager {
 
             return table.insert(temp);
         }
+        ConsoleLogger.info("Non User ("+ identifier +") account already exists in " + ctyp.getName() + " currency. Skipping account creation.", ConsoleLogger.logTypes.debug);
         return false;
     }
 
    public boolean doesUserExists(Player player, CurrencyType ctyp){
        Table table = tables.get(ctyp.getName());
        Column uuid = new Column("UUID", player.getUniqueId().toString(), DatabaseManager.DataType.STRING, 100);
-       return table.getExact(uuid) != null;
+       boolean status =  !table.getExact(uuid).isEmpty();
+       ConsoleLogger.warn("[USERCHECK] User Exists in " + ctyp.getName() + "? " + String.valueOf(status).toUpperCase(), ConsoleLogger.logTypes.debug);
+       return status;
    }
 
     public boolean doesUserExists(UUID playerID, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
-
         Column uuid = new Column("UUID", playerID.toString(), DatabaseManager.DataType.STRING, 100);
-        return table.getExact(uuid) != null;
+        boolean status =  !table.getExact(uuid).isEmpty();
+        ConsoleLogger.warn("[USERCHECK] User Exists in " + ctyp.getName() + "? " + String.valueOf(status).toUpperCase(), ConsoleLogger.logTypes.debug);
+        return status;
     }
 
     public boolean doesNonUserExists(String identifier, CurrencyType ctyp){
         Table table = tables.get(ctyp.getName());
         Column uuid = new Column("UUID", identifier, DatabaseManager.DataType.STRING, 100);
-        return table.getExact(uuid) != null;
+        boolean status =  !table.getExact(uuid).isEmpty();
+        ConsoleLogger.warn("Non User Exists in " + ctyp.getName() + "? " + String.valueOf(status).toUpperCase(), ConsoleLogger.logTypes.debug);
+        return status;
     }
 
     public boolean updateBalance(Player player, CurrencyType ctyp, BigDecimal newmoney){

@@ -47,7 +47,7 @@ public class TreasuryManager {
         }
 
         if (MultiCurrency.getInstance().getMainConfig().disable_essentials) {
-            if (Bukkit.getPluginManager().getPlugin("Vault") == null){
+            if (Bukkit.getPluginManager().getPlugin("Vault") != null){
                 Collection<RegisteredServiceProvider<Economy>> registeredecons = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("Vault")).getServer().getServicesManager().getRegistrations(Economy.class);
                 for (RegisteredServiceProvider<Economy> eco : registeredecons) {
                     if (eco.getProvider().getName().equalsIgnoreCase("Essentials Economy")) {
@@ -63,7 +63,7 @@ public class TreasuryManager {
     }
 
     public void reload() {
-        unload();
+        //unload();
         currencyTypes =  MultiCurrency.getInstance().getCurrencyTypeManager().getAllCurrencyTypes();
         load();
     }

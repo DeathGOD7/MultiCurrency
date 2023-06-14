@@ -99,6 +99,7 @@ public final class MultiCurrency extends JavaPlugin {
         // currency configs
         currencyTypeManager.clearCurrencyTypes();
         configHelper.loadConfigs(currencypath);
+        treasuryManager.reload();
         _currencyConfigs = configHelper.getCurrencyConfigs();
         _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
     }
@@ -166,7 +167,7 @@ public final class MultiCurrency extends JavaPlugin {
         _currencyConfigs = configHelper.getCurrencyConfigs();
         _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
 
-        // manages all treasuy things
+        // manages all treasury things
         treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
 
         treasuryAccountmanager = new TreasuryAccountManager(MultiCurrency.getInstance());

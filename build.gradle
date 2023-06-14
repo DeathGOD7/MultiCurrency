@@ -53,13 +53,14 @@ repositories {
 dependencies {
 	// ---------- [ Paper MC ] ----------
 	// !!! Good ol' mate. !!!
-    compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
+    //noinspection VulnerableLibrariesLocal
+    compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 	// ---------- [ RedLib ] ----------
 	// !!! The lib developed by good guy to help other good guy like me! >.< !!!
-    implementation 'com.github.Redempt:RedLib:6.5.1.9'
+    implementation 'com.github.Redempt:RedLib:6.5.8'
 	// ---------- [ Treasury ] ----------
 	// !!! Where ya' gold stored at mate? Arrrrgh!! !!!
-    compileOnly 'me.lokka30:treasury-api:1.2.0'
+    compileOnly 'me.lokka30:treasury-api:1.2.1'
 	// ---------- [ Vault ] ----------
 	// !!! Just to disable essentials incase you hate its economy. Might add vault support later. :> !!!
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
@@ -92,6 +93,8 @@ shadowJar {
     relocate ("com.zaxxer", "com.deathgod7")
     relocate ("com.github.Redempt", "com.deathgod7")
 }
+
+apply plugin: 'java'
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_8

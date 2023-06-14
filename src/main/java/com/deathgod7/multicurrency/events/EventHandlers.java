@@ -33,23 +33,19 @@ public class EventHandlers implements Listener {
             tAM.registerPlayerAccount(player.getUniqueId());
             ConsoleLogger.info("User ("+ player.getName() +") player account created.", ConsoleLogger.logTypes.debug);
         }
+        else {
+            ConsoleLogger.info("User ("+ player.getName() +") player account already exists.", ConsoleLogger.logTypes.debug);
+        }
 
         for (CurrencyType ctyp : treasuryManager.getCurrencyTypes().values()) {
             if (treasuryManager.getTreasuryCurrency().containsKey(ctyp.getName())) {
-                boolean isExists = dbm.doesUserExists(player, ctyp);
+                boolean status = dbm.createUser(player, ctyp);
 
-                if (!isExists){
-                    boolean status = dbm.createUser(player, ctyp);
-
-                    if (status){
-                        ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency created.", ConsoleLogger.logTypes.debug);
-                    }
-                    else {
-                        ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency couldn't be created.", ConsoleLogger.logTypes.debug);
-                    }
+                if (status){
+                    ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency created.", ConsoleLogger.logTypes.debug);
                 }
                 else {
-                    ConsoleLogger.info("User ("+ player.getName() +") account already exists in " + ctyp.getName() + " currency. Skipping account creation.", ConsoleLogger.logTypes.debug);
+                    ConsoleLogger.info("User ("+ player.getName() +") account in " + ctyp.getName() + " currency couldn't be created.", ConsoleLogger.logTypes.debug);
                 }
             }
         }

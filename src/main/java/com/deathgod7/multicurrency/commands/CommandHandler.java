@@ -47,9 +47,30 @@ public class CommandHandler {
     }
 
     // -------------------------------------------------------------------
-    // --------------------[ PLAYER SECTION ]-----------------------------
+    // --------------------[ ECONOMY SECTION ]----------------------------
     // -------------------------------------------------------------------
 
+    @CommandHook("ecolist")
+    public void ecolist(CommandSender commandSender) {
+
+        StringBuilder temp = new StringBuilder();
+        for (String x : instance.getTreasuryManager().getTreasuryCurrency().keySet()) {
+            temp.append(x).append(", ");
+        }
+        String ftemp = temp.substring(0, temp.length() - 2);
+        commandSender.sendMessage("Available Currency : " + ftemp);
+
+        StringBuilder temp2 = new StringBuilder();
+        for (String x : instance.getDBM().getTables().keySet()) {
+            temp2.append(x).append(", ");
+        }
+        String ftemp2 = temp2.substring(0, temp2.length() - 2);
+        commandSender.sendMessage("Available Table : " + ftemp2);
+    }
+
+    // -------------------------------------------------------------------
+    // --------------------[ PLAYER SECTION ]-----------------------------
+    // -------------------------------------------------------------------
 
     @CommandHook("info")
     public void info(CommandSender commandSender){
@@ -91,9 +112,10 @@ public class CommandHandler {
     @CommandHook("reload")
     public void reload(CommandSender commandSender){
         String warning = "&aIt is best to restart the server as reloading will just break the plugin.";
-        String warning2 = "&aIf you want this feature then please request in discord with good reason.";
+//        String warning2 = "&aIf you want this feature then please request in discord with good reason.";
         commandSender.sendMessage(ConvertTextColor('&', warning));
-        commandSender.sendMessage(ConvertTextColor('&', warning2));
+//        commandSender.sendMessage(ConvertTextColor('&', warning2));
+        instance.ReloadConfigs();
     }
 
     @CommandHook("debug")
@@ -481,7 +503,7 @@ public class CommandHandler {
             commandSender.sendMessage("Currency Type : " + currencyType.getName());
         }
 
-        if (!!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+        if (commandSender.getName().equalsIgnoreCase("CONSOLE")) {
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Cannot invoke this command from server console!!"));
             commandSender.sendMessage(TextUtils.ConvertTextColor("&4Please specify player if you want to view players balance."));
             return;

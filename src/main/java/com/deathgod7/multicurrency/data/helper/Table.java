@@ -89,7 +89,7 @@ public class Table {
     }
 
     public boolean insert(List<Column> columns) {
-        if (getExact(columns.get(0)) == null) {
+        if (columns != null) {
             StringBuilder query = new StringBuilder("INSERT INTO " + getName() + " (");
             for (Column column : columns) {
                 if (columns.indexOf(column) < columns.size() - 1) {
@@ -108,6 +108,7 @@ public class Table {
             }
             query.append(";");
 
+
             try {
                 PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query.toString());
                 for (int i = 0; i < columns.size(); i++) {
@@ -119,6 +120,7 @@ public class Table {
                         s.setFloat(i + 1, Float.parseFloat(columns.get(i).getValue().toString()));
                     }
                 }
+                ConsoleLogger.warn(String.valueOf(query), ConsoleLogger.logTypes.debug);
                 s.executeUpdate();
                 s.close();
                 return true;
@@ -135,7 +137,8 @@ public class Table {
 
     public List<Column> getExact(Column column) {
         List<Column> result = new ArrayList<>();
-        String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`=?";
+        String query = "SELECT * FROM " + getName() + " WHERE `" + column.getName() + "`= ?";
+
         try {
             PreparedStatement s = MultiCurrency.getInstance().getDBM().getConnection().prepareStatement(query);
             if (column.dataType == DatabaseManager.DataType.STRING) {
@@ -145,35 +148,53 @@ public class Table {
             } else {
                 s.setFloat(1, Float.parseFloat(column.getValue().toString()));
             }
+
+            //debug
+            ConsoleLogger.warn(s.toString(), ConsoleLogger.logTypes.debug);
+
             ResultSet rs = s.executeQuery();
-            try {
-                for (int i = 0; i < getColumns().size(); i++) {
-                    Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
-                            getColumns().get(i).limit);
-                    if (rCol.dataType == DatabaseManager.DataType.STRING) {
-                        rCol.setValue(rs.getString(i + 1));
-                    } else if (rCol.dataType == DatabaseManager.DataType.INTEGER) {
-                        rCol.setValue(rs.getInt(i + 1));
-                    } else {
-                        rCol.setValue(rs.getFloat(i + 1));
+
+            // if there is result found then proceed
+            if (rs.next()) {
+                try {
+                    for (int i = 0; i < getColumns().size(); i++) {
+                        Column rCol = new Column(getColumns().get(i).getName(), getColumns().get(i).dataType,
+                                getColumns().get(i).limit);
+                        if (rCol.dataType == DatabaseManager.DataType.STRING) {
+                            rCol.setValue(rs.getString(i + 1));
+                        } else if (rCol.dataType == DatabaseManager.DataType.INTEGER) {
+                            rCol.setValue(rs.getInt(i + 1));
+                        } else {
+                            rCol.setValue(rs.getFloat(i + 1));
+                        }
+                        result.add(rCol);
                     }
-                    result.add(rCol);
+                    MultiCurrency.getInstance().getDBM().close(s, rs);
+                } catch (SQLException e) {
+                    s.close();
+                    e.printStackTrace();
+                    result = null;
                 }
-                MultiCurrency.getInstance().getDBM().close(s, rs);
-            } catch (SQLException e) {
-                s.close();
-                return null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            result = null;
         }
 
-        if(result.size() > 0){
-            return result;
+        if (result == null) {
+            ConsoleLogger.warn("[GETEXACT] Error in query execution of db.", ConsoleLogger.logTypes.debug);
         }
-        else{
-            return null;
+        else if (result.isEmpty()) {
+            ConsoleLogger.warn("[GETEXACT] Result is returned as empty array list of columns.", ConsoleLogger.logTypes.debug);
         }
+        else {
+            for ( Column c : result) {
+                ConsoleLogger.warn(c.getName() + " " + c.getValue(), ConsoleLogger.logTypes.debug);
+            }
+        }
+
+
+        return result;
     }
 
     public List<List<Column>> search(Column column) {

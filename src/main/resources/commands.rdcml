@@ -19,7 +19,18 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.debug
     }
 
-    // Player Section
+    // Global Economy Section
+    economy,eco {
+        permission multicurrency.economy
+
+        list {
+            hook ecolist
+            help Shows a list of all available currency
+            permission multicurrency.economy.list
+        }
+    }
+
+    // Player Economy Section
     add CurrencyType:type AllPlayer:target int:moneyAmount --silent {
         hook add
         help Adds specific amount of money from specified currency in players account
@@ -68,7 +79,7 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.baltop
     }
 
-    // NPC Section
+    // NPC Economy Section
     add CurrencyType:type string:target int:moneyAmount {
         hook npcadd
         help Adds specific amount of money from specified currency in players account
@@ -105,7 +116,7 @@ multicurrency,mcurrency,currency,mc {
         permission multicurrency.npc.balance
     }
 
-
+    // Non-Player Management Section
     npc,nonplayer {
         permission multicurrency.npc
 
@@ -132,8 +143,5 @@ multicurrency,mcurrency,currency,mc {
             help Shows a list of all non player accounts
             permission multicurrency.npc.rename
         }
-
-
     }
-
 }
