@@ -33,195 +33,195 @@ import java.util.Objects;
 
 public final class MultiCurrency extends JavaPlugin {
 
-    public ConfigHelper configHelper;
+	public ConfigHelper configHelper;
 
-    private CurrencyTypeManager currencyTypeManager;
-    public CurrencyTypeManager getCurrencyTypeManager(){
-        return currencyTypeManager;
-    }
+	private CurrencyTypeManager currencyTypeManager;
+	public CurrencyTypeManager getCurrencyTypeManager(){
+		return currencyTypeManager;
+	}
 
-    private Messages _messages;
-    public Messages getMessages() { return _messages; }
+	private Messages _messages;
+	public Messages getMessages() { return _messages; }
 
-    //getDataFolder().toPath().resolve("somefolder/name.yml")
-    public Path getPluginFolder(){
-        return getDataFolder().toPath();
-    }
+	//getDataFolder().toPath().resolve("somefolder/name.yml")
+	public Path getPluginFolder(){
+		return getDataFolder().toPath();
+	}
 
-    private static MultiCurrency _instance;
-    public static MultiCurrency getInstance() {
-        return _instance;
-    }
+	private static MultiCurrency _instance;
+	public static MultiCurrency getInstance() {
+		return _instance;
+	}
 
-    private MainConfig _mainConfig;
-    public MainConfig getMainConfig(){
-        return  _mainConfig;
-    }
+	private MainConfig _mainConfig;
+	public MainConfig getMainConfig(){
+		return  _mainConfig;
+	}
 
-    private ConfigManager _mainConfigManager;
-    public ConfigManager getMainConfigManager() { return  _mainConfigManager; }
+	private ConfigManager _mainConfigManager;
+	public ConfigManager getMainConfigManager() { return  _mainConfigManager; }
 
-    private Map<String, CurrencyConfig> _currencyConfigs;
-    public Map<String, CurrencyConfig> getCurrencyConfigs() {
-        return _currencyConfigs;
-    }
+	private Map<String, CurrencyConfig> _currencyConfigs;
+	public Map<String, CurrencyConfig> getCurrencyConfigs() {
+		return _currencyConfigs;
+	}
 
-    private Map<String, ConfigManager> _currencyConfigsManager;
-    public Map<String, ConfigManager> getCurrencyConfigsManager() {
-        return _currencyConfigsManager;
-    }
+	private Map<String, ConfigManager> _currencyConfigsManager;
+	public Map<String, ConfigManager> getCurrencyConfigsManager() {
+		return _currencyConfigsManager;
+	}
 
-    private DatabaseManager dbm;
-    public DatabaseManager getDBM(){
-        return dbm;
-    }
+	private DatabaseManager dbm;
+	public DatabaseManager getDBM(){
+		return dbm;
+	}
 
-    String currencypath;
+	String currencypath;
 
-    TreasuryManager treasuryManager;
-    public TreasuryManager getTreasuryManager() {
-        return treasuryManager;
-    }
+	TreasuryManager treasuryManager;
+	public TreasuryManager getTreasuryManager() {
+		return treasuryManager;
+	}
 
-    TreasuryAccountManager treasuryAccountmanager;
-    public TreasuryAccountManager getTreasuryAccountmanager() {
-        return treasuryAccountmanager;
-    }
+	TreasuryAccountManager treasuryAccountmanager;
+	public TreasuryAccountManager getTreasuryAccountmanager() {
+		return treasuryAccountmanager;
+	}
 
-    public void ReloadConfigs() {
-        // main config
-        if (_mainConfig == null){
-            _mainConfig = new MainConfig();
-        }
-        _mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().reload();;
-        ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
+	public void ReloadConfigs() {
+		// main config
+		if (_mainConfig == null){
+			_mainConfig = new MainConfig();
+		}
+		_mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().reload();;
+		ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
 
-        // currency configs
-        currencyTypeManager.clearCurrencyTypes();
-        configHelper.loadConfigs(currencypath);
-        treasuryManager.reload();
-        _currencyConfigs = configHelper.getCurrencyConfigs();
-        _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
-    }
+		// currency configs
+		currencyTypeManager.clearCurrencyTypes();
+		configHelper.loadConfigs(currencypath);
+		treasuryManager.reload();
+		_currencyConfigs = configHelper.getCurrencyConfigs();
+		_currencyConfigsManager = configHelper.getCurrencyConfigsManager();
+	}
 
 
-    public static PluginDescriptionFile getPDFile() {
-        return _instance.getDescription();
-    }
+	public static PluginDescriptionFile getPDFile() {
+		return _instance.getDescription();
+	}
 
-    @Override
-    public void onEnable() {
-        _instance = this;
-		
+	@Override
+	public void onEnable() {
+		_instance = this;
+
 //		if (Bukkit.getPluginManager().getPlugin("RedLib") == null) {
 //            getLogger().info("Required dependent plugin was not found : RedLib");
 //            getLogger().info("Disabling " + this.getName());
 //            Bukkit.getPluginManager().disablePlugin(this);
 //            return;
 //        }
-				
+
 		if (Bukkit.getPluginManager().getPlugin("Treasury") == null) {
-            getLogger().info("Required dependent plugin was not found : Treasury");
-            getLogger().info("Disabling " + this.getName());
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
+			getLogger().info("Required dependent plugin was not found : Treasury");
+			getLogger().info("Disabling " + this.getName());
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
 
-        currencypath = MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString();
+		currencypath = MultiCurrency.getInstance().getPluginFolder().resolve("Economy").toString();
 
-        // main config
-        if (_mainConfig == null){
-            _mainConfig = new MainConfig();
-        }
-        _mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().load();
+		// main config
+		if (_mainConfig == null){
+			_mainConfig = new MainConfig();
+		}
+		_mainConfigManager = ConfigManager.create(MultiCurrency.getInstance()).target(_mainConfig).saveDefaults().load();
 
-        _messages = Messages.load(MultiCurrency.getInstance());
+		_messages = Messages.load(MultiCurrency.getInstance());
 
-        currencyTypeManager = new CurrencyTypeManager(MultiCurrency.getInstance());
+		currencyTypeManager = new CurrencyTypeManager(MultiCurrency.getInstance());
 
-        String configVer = _mainConfig.version;
-        String pluginVer = MultiCurrency.getPDFile().getVersion();
-        if (!Objects.equals(configVer, pluginVer)){
-            _mainConfig.previousversion =  _mainConfig.version;
-            _mainConfig.version = MultiCurrency.getPDFile().getVersion();
-            getMainConfigManager().save();
-        }
+		String configVer = _mainConfig.version;
+		String pluginVer = MultiCurrency.getPDFile().getVersion();
+		if (!Objects.equals(configVer, pluginVer)){
+			_mainConfig.previousversion =  _mainConfig.version;
+			_mainConfig.version = MultiCurrency.getPDFile().getVersion();
+			getMainConfigManager().save();
+		}
 
-        ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
+		ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
 
-        ConsoleLogger.info("Loaded messages from file!", ConsoleLogger.logTypes.log);
+		ConsoleLogger.info("Loaded messages from file!", ConsoleLogger.logTypes.log);
 
-        // Load database
-        if (dbm == null){
-            dbm = new DatabaseManager(MultiCurrency.getInstance());
-        }
+		// Load database
+		if (dbm == null){
+			dbm = new DatabaseManager(MultiCurrency.getInstance());
+		}
 
-        Path defaultexample = MultiCurrency.getInstance().getPluginFolder().resolve("Economy");
-        if (!Files.exists(defaultexample)) {
-            ConfigManager.create(this, defaultexample.resolve("Example Currency.yml")).target(new CurrencyConfig()).saveDefaults().load();
-        }
+		Path defaultexample = MultiCurrency.getInstance().getPluginFolder().resolve("Economy");
+		if (!Files.exists(defaultexample)) {
+			ConfigManager.create(this, defaultexample.resolve("Example Currency.yml")).target(new CurrencyConfig()).saveDefaults().load();
+		}
 
-        // currency configs
-        configHelper = new ConfigHelper(MultiCurrency.getInstance());
-        configHelper.loadConfigs(currencypath);
-        _currencyConfigs = configHelper.getCurrencyConfigs();
-        _currencyConfigsManager = configHelper.getCurrencyConfigsManager();
+		// currency configs
+		configHelper = new ConfigHelper(MultiCurrency.getInstance());
+		configHelper.loadConfigs(currencypath);
+		_currencyConfigs = configHelper.getCurrencyConfigs();
+		_currencyConfigsManager = configHelper.getCurrencyConfigsManager();
 
-        // manages all treasury things
-        treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
+		// manages all treasury things
+		treasuryManager  = new TreasuryManager(MultiCurrency.getInstance());
 
-        treasuryAccountmanager = new TreasuryAccountManager(MultiCurrency.getInstance());
+		treasuryAccountmanager = new TreasuryAccountManager(MultiCurrency.getInstance());
 
-        ArgType<?> currencyType = ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes());
+		ArgType<?> currencyType = ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes());
 
-        UserCache.asyncInit();
-        ArgType<?> offlinePlayerType = new ArgType<>("AllPlayer", UserCache::getOfflinePlayer).tabStream(c -> Bukkit.getOnlinePlayers().stream().map(Player::getName));
+		UserCache.asyncInit();
+		ArgType<?> offlinePlayerType = new ArgType<>("AllPlayer", UserCache::getOfflinePlayer).tabStream(c -> Bukkit.getOnlinePlayers().stream().map(Player::getName));
 
-        // register commands
-        new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
-                .setArgTypes
-                (
-                   //ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes()),
-                   currencyType,
-                   offlinePlayerType
-                )
-                .parse()
-                .register("multicurrency",
-                        new CommandHandler(MultiCurrency.getInstance()
-                        )
-                );
+		// register commands
+		new CommandParser(this.getResource("commands.rdcml"), MultiCurrency.getInstance().getMessages())
+				.setArgTypes
+						(
+								//ArgType.of("CurrencyType", currencyTypeManager.getAllCurrencyTypes()),
+								currencyType,
+								offlinePlayerType
+						)
+				.parse()
+				.register("multicurrency",
+						new CommandHandler(MultiCurrency.getInstance()
+						)
+				);
 
-        // Register to Treasury
-        ServiceRegistry.INSTANCE.registerService(
-                EconomyProvider.class,
-                treasuryManager.getTreasuryHook(),
-                getName(),
-                ServicePriority.NORMAL
-        );
+		// Register to Treasury
+		ServiceRegistry.INSTANCE.registerService(
+				EconomyProvider.class,
+				treasuryManager.getTreasuryHook(),
+				getName(),
+				ServicePriority.NORMAL
+		);
 
-        // Register Events
-        EventHandlers eventHandler = new EventHandlers(MultiCurrency.getInstance());
-        this.getServer().getPluginManager().registerEvents(eventHandler, MultiCurrency.getInstance());
-
-
-        ConsoleLogger.info("Hooked to Treasury", ConsoleLogger.logTypes.log);
+		// Register Events
+		EventHandlers eventHandler = new EventHandlers(MultiCurrency.getInstance());
+		this.getServer().getPluginManager().registerEvents(eventHandler, MultiCurrency.getInstance());
 
 
-        ConsoleLogger.info("All files loaded", ConsoleLogger.logTypes.log);
+		ConsoleLogger.info("Hooked to Treasury", ConsoleLogger.logTypes.log);
 
-    }
 
-    @Override
-    public void onDisable() {
-        //some usage idk XD
+		ConsoleLogger.info("All files loaded", ConsoleLogger.logTypes.log);
 
-        // Unregister to Treasury
-        if (Bukkit.getPluginManager().getPlugin("Treasury") != null) {
-            ServiceRegistry.INSTANCE.unregister(
-                    EconomyProvider.class,
-                    treasuryManager.getTreasuryHook()
-            );
-        }
+	}
 
-    }
+	@Override
+	public void onDisable() {
+		//some usage idk XD
+
+		// Unregister to Treasury
+		if (Bukkit.getPluginManager().getPlugin("Treasury") != null) {
+			ServiceRegistry.INSTANCE.unregister(
+					EconomyProvider.class,
+					treasuryManager.getTreasuryHook()
+			);
+		}
+
+	}
 }

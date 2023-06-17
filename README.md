@@ -25,3 +25,4 @@ In order for everyone to have the best experience possible, we have a few guidel
 - When creating an issue, please make sure you're using the [issue template](https://github.com/DeathGOD7/MultiCurrency/blob/master/ISSUE_TEMPLATE.md).
 - When submitting a pull request, please make sure you're using the [pull request template](https://github.com/DeathGOD7/MultiCurrency/blob/master/PULL_REQUEST_TEMPLATE.md).
 - When contributing, please make sure you check out the [contribution guidelines](https://github.com/DeathGOD7/MultiCurrency/blob/master/CONTRIBUTING.md).
+- Lastly, be sure to follow the project code writing style. (Tabs and Indents,Curly brackets,etc)
