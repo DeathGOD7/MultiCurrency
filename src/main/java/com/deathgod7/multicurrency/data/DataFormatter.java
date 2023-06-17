@@ -68,8 +68,8 @@ public class DataFormatter {
         }
     }
 
-    public String formatBigDecimal(BigDecimal am, boolean withName) {
-        if (withName) {
+    public String formatBigDecimal(BigDecimal am, boolean withCurrencyName) {
+        if (withCurrencyName) {
             if (am.compareTo(BigDecimal.ONE) == 0) {
                 return decimalFormat.format(am) + " " + singularname.toLowerCase();
             }
@@ -85,8 +85,8 @@ public class DataFormatter {
         }
     }
 
-    public String formatDouble(double am, boolean withName) {
-        if (withName) {
+    public String formatDouble(double am, boolean withCurrencyName) {
+        if (withCurrencyName) {
             if (am > 1) {
                 return decimalFormat.format(am) + pluralname.toLowerCase();
             }

@@ -60,12 +60,7 @@ public class CommandHandler {
         String ftemp = temp.substring(0, temp.length() - 2);
         commandSender.sendMessage("Available Currency : " + ftemp);
 
-        StringBuilder temp2 = new StringBuilder();
-        for (String x : instance.getDBM().getTables().keySet()) {
-            temp2.append(x).append(", ");
-        }
-        String ftemp2 = temp2.substring(0, temp2.length() - 2);
-        commandSender.sendMessage("Available Table : " + ftemp2);
+
     }
 
     // -------------------------------------------------------------------
@@ -145,6 +140,87 @@ public class CommandHandler {
             commandSender.sendMessage("Currency Amount : " + amount);
             commandSender.sendMessage("Is Silent : " + isSilent);
         }
+
+        Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
+
+        if (currency == null) {
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+            commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+            return;
+        }
+
+        DataFormatter dataFormatter = new DataFormatter(currencyType);
+
+        if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
+            tAM.registerPlayerAccount(target.getUniqueId());
+        }
+
+        PlayerAccount playerAccount = tAM.getPlayerAccount(target.getUniqueId());
+
+        playerAccount.retrieveBalance(currency,
+                new EconomySubscriber<BigDecimal>() {
+                    @Override
+                    public void succeed(@NotNull BigDecimal oldAmount) {
+                        BigDecimal newAmount = oldAmount.add(BigDecimal.valueOf(amount));
+
+                        playerAccount.setBalance(newAmount, new EconomyTransactionInitiator<Object>() {
+                                    @Override
+                                    public Object getData() {
+                                        if (SE7ENUtils.isPlayer(commandSender)) {
+                                            Player initiatorplayer = (Player) commandSender;
+                                            return initiatorplayer.getUniqueId();
+                                        }
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public @NotNull Type getType() {
+                                        if (SE7ENUtils.isPlayer(commandSender)) {
+                                            return Type.PLAYER;
+                                        } else {
+                                            return Type.SERVER;
+                                        }
+                                    }
+                                },
+                                currency,
+                                new EconomySubscriber<BigDecimal>() {
+                                    @Override
+                                    public void succeed(@NotNull BigDecimal bigDecimal) {
+                                        commandSender.sendMessage(target.getName() + " balance is set to " + dataFormatter.formatBigDecimal(newAmount, false));
+
+                                        // if is silent, don't send message to player
+                                        if (!isSilent) {
+                                            if (target.isOnline() && target.getPlayer() != null) {  // If target is online
+                                                target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is updated to " + dataFormatter.formatBigDecimal(newAmount, false)));
+                                            }
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void fail(@NotNull EconomyException exception) {
+                                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't set player money!!"));
+                                        ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                                    }
+                                }
+                        );
+
+                        //debug
+                        ConsoleLogger.warn(target.getName() + " old balance is " + dataFormatter.formatBigDecimal(oldAmount, false), ConsoleLogger.logTypes.debug);
+                        ConsoleLogger.warn(target.getName() + " new balance is " + dataFormatter.formatBigDecimal(newAmount,false), ConsoleLogger.logTypes.debug);
+
+
+
+                    }
+
+                    @Override
+                    public void fail(@NotNull EconomyException exception) {
+                        commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get player account from database!!"));
+                        ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+                    }
+                }
+        );
+
 
     }
 
@@ -529,8 +605,8 @@ public class CommandHandler {
         playerAccount.retrieveBalance(currency,
             new EconomySubscriber<BigDecimal>() {
                 @Override
-                public void succeed(@NotNull BigDecimal bigDecimal) {
-                    commandSender.sendMessage("Your balance is " + dataFormatter.formatBigDecimal(bigDecimal, false));
+                public void succeed(@NotNull BigDecimal playerBalance) {
+                    commandSender.sendMessage("Your balance is " + dataFormatter.formatBigDecimal(playerBalance, false));
                 }
 
                 @Override
@@ -561,7 +637,6 @@ public class CommandHandler {
         }
 
         DataFormatter dataFormatter = new DataFormatter(currencyType);
-        final BigDecimal[] amount = {BigDecimal.ZERO};
 
         if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
             tAM.registerPlayerAccount(target.getUniqueId());
@@ -572,9 +647,8 @@ public class CommandHandler {
         playerAccount.retrieveBalance(currency,
                 new EconomySubscriber<BigDecimal>() {
                     @Override
-                    public void succeed(@NotNull BigDecimal bigDecimal) {
-                        amount[0] = bigDecimal;
-                        commandSender.sendMessage(target.getName() + " balance is " + dataFormatter.formatBigDecimal(amount[0], false));
+                    public void succeed(@NotNull BigDecimal playerBalance) {
+                        commandSender.sendMessage(target.getName() + " balance is " + dataFormatter.formatBigDecimal(playerBalance, false));
                     }
 
                     @Override

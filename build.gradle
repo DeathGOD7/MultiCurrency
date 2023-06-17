@@ -55,6 +55,9 @@ dependencies {
 	// !!! Good ol' mate. !!!
     //noinspection VulnerableLibrariesLocal
     compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
+    // ---------- [ Adventure ] ----------
+    // !!! New way of messaging people xD. !!!
+    implementation "net.kyori:adventure-text-minimessage:4.14.0"
 	// ---------- [ RedLib ] ----------
 	// !!! The lib developed by good guy to help other good guy like me! >.< !!!
     implementation 'com.github.Redempt:RedLib:6.5.8'

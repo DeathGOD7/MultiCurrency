@@ -6,8 +6,8 @@ multicurrency,mcurrency,currency,mc {
         help Gives you some info about the plugin and database
         permission multicurrency.info
     }
-	
-	reload,r {
+
+    reload,r {
         hook reload
         help Reloads the config file
         permission multicurrency.reload

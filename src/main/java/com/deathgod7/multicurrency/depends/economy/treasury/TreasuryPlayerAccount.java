@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -81,6 +82,10 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     @Override
     public void setBalance(@NotNull BigDecimal amount, @NotNull EconomyTransactionInitiator<?> initiator, @NotNull Currency currency, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = currency.getIdentifier();
+        String transactionReason = "Update Balance";
+        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS").withZone(ZoneId.systemDefault()).format(LocalDateTime.now());
+        String transactionTypeFormatted = "Update";
+
         CurrencyType ctyp;
         DataFormatter dataFormatter;
 
@@ -93,33 +98,55 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
             BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-            String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
+            //String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
 
             boolean status = dbm.updateBalance(uuid, ctyp, fixedAmount);
 
             if (status) {
                 EconomyTransactionInitiator.Type type = initiator.getType();
-                String consolemsg;
-                String playermsg;
+                String transactionFrom;
+
                 if (type == EconomyTransactionInitiator.Type.PLAYER) {
                     UUID initiatorPlayerID = (UUID) initiator.getData();
                     Player initiatorPlayer = (Player) Bukkit.getOfflinePlayer(initiatorPlayerID);
-                    consolemsg = "Player " + initiatorPlayer.getName() + " has set balance for " + player.getName() + " to " + formattedAmount;
+                    transactionFrom = initiatorPlayer.getName();
                 }
                 else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
-                    String pluginname = (String) initiator.getData();
-                    consolemsg = "Plugin " + pluginname + " has set balance for " + player.getName() + " to " + formattedAmount;
+                    transactionFrom = (String) initiator.getData();
                 }
                 else {
-                    consolemsg = "Server has set balance for " + player.getName() + " to " + formattedAmount;
+                    transactionFrom = "Server";
                 }
 
-                playermsg = Messages.msg("prefix") + " Your balance has been updated to " + formattedAmount;
 
-                ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
-                if (player.isOnline()) {
-                    Objects.requireNonNull(player.getPlayer()).sendMessage(playermsg);
+                if (ctyp.logTransactionEnabled()) {
+                    Table transactionsTable = dbm.getTables().get("Transactions");
+                    if (transactionsTable != null) {
+                        List<Column> temp = TransactionTable.TransactionData(timestamp, currencyName,
+                                fixedAmount.toString(), transactionTypeFormatted, transactionFrom,
+                                player.getName(), transactionReason);
+
+                        // put in db
+                        boolean up = transactionsTable.insert(temp);
+
+                        if (up) {
+                            ConsoleLogger.info("From : " + transactionFrom + " To : " + player.getName(), ConsoleLogger.logTypes.debug);
+                            ConsoleLogger.info("Type : " + transactionTypeFormatted, ConsoleLogger.logTypes.debug);
+                            ConsoleLogger.info("Money : " + fixedAmount + " (" + currencyName + ")" + player.getName(), ConsoleLogger.logTypes.debug);
+                            ConsoleLogger.info("Reason : " + transactionReason, ConsoleLogger.logTypes.debug);
+                            ConsoleLogger.info("Logged the transaction in database.", ConsoleLogger.logTypes.debug);
+                        }
+                        else {
+                            ConsoleLogger.info("Transaction logs not updated......hmmmmm", ConsoleLogger.logTypes.debug);
+                        }
+
+
+                    }
+                    else {
+                        ConsoleLogger.severe("Couldn't log the transaction in database. Please check if you have configured db correctly.", ConsoleLogger.logTypes.debug);
+                    }
                 }
+
 
                 subscription.succeed(fixedAmount);
 
@@ -135,7 +162,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
     public void doTransaction(@NotNull EconomyTransaction economyTransaction, @NotNull EconomySubscriber<BigDecimal> subscription) {
         String currencyName = economyTransaction.getCurrencyID();
         String transactionReason = economyTransaction.getReason().isPresent() ? economyTransaction.getReason().get() : "";
-        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS").withZone( ZoneId.systemDefault() ).format(economyTransaction.getTimestamp());
+        String timestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS").withZone(ZoneId.systemDefault()).format(economyTransaction.getTimestamp());
         BigDecimal amount = economyTransaction.getTransactionAmount();
         EconomyTransactionType transactionType = economyTransaction.getTransactionType();
         EconomyTransactionInitiator<?> initiator = economyTransaction.getInitiator();
@@ -163,7 +190,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
                 BigDecimal fixedAmount = dataFormatter.parseBigDecimal(amount);
 
-                String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
+                //String formattedAmount = dataFormatter.formatBigDecimal(fixedAmount, true);
 
                 // check if the transaction is withdrawl or deposit
                 BigDecimal previousAmount; // = BigDecimal.valueOf(0);
@@ -196,8 +223,6 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
                 if (status) {
                     EconomyTransactionInitiator.Type type = initiator.getType();
-                    String consolemsg;
-                    String accountholdermsg;
                     String transactionFrom;
 
                     if (type == EconomyTransactionInitiator.Type.PLAYER) {
@@ -206,17 +231,7 @@ public class TreasuryPlayerAccount implements PlayerAccount {
                         transactionFrom = initiatorPlayer.getName();
                     }
                     else if (type == EconomyTransactionInitiator.Type.PLUGIN) {
-                        String pluginname = (String) initiator.getData();
-                        transactionFrom = pluginname;
-                        consolemsg = "Plugin " + pluginname + " has given " + player.getName() + " " + formattedAmount;
-                        accountholdermsg = Messages.msg("prefix") + " You got " + formattedAmount;
-
-                        ConsoleLogger.info(consolemsg, ConsoleLogger.logTypes.log);
-
-                        if (player.isOnline() && player.getPlayer() != null) {
-                            player.getPlayer().sendMessage(accountholdermsg);
-                        }
-
+                        transactionFrom = (String) initiator.getData();
                     }
                     else {
                         transactionFrom = "Server";
@@ -236,6 +251,9 @@ public class TreasuryPlayerAccount implements PlayerAccount {
 
                             if (up) {
                                 ConsoleLogger.info("From : " + transactionFrom + " To : " + player.getName(), ConsoleLogger.logTypes.debug);
+                                ConsoleLogger.info("Type : " + transactionTypeFormatted, ConsoleLogger.logTypes.debug);
+                                ConsoleLogger.info("Money : " + fixedAmount + " (" + currencyName + ")" + player.getName(), ConsoleLogger.logTypes.debug);
+                                ConsoleLogger.info("Reason : " + transactionReason, ConsoleLogger.logTypes.debug);
                                 ConsoleLogger.info("Logged the transaction in database.", ConsoleLogger.logTypes.debug);
                             }
                             else {
