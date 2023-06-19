@@ -9,7 +9,6 @@ import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 import com.deathgod7.multicurrency.utils.SE7ENUtils;
 import com.deathgod7.multicurrency.utils.TextUtils;
-import me.lokka30.treasury.api.common.response.Subscriber;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import me.lokka30.treasury.api.economy.currency.Currency;
@@ -203,6 +202,17 @@ public class CommandHandler {
 												target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is added by " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
 											}
 										}
+										else {
+											if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+												if (!SE7ENUtils.hasSilentPerms(commandSender)) {
+													commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+															"Receiver will now get transaction message."));
+													if (target.isOnline() && target.getPlayer() != null) {
+														target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is added by " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
+													}
+												}
+											}
+										}
 
 									}
 
@@ -319,6 +329,17 @@ public class CommandHandler {
 												target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is set to " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
 											}
 										}
+										else {
+											if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+												if (!SE7ENUtils.hasSilentPerms(commandSender)) {
+													commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+															"Receiver will now get transaction message."));
+													if (target.isOnline() && target.getPlayer() != null) {
+														target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is set to " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
+													}
+												}
+											}
+										}
 
 									}
 
@@ -360,6 +381,106 @@ public class CommandHandler {
 			commandSender.sendMessage("Is Silent : " + isSilent);
 		}
 
+		Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
+
+		if (currency == null) {
+			commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+			commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+			return;
+		}
+
+		DataFormatter dataFormatter = new DataFormatter(currencyType);
+
+		if ( !tAM.hasPlayerAccount(target.getUniqueId() )) {
+			tAM.registerPlayerAccount(target.getUniqueId());
+		}
+
+		PlayerAccount playerAccount = tAM.getPlayerAccount(target.getUniqueId());
+
+		// update player balance using doTransaction after doing retrieveBalance
+		playerAccount.retrieveBalance(currency,
+				new EconomySubscriber<BigDecimal>() {
+					@Override
+					public void succeed(@NotNull BigDecimal oldAmount) {
+						BigDecimal newAmount = oldAmount.subtract(BigDecimal.valueOf(amount));
+						String reason = "Taking balance from player account.";
+						EconomyTransactionType economyTransactionType = EconomyTransactionType.WITHDRAWAL;
+
+						playerAccount.doTransaction(new EconomyTransaction(
+										currency.getIdentifier(),
+										new EconomyTransactionInitiator<Object>() {
+											@Override
+											public Object getData() {
+												if (SE7ENUtils.isPlayer(commandSender)) {
+													Player initiatorplayer = (Player) commandSender;
+													return initiatorplayer.getUniqueId();
+												}
+												return null;
+											}
+
+											@Override
+											public @NotNull Type getType() {
+												if (SE7ENUtils.isPlayer(commandSender)) {
+													return Type.PLAYER;
+												} else {
+													return Type.SERVER;
+												}
+											}
+										},
+										null,
+										economyTransactionType,
+										reason,
+										new BigDecimal(amount),
+										EconomyTransactionImportance.NORMAL
+								),
+								new EconomySubscriber<BigDecimal>() {
+									@Override
+									public void succeed(@NotNull BigDecimal bigDecimal) {
+										commandSender.sendMessage(target.getName() + " balance is deducted by " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false));
+
+										// if is silent, don't send message to player
+										if (!isSilent) {
+											if (target.isOnline() && target.getPlayer() != null) {  // If target is online
+												target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is deducted by " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
+											}
+										}
+										else {
+											if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+												if (!SE7ENUtils.hasSilentPerms(commandSender)) {
+													commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+															"Receiver will now get transaction message."));
+													if (target.isOnline() && target.getPlayer() != null) {
+														target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is deducted by " + dataFormatter.formatBigDecimal(BigDecimal.valueOf(amount), false)));
+													}
+												}
+											}
+										}
+
+									}
+
+									@Override
+									public void fail(@NotNull EconomyException exception) {
+										commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't deduct money in player account!!"));
+										ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+									}
+								}
+						);
+
+						//debug
+						ConsoleLogger.warn(target.getName() + " old balance is " + dataFormatter.formatBigDecimal(oldAmount, false), ConsoleLogger.logTypes.debug);
+						ConsoleLogger.warn(target.getName() + " new balance is " + dataFormatter.formatBigDecimal(newAmount,false), ConsoleLogger.logTypes.debug);
+
+
+
+					}
+
+					@Override
+					public void fail(@NotNull EconomyException exception) {
+						commandSender.sendMessage(TextUtils.ConvertTextColor("&4Couldn't get player account from database!!"));
+						ConsoleLogger.severe(exception.getMessage(), ConsoleLogger.logTypes.log);
+					}
+				}
+		);
 
 
 	}
@@ -385,7 +506,7 @@ public class CommandHandler {
 
 		DataFormatter dataFormatter = new DataFormatter(currencyType);
 
-		String initiatorname;
+		String initiatorName;
 		String initiatorType = commandSender.getName();
 		String reason;
 
@@ -403,7 +524,7 @@ public class CommandHandler {
 		// if it is then deduct money from account
 		if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
 			Player initiator = (Player) commandSender;
-			initiatorname = initiator.getName();    // get player name
+			initiatorName = initiator.getName();    // get player name
 
 			reason = initiator.getName() + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.";
 
@@ -461,14 +582,15 @@ public class CommandHandler {
 			);
 
 			// check if withdraw is successfully done
+			// else return and do nothing
 			if (!isWithdrawn[0]) {
 				return;
 			}
 
 		}
 		else {
-			initiatorname = commandSender.getName();
-			reason = initiatorname + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.";
+			initiatorName = commandSender.getName();
+			reason = initiatorName + " gave " + target.getName() + " " + amount + " of " + currencyType.getName() + " currency.";
 		}
 
 		// then put to receiver
@@ -503,9 +625,9 @@ public class CommandHandler {
 				new EconomySubscriber<BigDecimal>() {
 					@Override
 					public void succeed(@NotNull BigDecimal bigDecimal) {
-						String consolemsg = "&a" + initiatorname + " has given " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false) + " of " + currencyType.getName() + " currency.";
+						String consolemsg = "&a" + initiatorName + " has given " + target.getName() + " " + dataFormatter.formatBigDecimal(bigDecimal, false) + " of " + currencyType.getName() + " currency.";
 
-						String receivermsg = pluginPrefix + " " + initiatorname + " has given you " + dataFormatter.formatBigDecimal(bigDecimal, false);
+						String receivermsg = pluginPrefix + " " + initiatorName + " has given you " + dataFormatter.formatBigDecimal(bigDecimal, false);
 						String receivermsg1 = pluginPrefix + " Your account has been credited by " + dataFormatter.formatBigDecimal(bigDecimal, false);
 
 						// log in console
@@ -525,7 +647,7 @@ public class CommandHandler {
 							}
 							else {
 								if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
-									if (!commandSender.hasPermission("multicurrency.silent")) {
+									if (!SE7ENUtils.hasSilentPerms(commandSender)) {
 										commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
 												"Receiver will now get transaction message."));
 										receiver.sendMessage(TextUtils.ConvertTextColor(receivermsg));
@@ -667,6 +789,17 @@ public class CommandHandler {
 						if (!isSilent) {
 							if (target.isOnline() && target.getPlayer() != null) {  // If target is online
 								target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is set to " + dataFormatter.formatBigDecimal(BigDecimal.ZERO, false)));
+							}
+						}
+						else {
+							if (!commandSender.getName().equalsIgnoreCase("CONSOLE")) {
+								if (!SE7ENUtils.hasSilentPerms(commandSender)) {
+									commandSender.sendMessage(TextUtils.ConvertTextColor(pluginPrefix + " &4Seems you don't have permission to send transaction silently." +
+											"Receiver will now get transaction message."));
+									if (target.isOnline() && target.getPlayer() != null) {
+										target.getPlayer().sendMessage(TextUtils.ConvertTextColor("&aYour balance is set to " + dataFormatter.formatBigDecimal(BigDecimal.ZERO, false)));
+									}
+								}
 							}
 						}
 
