@@ -13,6 +13,7 @@ Well it's easy installing it to your server. Just drag and drop it into your plu
 dependencies.
 - [Treasury](https://www.spigotmc.org/resources/treasury.99531/) by lokka30
 - [RedLib](https://www.spigotmc.org/resources/redlib.78713/) by Redempt
+  (Not needed if you use shaded version of Multi Currency "....-all.jar")
  
 ### Contribution
 If you want to contribute to this project, feel free to make changes and open
