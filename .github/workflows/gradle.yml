@@ -32,7 +32,7 @@ jobs:
 
       # to fix the said vulnerability of older version than 2.4.2
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@2.4.2
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: build --scan
 
