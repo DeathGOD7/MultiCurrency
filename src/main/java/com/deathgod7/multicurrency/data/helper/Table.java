@@ -2,7 +2,6 @@ package com.deathgod7.multicurrency.data.helper;
 
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DatabaseManager;
-import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
 
 import java.sql.PreparedStatement;
@@ -188,9 +187,11 @@ public class Table {
 			ConsoleLogger.warn("[GETEXACT] Result is returned as empty array list of columns.", ConsoleLogger.logTypes.debug);
 		}
 		else {
-			for ( Column c : result) {
-				ConsoleLogger.warn(c.getName() + " " + c.getValue(), ConsoleLogger.logTypes.debug);
-			}
+			String temp = "UUID : " + result.get(0).getValue().toString() + ", " +
+					"Name : " + result.get(1).getValue().toString() + ", " +
+					"Balance : " + result.get(2).getValue().toString();
+
+			ConsoleLogger.warn(temp, ConsoleLogger.logTypes.debug);
 		}
 
 
@@ -230,11 +231,30 @@ public class Table {
 				MultiCurrency.getInstance().getDBM().close(s, rs);
 			} catch (SQLException e) {
 				e.printStackTrace();
+				results = null;
 			}
-			return results;
 		} else {
-			return null;
+			results = null;
 		}
+
+		if (results == null) {
+			ConsoleLogger.warn("[SEARCH] Error in query execution of db.", ConsoleLogger.logTypes.debug);
+		}
+		else if (results.isEmpty()) {
+			ConsoleLogger.warn("[SEARCH] Result is returned as empty array list of columns.", ConsoleLogger.logTypes.debug);
+		}
+		else {
+			for ( List<Column> cc : results) {
+				String temp = "UUID : " + cc.get(0).getValue().toString() + ", " +
+						"Name : " + cc.get(1).getValue().toString() + ", " +
+						"Balance : " + cc.get(2).getValue().toString();
+
+				ConsoleLogger.warn(temp, ConsoleLogger.logTypes.debug);
+			}
+		}
+
+		return results;
+
 	}
 
 	public List<List<Column>> getAllColumns() {

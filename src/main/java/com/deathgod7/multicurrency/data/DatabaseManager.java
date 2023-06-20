@@ -5,11 +5,13 @@ import com.deathgod7.multicurrency.data.helper.*;
 import com.deathgod7.multicurrency.data.mysql.MySQL;
 import com.deathgod7.multicurrency.data.sqlite.SQLite;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
+import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.utils.ConsoleLogger;
+import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
+import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import redempt.redlib.config.conversion.StringConverter;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -20,6 +22,8 @@ import java.util.*;
 
 public class DatabaseManager {
 	private final MultiCurrency instance;
+
+	private final TreasuryAccountManager tAM;
 	private SQLite _sqlite;
 	private MySQL _mysql;
 
@@ -45,8 +49,19 @@ public class DatabaseManager {
 		FLOAT
 	}
 
+	public enum OrderType {
+		ASCENDING,
+		DESCENDING
+	}
+
+	public enum AccountType {
+		PLAYER,
+		NPC
+	}
+
 	public DatabaseManager(MultiCurrency multiCurrency){
 		instance = multiCurrency;
+		tAM = instance.getTreasuryAccountmanager();
 		choosenDB = instance.getMainConfig().db_type;
 		loadDB();
 	}
@@ -402,5 +417,51 @@ public class DatabaseManager {
 
 		return table.update(uuid, temp);
 	}
+
+	public List<List<Column>> getOrderBalance(CurrencyType ctyp, OrderType orderType, AccountType accountType) {
+		// player data
+		Table currencytTable = tables.get(ctyp.getName());
+		List<List<Column>> allCurrencyData = currencytTable.getAllColumns();
+		List<List<Column>> filteredCurrencyData = new ArrayList<>();
+
+		// account data
+		HashMap<String, PlayerAccount> playerAccountsTable = tAM.getAllPlayerAccounts();
+		HashMap<String, NonPlayerAccount> npcAccountsTable = tAM.getAllNpcAccounts();
+
+		// remove all Player/NPC account from currency table
+		for (List<Column> data : allCurrencyData) {
+			String value = data.get(0).getValue().toString();
+
+			if ((accountType == AccountType.PLAYER && !npcAccountsTable.containsKey(value))
+					|| (accountType == AccountType.NPC && !playerAccountsTable.containsKey(value))) {
+				filteredCurrencyData.add(data);
+			}
+		}
+
+		// Create a custom comparator
+		Comparator<List<Column>> customComparator = new Comparator<List<Column>>() {
+			@Override
+			public int compare(List<Column> list1, List<Column> list2) {
+				// Compare based on a specific column value or any other criteria
+				// For example, if the column index is 1 and contains integers:
+				int value1 = Integer.parseInt(list1.get(2).getValue().toString());
+				int value2 = Integer.parseInt(list2.get(2).getValue().toString());
+
+				// Determine the sort order based on a parameter
+				// Set to true for ascending order, false for descending order
+				boolean isAscendingOrder = orderType.equals(OrderType.ASCENDING);
+				int sortOrder = isAscendingOrder ? 1 : -1;
+
+				// Compare based on the sort order
+				return Integer.compare(value1, value2) * sortOrder;
+			}
+		};
+
+		// Sort the list based on the specified sort order
+		filteredCurrencyData.sort(customComparator);
+
+		return filteredCurrencyData;
+	}
+
 
 }

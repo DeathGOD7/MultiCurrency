@@ -9,9 +9,7 @@ import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
-import java.io.Console;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +19,8 @@ public class TreasuryAccountManager {
 	final HashMap<String, PlayerAccount> playerAccounts = new HashMap<>();  //  uuid and playeraccount
 	final HashMap<String, NonPlayerAccount> nonPlayerAccounts = new HashMap<>();  //  identifier and nonplayeraccount
 	final Table accountsTable;
+
+	public final String npcIdPrefix = "NPC_";
 
 	public TreasuryAccountManager (MultiCurrency instance){
 		this.instance = instance;
@@ -68,14 +68,13 @@ public class TreasuryAccountManager {
 
 	// PLAYER REGION
 	public PlayerAccount registerPlayerAccount(UUID playeruuid){
-		PlayerAccount playerAccount;
 		OfflinePlayer player = Bukkit.getOfflinePlayer(playeruuid);
+		PlayerAccount playerAccount;
 
 		ConsoleLogger.warn("Info: " + player.getName() + " " + player.getUniqueId(), ConsoleLogger.logTypes.debug);
 
 		if (hasPlayerAccount(playeruuid)) {
-			playerAccount = null;
-			return playerAccount;
+			return getPlayerAccount(playeruuid);
 		}
 
 		boolean status = accountsTable.insert(
@@ -122,7 +121,7 @@ public class TreasuryAccountManager {
 		NonPlayerAccount npcAccount;
 
 		if (hasNpcAccount(identifier)) {
-			return null;
+			return getNpcAccount(identifier);
 		}
 
 		boolean status = accountsTable.insert(
@@ -161,6 +160,14 @@ public class TreasuryAccountManager {
 
 	public HashMap<String, NonPlayerAccount> getAllNpcAccounts(){
 		return nonPlayerAccounts;
+	}
+
+	public boolean renameNpcAccount(String identifier) {
+		return false;
+	}
+
+	public boolean deleteNpcAccount(String identifier) {
+		return false;
 	}
 
 

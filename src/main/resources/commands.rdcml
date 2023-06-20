@@ -82,37 +82,37 @@ multicurrency,mcurrency,currency,mc {
     // NPC Economy Section
     add CurrencyType:type string:target int:moneyAmount {
         hook npcadd
-        help Adds specific amount of money from specified currency in players account
+        help Adds specific amount of money from specified currency in NPC account
         permission multicurrency.npc.add
     }
 
     set CurrencyType:type string:target int:moneyAmount {
         hook npcset
-        help Sets specific amount of money from specified currency of player
+        help Sets specific amount of money from specified currency of NPC
         permission multicurrency.npc.set
     }
 
     take CurrencyType:type string:target int:moneyAmount {
         hook npctake
-        help Takes specific amount of money from specified currency
+        help Takes specific amount of money from specified currency of NPC
         permission multicurrency.npc.take
     }
 
     give,pay CurrencyType:type string:target int:moneyAmount {
         hook npcgive
-        help Gives specific amount of money from specified currency to player
+        help Gives specific amount of money from specified currency to NPC
         permission multicurrency.npc.give
     }
 
     reset CurrencyType:type string:target {
         hook npcreset
-        help Resets money from specified currency of player
+        help Resets money from specified currency of NPC
         permission multicurrency.npc.reset
     }
 
     bal,balance,money,cash CurrencyType:type string:target {
         hook npcbal
-        help Checks money from specified currency of npc
+        help Checks money from specified currency of NPC
         permission multicurrency.npc.balance
     }
 
@@ -120,25 +120,25 @@ multicurrency,mcurrency,currency,mc {
     npc,nonplayer {
         permission multicurrency.npc
 
-        list CurrencyType:type {
+        list {
             hook npclist
             help Shows a list of all non player accounts
             permission multicurrency.npc.list
         }
 
-        create,add CurrencyType:type {
+        create,add string:name {
             hook npccreate
             help Shows a list of all non player accounts
             permission multicurrency.npc.create
         }
 
-        delete,remove CurrencyType:type {
+        delete,remove string:name {
             hook npcdelete
             help Shows a list of all non player accounts
             permission multicurrency.npc.delete
         }
 
-        rename CurrencyType:type {
+        rename string:name {
             hook npcrename
             help Shows a list of all non player accounts
             permission multicurrency.npc.rename

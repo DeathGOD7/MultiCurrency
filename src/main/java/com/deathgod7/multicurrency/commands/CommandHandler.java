@@ -3,6 +3,7 @@ package com.deathgod7.multicurrency.commands;
 import com.deathgod7.multicurrency.MultiCurrency;
 import com.deathgod7.multicurrency.data.DataFormatter;
 import com.deathgod7.multicurrency.data.DatabaseManager;
+import com.deathgod7.multicurrency.data.helper.Column;
 import com.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
@@ -26,6 +27,8 @@ import redempt.redlib.commandmanager.CommandHook;
 import redempt.redlib.commandmanager.Messages;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import static com.deathgod7.multicurrency.utils.TextUtils.ConvertTextColor;
@@ -909,43 +912,110 @@ public class CommandHandler {
 
 	@CommandHook("baltop")
 	public void baltop(CommandSender commandSender, CurrencyType currencyType) {
-		commandSender.sendMessage("balother will be implemented soon!");
-		commandSender.sendMessage("Command Sender : " + commandSender.getName());
-		commandSender.sendMessage("Currency Type : " + currencyType.getName());
+		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+			commandSender.sendMessage("Command Sender : " + commandSender.getName());
+			commandSender.sendMessage("Currency Type : " + currencyType.getName());
+		}
+
+		Currency currency = treasuryManager.getTreasuryCurrency().get(currencyType.getName());
+
+		if (currency == null) {
+			commandSender.sendMessage(TextUtils.ConvertTextColor("&4Currency is not loaded properly in plugin!!"));
+			commandSender.sendMessage(TextUtils.ConvertTextColor("&4If you think this is mistake, please open issues at github or contact on discord.!!"));
+			return;
+		}
+
+		List<List<Column>> temp = dbm.getOrderBalance(currencyType, DatabaseManager.OrderType.DESCENDING, DatabaseManager.AccountType.PLAYER);
+
+		for (List<Column> data : temp) {
+			String temmmp = "UUID : " + data.get(0).getValue().toString() + ", " +
+					"Name : " + data.get(1).getValue().toString() + ", " +
+					"Balance : " + data.get(2).getValue().toString();
+
+			ConsoleLogger.warn(temmmp, ConsoleLogger.logTypes.debug);
+		}
+
 	}
 
 	// -------------------------------------------------------------------
 	// ------------------[ NON PLAYER SECTION ]---------------------------
 	// -------------------------------------------------------------------
 
+	// npc management section
 	@CommandHook("npclist")
-	public void npclist(CommandSender commandSender, CurrencyType currencyType) {
-		commandSender.sendMessage("npclist will be implemented soon!");
-		commandSender.sendMessage("Command Sender : " + commandSender.getName());
-		commandSender.sendMessage("Currency Type : " + currencyType.getName());
+	public void npclist(CommandSender commandSender) {
+		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+			commandSender.sendMessage("Command Sender : " + commandSender.getName());
+		}
+
+		HashMap<String, NonPlayerAccount> temp = tAM.getAllNpcAccounts();
+
+		if (temp.isEmpty()) {
+			commandSender.sendMessage("No NPC is created yet.");
+			return;
+		}
+
+		StringBuilder list = new StringBuilder();
+		int count = 0;
+
+		for (NonPlayerAccount npcAcc : temp.values()) {
+			count++;
+			list.append(count).append(". ").append(npcAcc.getName()).append("\n");
+		}
+
+		list.delete(list.length()-2, list.length());
+
+		commandSender.sendMessage(String.valueOf(list));
+
 	}
 
 	@CommandHook("npccreate")
-	public void npccreate(CommandSender commandSender, CurrencyType currencyType) {
-		commandSender.sendMessage("npccreate will be implemented soon!");
-		commandSender.sendMessage("Command Sender : " + commandSender.getName());
-		commandSender.sendMessage("Currency Type : " + currencyType.getName());
+	public void npccreate(CommandSender commandSender, String name) {
+		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+			commandSender.sendMessage("Command Sender : " + commandSender.getName());
+			commandSender.sendMessage("NPC Name : " + name);
+		}
+
+		if (!tAM.hasNpcAccount(tAM.npcIdPrefix + name)) {
+			tAM.registerNpcAccount(tAM.npcIdPrefix + name, name);
+		}
+		else {
+			commandSender.sendMessage("NPC account with name (" + name + ") already exists.");
+		}
+
 	}
 
 	@CommandHook("npcdelete")
-	public void npcdelete(CommandSender commandSender, CurrencyType currencyType) {
-		commandSender.sendMessage("npcdelete will be implemented soon!");
-		commandSender.sendMessage("Command Sender : " + commandSender.getName());
-		commandSender.sendMessage("Currency Type : " + currencyType.getName());
+	public void npcdelete(CommandSender commandSender, String name) {
+		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+			commandSender.sendMessage("Command Sender : " + commandSender.getName());
+			commandSender.sendMessage("NPC Name : " + name);
+		}
+
+		if (tAM.hasNpcAccount(tAM.npcIdPrefix + name)) {
+			boolean status = tAM.deleteNpcAccount(tAM.npcIdPrefix + name);
+		}
+		else {
+			commandSender.sendMessage("NPC account with name (" + name + ") doesn't exists.");
+		}
 	}
 
 	@CommandHook("npcrename")
-	public void npcrename(CommandSender commandSender, CurrencyType currencyType) {
-		commandSender.sendMessage("npcrename will be implemented soon!");
-		commandSender.sendMessage("Command Sender : " + commandSender.getName());
-		commandSender.sendMessage("Currency Type : " + currencyType.getName());
+	public void npcrename(CommandSender commandSender, String name) {
+		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
+			commandSender.sendMessage("Command Sender : " + commandSender.getName());
+			commandSender.sendMessage("NPC Name : " + name);
+		}
+
+		if (tAM.hasNpcAccount(tAM.npcIdPrefix + name)) {
+			boolean status = tAM.renameNpcAccount(tAM.npcIdPrefix + name);
+		}
+		else {
+			commandSender.sendMessage("NPC account with name (" + name + ") doesn't exists.");
+		}
 	}
 
+	// npc balance section
 	@CommandHook("npcadd")
 	public void npcadd(CommandSender commandSender, CurrencyType currencyType, String target, int amount) {
 		if (instance.getMainConfig().debug && SE7ENUtils.hasDebugPerms(commandSender)) {
