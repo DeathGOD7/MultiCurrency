@@ -91,13 +91,20 @@ build {
     dependsOn(shadowJar)
 }
 
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
 shadowJar {
     minimize()
     relocate ("com.zaxxer", "com.deathgod7")
     relocate ("com.github.Redempt", "com.deathgod7")
 }
 
-apply plugin: 'java'
+//apply plugin: 'java'
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_8
