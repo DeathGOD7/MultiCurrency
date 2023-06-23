@@ -54,7 +54,8 @@ dependencies {
 	// ---------- [ Paper MC ] ----------
 	// !!! Good ol' mate. !!!
     //noinspection VulnerableLibrariesLocal
-    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT' //for java 8 support
+    //compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
     // ---------- [ Adventure ] ----------
     // !!! New way of messaging people xD. !!!
     implementation "net.kyori:adventure-text-minimessage:4.14.0"
@@ -76,7 +77,7 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:5.0.1'
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 8
 
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
@@ -103,8 +104,6 @@ shadowJar {
     relocate ("com.zaxxer", "com.deathgod7")
     relocate ("com.github.Redempt", "com.deathgod7")
 }
-
-//apply plugin: 'java'
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_8

@@ -16,6 +16,7 @@ import me.lokka30.treasury.api.common.service.ServiceRegistry;
 import me.lokka30.treasury.api.economy.EconomyProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -88,6 +89,13 @@ public final class MultiCurrency extends JavaPlugin {
 		return treasuryAccountmanager;
 	}
 
+	String minecraftVersion = Bukkit.getBukkitVersion();
+	public String getFullMinecraftVersion() { return minecraftVersion; }
+	public String getMinecraftVersion() { return minecraftVersion.split("-")[0]; }
+
+	String javaVersion = System.getProperty("java.version");
+	public String getJavaVersion() { return javaVersion; }
+
 	public void ReloadConfigs() {
 		// main config
 		if (_mainConfig == null){
@@ -146,6 +154,10 @@ public final class MultiCurrency extends JavaPlugin {
 			_mainConfig.version = MultiCurrency.getPDFile().getVersion();
 			getMainConfigManager().save();
 		}
+
+		ConsoleLogger.info("Java Version : " + this.javaVersion , ConsoleLogger.logTypes.log);
+		ConsoleLogger.info("Minecraft Version : " + minecraftVersion , ConsoleLogger.logTypes.log);
+		ConsoleLogger.info("Plugin Version : " + this.getMainConfig().version , ConsoleLogger.logTypes.log);
 
 		ConsoleLogger.info("Loaded main config from file!", ConsoleLogger.logTypes.log);
 

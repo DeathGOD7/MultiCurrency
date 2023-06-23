@@ -14,10 +14,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class DatabaseManager {
@@ -146,8 +143,38 @@ public class DatabaseManager {
 	}
 
 	public void loadSqliteTable() {
-		String query = "SELECT tbl_name FROM sqlite_schema " +
-				"WHERE type = 'table' AND name NOT LIKE 'sqlite_%' " +
+		// old name = sqlite_master ( < 3.33.0 )
+		// new name = sqlite_schema ( >= 3.33.0 )
+
+		String sqlitever;
+
+		try {
+			// Create a statement
+			Statement statement = this.getConnection().createStatement();
+
+			// Execute the query to retrieve the SQLite version
+			ResultSet resultSet = statement.executeQuery("SELECT sqlite_version()");
+
+			// Retrieve the result
+			if (resultSet.next()) {
+				sqlitever = resultSet.getString(1);
+				ConsoleLogger.warn("SQLite Version: " + sqlitever, ConsoleLogger.logTypes.debug);
+				statement.close();
+		}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		String mainTable = "sqlite_schema";
+		String[] allOldVer = {"1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.15.2", "1.15.1", "1.15", "1.14.4", "1.14.3", "1.14.2", "1.14.1", "1.14", "1.13.2", "1.13.1", "1.13", "1.13-pre7", "1.12.2", "1.12.1", "1.12", "1.11.2", "1.10.2", "1.9.4", "1.8.8"};
+		List<String> temp = Arrays.asList(allOldVer);
+
+		if (temp.contains(instance.getMinecraftVersion())) {
+			mainTable = "sqlite_master";
+		}
+
+		String query = "SELECT tbl_name FROM " + mainTable +
+				" WHERE type = 'table' AND name NOT LIKE 'sqlite_%' " +
 				"ORDER by tbl_name";
 		try {
 			PreparedStatement ps = this.getConnection().prepareStatement(query);
