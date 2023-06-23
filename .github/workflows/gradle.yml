@@ -16,7 +16,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+            languages: java
 
       # makes gradlew executable/runnable (to prevent cannot execute problem)
       - name: Make gradlew executable
@@ -35,6 +41,9 @@ jobs:
         uses: gradle/gradle-build-action@v2.4.2
         with:
           arguments: build --scan
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
