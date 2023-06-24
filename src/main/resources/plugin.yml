@@ -1,6 +1,6 @@
 name: "MultiCurrency"
 version: '${version}'
-main: com.deathgod7.multicurrency.MultiCurrency
+main: com.github.deathgod7.multicurrency.MultiCurrency
 api-version: 1.13
 prefix: "MultiCurrency"
 authors: [ DeathGOD7 ]
