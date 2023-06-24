@@ -1,15 +1,15 @@
 package com.github.deathgod7.multicurrency.commands;
 
+import com.github.deathgod7.multicurrency.data.helper.Column;
+import com.github.deathgod7.multicurrency.utils.TextUtils;
 import com.github.deathgod7.multicurrency.MultiCurrency;
 import com.github.deathgod7.multicurrency.data.DataFormatter;
 import com.github.deathgod7.multicurrency.data.DatabaseManager;
-import com.github.deathgod7.multicurrency.data.helper.Column;
 import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.github.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
 import com.github.deathgod7.multicurrency.utils.ConsoleLogger;
 import com.github.deathgod7.multicurrency.utils.SE7ENUtils;
-import com.github.deathgod7.multicurrency.utils.TextUtils;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import me.lokka30.treasury.api.economy.currency.Currency;
@@ -74,26 +74,26 @@ public class CommandHandler {
 	public void info(CommandSender commandSender){
 		String databaseType;
 		String isConnected;
-		String version = ConvertTextColor('&', "&ev"+MultiCurrency.getPDFile().getVersion());
-		String apiversion = ConvertTextColor('&', "&e"+MultiCurrency.getPDFile().getAPIVersion());
-		String developer = ConvertTextColor('&', "&1"+MultiCurrency.getPDFile().getAuthors());
+		String version = TextUtils.ConvertTextColor('&', "&ev"+MultiCurrency.getPDFile().getVersion());
+		String apiversion = TextUtils.ConvertTextColor('&', "&e"+MultiCurrency.getPDFile().getAPIVersion());
+		String developer = TextUtils.ConvertTextColor('&', "&1"+MultiCurrency.getPDFile().getAuthors());
 
 		String temp1 = instance.getConfig().getString("Database.type");
 		if (Objects.equals(temp1, "sqlite")){
-			databaseType = ConvertTextColor('&', "&3SQLite");
+			databaseType = TextUtils.ConvertTextColor('&', "&3SQLite");
 		}
 		else if (Objects.equals(temp1, "mysql")){
-			databaseType = ConvertTextColor('&', "&3MySQL");
+			databaseType = TextUtils.ConvertTextColor('&', "&3MySQL");
 		}
 		else{
-			databaseType = ConvertTextColor('&', "&3SQLite");
+			databaseType = TextUtils.ConvertTextColor('&', "&3SQLite");
 		}
 
 		if (dbm.isConnected()){
-			isConnected = ConvertTextColor('&', "&2ONLINE");
+			isConnected = TextUtils.ConvertTextColor('&', "&2ONLINE");
 		}
 		else{
-			isConnected = ConvertTextColor('&', "&4OFFLINE");
+			isConnected = TextUtils.ConvertTextColor('&', "&4OFFLINE");
 		}
 
 		commandSender.sendMessage("Multi Currency");
@@ -111,7 +111,7 @@ public class CommandHandler {
 	public void reload(CommandSender commandSender){
 		String warning = "&aIt is best to restart the server as reloading will just break the plugin.";
 //        String warning2 = "&aIf you want this feature then please request in discord with good reason.";
-		commandSender.sendMessage(ConvertTextColor('&', warning));
+		commandSender.sendMessage(TextUtils.ConvertTextColor('&', warning));
 //        commandSender.sendMessage(ConvertTextColor('&', warning2));
 		instance.ReloadConfigs();
 	}

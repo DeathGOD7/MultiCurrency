@@ -1,12 +1,12 @@
 package com.github.deathgod7.multicurrency.data;
 
-import com.github.deathgod7.multicurrency.MultiCurrency;
-import com.github.deathgod7.multicurrency.data.helper.*;
 import com.github.deathgod7.multicurrency.data.mysql.MySQL;
 import com.github.deathgod7.multicurrency.data.sqlite.SQLite;
-import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
+import com.github.deathgod7.multicurrency.MultiCurrency;
+import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.utils.ConsoleLogger;
+import com.github.deathgod7.multicurrency.data.helper.*;
 import me.lokka30.treasury.api.economy.account.NonPlayerAccount;
 import me.lokka30.treasury.api.economy.account.PlayerAccount;
 import org.bukkit.Bukkit;

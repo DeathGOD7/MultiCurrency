@@ -118,6 +118,10 @@ public final class MultiCurrency extends JavaPlugin {
 	public void onEnable() {
 		_instance = this;
 
+		if (this.getClassLoader() == this.getClass().getClassLoader()) {
+			getLogger().info("True it does");
+		}
+
 //		if (Bukkit.getPluginManager().getPlugin("RedLib") == null) {
 //            getLogger().info("Required dependent plugin was not found : RedLib");
 //            getLogger().info("Disabling " + this.getName());

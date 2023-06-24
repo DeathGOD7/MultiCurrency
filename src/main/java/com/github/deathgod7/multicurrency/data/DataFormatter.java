@@ -1,7 +1,7 @@
 package com.github.deathgod7.multicurrency.data;
 
-import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.utils.TextUtils;
+import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

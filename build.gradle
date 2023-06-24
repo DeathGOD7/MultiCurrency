@@ -101,8 +101,8 @@ if (hasProperty('buildScan')) {
 
 shadowJar {
     minimize()
-    relocate ("com.zaxxer", "com.deathgod7")
-    relocate ("com.github.Redempt", "com.deathgod7")
+    relocate ("com.zaxxer", "com.github.deathgod7")
+    relocate ("com.github.Redempt", "com.github.deathgod7")
 }
 
 compileJava {
@@ -110,6 +110,7 @@ compileJava {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+// for publishing in jitpack
 publishing {
     publications {
         maven(MavenPublication) {

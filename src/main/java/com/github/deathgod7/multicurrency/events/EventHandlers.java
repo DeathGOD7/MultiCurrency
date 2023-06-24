@@ -1,10 +1,10 @@
 package com.github.deathgod7.multicurrency.events;
 
-import com.github.deathgod7.multicurrency.MultiCurrency;
 import com.github.deathgod7.multicurrency.data.DatabaseManager;
 import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.depends.economy.treasury.TreasuryAccountManager;
 import com.github.deathgod7.multicurrency.depends.economy.treasury.TreasuryManager;
+import com.github.deathgod7.multicurrency.MultiCurrency;
 import com.github.deathgod7.multicurrency.utils.ConsoleLogger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

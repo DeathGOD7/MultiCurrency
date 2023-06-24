@@ -1,11 +1,11 @@
 package com.github.deathgod7.multicurrency.depends.economy.treasury;
 
-import com.github.deathgod7.multicurrency.MultiCurrency;
-import com.github.deathgod7.multicurrency.data.DataFormatter;
-import com.github.deathgod7.multicurrency.data.DatabaseManager;
 import com.github.deathgod7.multicurrency.data.helper.Column;
 import com.github.deathgod7.multicurrency.data.helper.Table;
 import com.github.deathgod7.multicurrency.data.helper.TransactionTable;
+import com.github.deathgod7.multicurrency.MultiCurrency;
+import com.github.deathgod7.multicurrency.data.DataFormatter;
+import com.github.deathgod7.multicurrency.data.DatabaseManager;
 import com.github.deathgod7.multicurrency.depends.economy.CurrencyType;
 import com.github.deathgod7.multicurrency.utils.ConsoleLogger;
 import me.lokka30.treasury.api.common.event.EventBus;
